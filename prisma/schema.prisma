@@ -1,0 +1,315 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  POR
+  DIF
+  CEN
+  ATT
+}
+
+enum MatchResult {
+  WIN
+  DRAW
+  LOSS
+}
+
+enum PreferredFoot {
+  RIGHT
+  LEFT
+  BOTH
+}
+
+enum VerificationType {
+  SELF_REPORTED
+  VERIFIED
+}
+
+enum AchievementTier {
+  FREE
+  PRO
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+enum AchievementRequirementType {
+  COUNT
+  VALUE_CAREER_INDEX
+  VALUE_LEVEL
+  STREAK
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  playerProfile PlayerProfile?
+  subscription  Subscription?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PlayerProfile {
+  id                     String              @id @default(cuid())
+  userId                 String              @unique
+  nickname               String
+  username               String              @unique
+  isPublic               Boolean             @default(false)
+  showCity               Boolean             @default(true)
+  cardTheme              String              @default("CLASSIC")
+  birthDate              DateTime?
+  country                String?
+  city                   String?
+  preferredFoot          PreferredFoot?
+  primaryRole            Role
+  secondaryRole          Role?
+  level                  Int                 @default(1)
+  xp                     Int                 @default(0)
+  careerIndex            Int                 @default(1000)
+  overall                Int                 @default(60)
+  matchesPlayed          Int                 @default(0)
+  wins                   Int                 @default(0)
+  draws                  Int                 @default(0)
+  losses                 Int                 @default(0)
+  goals                  Int                 @default(0)
+  assists                Int                 @default(0)
+  cleanSheets            Int                 @default(0)
+  currentSeasonKey       String?
+  lastPrimaryRoleChangeAt DateTime?
+  lastUsernameChangeAt   DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matches                Match[]
+  careerIndexHistories   CareerIndexHistory[]
+  seasons                PlayerSeason[]
+  achievements           PlayerAchievement[]
+  teamMembers            TeamMember[]
+  matchParticipants      MatchParticipant[]
+
+  @@index([username])
+  @@index([isPublic])
+}
+
+model Match {
+  id                 String            @id @default(cuid())
+  playerId           String
+  playedAt           DateTime
+  result             MatchResult
+  goalsFor           Int
+  goalsAgainst       Int
+  role               Role
+  goals              Int               @default(0)
+  assists            Int               @default(0)
+  cleanSheet         Boolean           @default(false)
+  notes              String?           @db.VarChar(250)
+  careerIndexBefore  Int
+  careerIndexAfter   Int
+  careerIndexChange  Int
+  xpEarned           Int
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  lockedAt           DateTime?
+  isVerified         Boolean           @default(false)
+  verificationType   VerificationType  @default(SELF_REPORTED)
+  seasonKey          String?
+
+  player             PlayerProfile     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  careerIndexHistory CareerIndexHistory?
+  participants       MatchParticipant[]
+  confirmations      MatchConfirmation[]
+
+  @@index([playerId])
+  @@index([playedAt])
+  @@index([seasonKey])
+  @@index([result])
+  @@index([isVerified])
+}
+
+model CareerIndexHistory {
+  id              String   @id @default(cuid())
+  playerProfileId String
+  matchId         String?  @unique
+  valueBefore     Int
+  valueAfter      Int
+  changeValue     Int
+  createdAt       DateTime @default(now())
+
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  match           Match?        @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@index([playerProfileId])
+  @@index([createdAt])
+}
+
+model PlayerSeason {
+  playerProfileId  String
+  seasonKey        String
+  name             String
+  startDate        DateTime
+  endDate          DateTime
+  matches          Int      @default(0)
+  wins             Int      @default(0)
+  draws            Int      @default(0)
+  losses           Int      @default(0)
+  goals            Int      @default(0)
+  assists          Int      @default(0)
+  startCareerIndex Int
+  endCareerIndex   Int
+  peakCareerIndex  Int
+  startOverall     Int
+  endOverall       Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  playerProfile    PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@id([playerProfileId, seasonKey])
+  @@unique([playerProfileId, seasonKey])
+}
+
+model Achievement {
+  id                String                      @id @default(cuid())
+  key               String                      @unique
+  name              String
+  description       String
+  icon              String?
+  requirementType   AchievementRequirementType
+  requirementValue  Int
+  tier              AchievementTier             @default(FREE)
+  createdAt         DateTime                    @default(now())
+
+  playerAchievements PlayerAchievement[]
+}
+
+model PlayerAchievement {
+  playerProfileId String
+  achievementId   String
+  unlockedAt      DateTime?
+  progress        Int     @default(0)
+  progressTarget  Int?
+
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  achievement     Achievement   @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@id([playerProfileId, achievementId])
+  @@unique([playerProfileId, achievementId])
+}
+
+model Subscription {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  stripeCustomerId        String? @unique
+  stripeSubscriptionId    String? @unique
+  stripePriceId           String?
+  subscriptionStatus      SubscriptionStatus @default(INACTIVE)
+  currentPeriodEnd        DateTime?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  city      String?
+  createdAt DateTime     @default(now())
+
+  members   TeamMember[]
+}
+
+model TeamMember {
+  id              String   @id @default(cuid())
+  teamId          String
+  playerProfileId String
+  role            String?
+  joinedAt        DateTime @default(now())
+
+  team            Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, playerProfileId])
+}
+
+model MatchParticipant {
+  id              String   @id @default(cuid())
+  matchId         String
+  playerProfileId String
+  teamId          String?
+  goals           Int      @default(0)
+  assists         Int      @default(0)
+  role            Role?
+  createdAt       DateTime @default(now())
+
+  match           Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+  confirmations   MatchConfirmation[]
+
+  @@unique([matchId, playerProfileId])
+}
+
+model MatchConfirmation {
+  id                String   @id @default(cuid())
+  matchParticipantId String
+  confirmedAt       DateTime?
+  status            String?
+  createdAt         DateTime @default(now())
+
+  matchParticipant  MatchParticipant @relation(fields: [matchParticipantId], references: [id], onDelete: Cascade)
+}

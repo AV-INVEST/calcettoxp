@@ -1,0 +1,35 @@
+{
+  "name": "CalcettoXP",
+  "short_name": "CalcettoXP",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070A08",
+  "theme_color": "#22C55E",
+  "description": "Trasforma ogni calcetto nella tua carriera. Registra le partite, guadagna XP, costruisci la tua scheda giocatore.",
+  "categories": ["sports", "productivity", "lifestyle"],
+  "lang": "it",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

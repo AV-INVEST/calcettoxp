@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #070A08;
+    --bg-secondary: #0E1410;
+    --bg-card: #111713;
+    --green-primary: #22C55E;
+    --green-electric: #7CFF6B;
+    --text-primary: #F8FAF8;
+    --text-muted: #8B968D;
+    --danger: #EF4444;
+    --positive: #22C55E;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+
+  body {
+    background: #070A08;
+    padding-bottom: var(--safe-bottom);
+    padding-top: env(safe-area-inset-top, 0);
+    min-height: 100dvh;
+  }
+
+  * {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .pitch-wrapper {
+    position: relative;
+    background-color: #070A08;
+  }
+
+  .pitch-wrapper::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(90deg, rgba(124, 255, 107, 0.5) 1px, transparent 1px),
+      linear-gradient(rgba(124, 255, 107, 0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  .pitch-wrapper::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at top, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+    z-index: 0;
+  }
+
+  .pitch-wrapper > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .calcetto-shadow-green {
+    box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3), 0 8px 32px rgba(34, 197, 94, 0.15);
+  }
+
+  .calcetto-glow {
+    box-shadow: 0 0 24px rgba(124, 255, 107, 0.4), 0 0 64px rgba(34, 197, 94, 0.2);
+  }
+
+  .text-gradient-green {
+    background: linear-gradient(135deg, #7CFF6B 0%, #22C55E 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #070A08;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1A241C;
+    border-radius: 6px;
+    border: 2px solid #070A08;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #253628;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1A241C #070A08;
+  }
+}
