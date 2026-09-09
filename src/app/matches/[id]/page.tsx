@@ -48,8 +48,9 @@ const ROLE_LABEL: Record<string, string> = {
 export default async function MatchDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.userId) redirect("/signin");
 
@@ -61,7 +62,7 @@ export default async function MatchDetailPage({
   if (!player) redirect("/onboarding");
 
   const match = await prisma.match.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!match) notFound();

@@ -7,6 +7,8 @@ import { format, differenceInDays, addDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { SettingsClientWrapper } from './SettingsClientWrapper';
+import { CookiePreferencesButton } from '@/components/legal/CookiePreferencesButton';
+import { DeleteAccountTriggerButton } from './DeleteAccountTriggerButton';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
 
 export const metadata: Metadata = {
@@ -251,17 +253,9 @@ export default async function SettingsPage() {
               Gestisci le preferenze sui cookie per il tuo browser.
             </p>
             <div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('calcettoxp:open-cookie-consent'));
-                  }
-                }}
+              <CookiePreferencesButton
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-11 rounded-xl bg-bgSecondary border border-white/10 text-textPrimary font-semibold hover:bg-white/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary"
-              >
-                Gestisci preferenze cookie
-              </button>
+              />
             </div>
             <div className="flex flex-wrap gap-2 pt-1 text-xs text-textMuted">
               <a href="/privacy" className="hover:text-greenElectric transition">
@@ -295,21 +289,7 @@ export default async function SettingsPage() {
               >
                 Scarica i miei dati (JSON)
               </a>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new CustomEvent('calcettoxp:delete-account-open'));
-                  }
-                }}
-              >
-                <button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-11 rounded-xl bg-danger/10 border border-danger/30 text-danger font-semibold hover:bg-danger/15 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
-                >
-                  Elimina account
-                </button>
-              </form>
+              <DeleteAccountTriggerButton />
             </div>
             <p className="text-xs text-textMuted">
               L&apos;esportazione contiene profilo, partite, storico Career Index, stagioni,

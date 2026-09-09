@@ -2,7 +2,7 @@
 
 import { Zap } from "lucide-react";
 import Link from "next/link";
-import CookiePreferencesButton from "@/components/legal/CookiePreferencesButton";
+import { CookiePreferencesButton } from "@/components/legal/CookiePreferencesButton";
 
 const LEGAL_LINKS = [
   { href: "/privacy", label: "Privacy" },

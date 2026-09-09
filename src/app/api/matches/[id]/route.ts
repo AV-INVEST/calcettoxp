@@ -22,8 +22,9 @@ const matchPatchSchema = z.object({
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
 
   if (!session?.user?.userId) {
@@ -47,7 +48,7 @@ export async function GET(
     }
 
     const match = await prisma.match.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!match) {
@@ -79,8 +80,9 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
 
   if (!session?.user?.userId) {
@@ -106,7 +108,7 @@ export async function PATCH(
     }
 
     const existingMatch = await prisma.match.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingMatch) {

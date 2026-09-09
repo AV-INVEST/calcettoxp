@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 
-// Nota: questo middleware usa l'helper `auth()` di NextAuth v5.
-// Se la firma cambia nella versione finale, aggiornare `await auth()`.
+const { auth } = NextAuth(authConfig);
 
 const PUBLIC_PATHS = [
   "/",

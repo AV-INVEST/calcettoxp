@@ -15,11 +15,12 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://calcettoxp.com';
 export const revalidate = 300;
 
 interface PublicProfilePageProps {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
-  const username = decodeURIComponent(params.username || '').trim().toLowerCase();
+  const { username: rawUsername } = await params;
+  const username = decodeURIComponent(rawUsername || '').trim().toLowerCase();
 
   try {
     const profile = await prisma.playerProfile.findUnique({
@@ -107,7 +108,8 @@ const FOOT_LABELS: Record<string, string> = {
 };
 
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
-  const username = decodeURIComponent(params.username || '').trim().toLowerCase();
+  const { username: rawUsername } = await params;
+  const username = decodeURIComponent(rawUsername || '').trim().toLowerCase();
 
   if (!username) return notFound();
 
