@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next';
 import prisma from '@/lib/prisma';
+import { getAppBaseUrl } from '@/lib/app-url';
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
+const APP_URL = getAppBaseUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

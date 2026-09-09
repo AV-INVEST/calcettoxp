@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import stripe from '@/lib/stripe';
+import { getAppBaseUrl } from '@/lib/app-url';
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
+const APP_URL = getAppBaseUrl();
 
 export async function POST(req: Request) {
   const session = await auth();

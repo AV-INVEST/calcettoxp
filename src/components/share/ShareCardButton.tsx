@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { getAppBaseUrl } from '@/lib/app-url';
 
 interface ShareCardButtonProps {
   username: string;
@@ -11,12 +12,11 @@ interface ShareCardButtonProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const APP_URL =
-  typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_APP_URL
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : typeof window !== 'undefined'
-    ? window.location.origin
-    : 'https://calcettoxp.com';
+function buildShareUrl(username: string): string {
+  const envBase = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_APP_URL) || undefined;
+  const base = (typeof window !== 'undefined' && window.location.origin) || envBase || getAppBaseUrl();
+  return `${base.replace(/\/$/, '')}/p/${encodeURIComponent(username)}`;
+}
 
 export function ShareCardButton({
   username,
@@ -27,7 +27,7 @@ export function ShareCardButton({
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const shareUrl = `${APP_URL.replace(/\/$/, '')}/p/${encodeURIComponent(username)}`;
+  const shareUrl = buildShareUrl(username);
   const shareText = 'Guarda la mia carriera su CalcettoXP ⚽';
   const shareTitle = 'La mia carriera CalcettoXP';
 

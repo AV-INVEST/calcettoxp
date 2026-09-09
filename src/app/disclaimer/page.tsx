@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Dichiarazioni importanti sulla natura ricreativa delle metriche di ${LEGAL_CONFIG.appName} e la separazione tra Solo Career e dati certificati.`,
 };
 
-const { appName, lastUpdatedHuman, contactEmail } = LEGAL_CONFIG;
+const { appName, canonicalRoot, territory, contactEmail, lastUpdatedHuman } = LEGAL_CONFIG;
 
 export default function DisclaimerPage() {
   return (
@@ -88,7 +88,11 @@ export default function DisclaimerPage() {
       </Section>
 
       <Section title="7. Contatti">
-        <P>Per qualsiasi domanda relativa al presente Disclaimer, scrivi a: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</P>
+        <P>Servizio {appName}, operato sotto la giurisdizione italiana ({territory}). Per qualsiasi domanda relativa al presente Disclaimer, contattaci a:</P>
+        <Ul>
+          <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+          <li><strong>Sito web:</strong> <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
+        </Ul>
       </Section>
     </LegalLayout>
   );

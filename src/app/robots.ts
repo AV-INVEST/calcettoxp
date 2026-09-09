@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { getAppBaseUrl } from '@/lib/app-url';
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
+const APP_URL = getAppBaseUrl();
 
 export default function robots(): MetadataRoute.Robots {
   return {

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 import { CookieBanner } from "@/components/legal/CookieBanner";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,8 +24,7 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "https://calcettoxp.com";
+const APP_URL = getAppBaseUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),

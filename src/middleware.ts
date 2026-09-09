@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 const { auth } = NextAuth(authConfig);
 
@@ -34,8 +35,10 @@ export async function middleware(request: NextRequest) {
   const session = await auth();
 
   if (!session?.user) {
-    const signInUrl = new URL("/api/auth/signin", request.url);
-    signInUrl.searchParams.set("callbackUrl", request.url);
+    const base = getAppBaseUrl();
+    const signInUrl = new URL("/api/auth/signin", base);
+    const requestAbsolute = new URL(pathname, base).toString();
+    signInUrl.searchParams.set("callbackUrl", requestAbsolute);
     return NextResponse.redirect(signInUrl);
   }
 
@@ -48,3 +51,4 @@ export const config = {
   matcher:
     "/((?!_next/static|_next/image|favicon.ico|manifest.json|icon-192.png|icon-512.png|).*)",
 };
+

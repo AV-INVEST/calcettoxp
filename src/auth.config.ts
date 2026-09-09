@@ -1,6 +1,7 @@
 import type { NextAuthConfig, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import type { JWT } from "next-auth/jwt";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 declare module "next-auth" {
   interface Session {
@@ -43,6 +44,16 @@ export const authConfig = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      const canonical = getAppBaseUrl();
+      if (url.startsWith("/")) {
+        return `${canonical}${url}`;
+      }
+      if (url.startsWith(canonical)) {
+        return url;
+      }
+      return canonical;
+    },
   },
   pages: {
     signIn: "/signin",
@@ -50,3 +61,4 @@ export const authConfig = {
   trustHost: true,
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
+

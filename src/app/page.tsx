@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   PlaySquare,
   ClipboardList,
@@ -26,6 +26,9 @@ import {
   ArrowRight,
   Goal,
   Swords,
+  LogIn,
+  Minus,
+  TrendingDown,
 } from "lucide-react";
 import {
   LineChart,
@@ -351,25 +354,131 @@ function DemoPlayerCard({ player, animate }: { player: typeof demoPlayers[0]; an
   );
 }
 
-function MiniCIIndex({ player }: { player: typeof demoPlayers[0] }) {
-  return (
-    <div className="mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5 shadow-lg shadow-black/20">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-textMuted text-[11px] font-bold tracking-[0.18em]">
-          CAREER INDEX
-        </span>
-        <div className="flex items-center gap-1.5">
-          <TrendingUp className="w-4 h-4 text-greenElectric" strokeWidth={2.5} />
-          <span className="text-greenElectric text-xs font-bold">{player.ciDelta}</span>
+const ciSequence = [
+  { step: 0, label: "START", delta: 0, value: 1000, type: "start" },
+  { step: 1, label: "VITTORIA", delta: +18, value: 1018, type: "win" },
+  { step: 2, label: "VITTORIA", delta: +16, value: 1034, type: "win" },
+  { step: 3, label: "PAREGGIO", delta: 0, value: 1034, type: "draw" },
+  { step: 4, label: "SCONFITTA", delta: -15, value: 1019, type: "loss" },
+  { step: 5, label: "VITTORIA", delta: +23, value: 1042, type: "win" },
+  { step: 6, label: "VITTORIA", delta: +18, value: 1060, type: "win" },
+  { step: 7, label: "SCONFITTA", delta: -13, value: 1047, type: "loss" },
+  { step: 8, label: "VITTORIA", delta: +28, value: 1075, type: "win" },
+];
+
+const pillBaseWin = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-greenElectric/12 border border-greenElectric/35 text-greenElectric text-[10px] font-black tracking-wider";
+const pillBaseDraw = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-textPrimary/8 border border-textPrimary/20 text-textMuted text-[10px] font-black tracking-wider";
+const pillBaseLoss = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-danger/12 border border-danger/35 text-danger text-[10px] font-black tracking-wider";
+const pillBaseStart = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-greenPrimary/10 border border-greenPrimary/30 text-greenPrimary/90 text-[10px] font-black tracking-wider";
+
+const heroCIDemoWrap = "mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5 shadow-lg shadow-black/20";
+const heroCIHeaderRow = "flex items-center justify-between mb-3";
+const heroCITitle = "text-textMuted text-[11px] font-bold tracking-[0.18em]";
+const heroCIDeltaRowWin = "flex items-center gap-1.5";
+const heroCIDeltaRowLoss = "flex items-center gap-1.5";
+const heroCIDeltaRowDraw = "flex items-center gap-1.5";
+const heroCIDeltaTextWin = "text-greenElectric text-xs font-bold";
+const heroCIDeltaTextLoss = "text-danger text-xs font-bold";
+const heroCIDeltaTextDraw = "text-textMuted text-xs font-bold";
+const heroCIMainRow = "flex items-end justify-between gap-3";
+const heroCICounterWrap = "flex flex-col gap-1";
+const heroCIPillRow = "flex flex-wrap gap-1.5 mt-3";
+const heroCIChartWrap = "w-full h-20 mt-4";
+const heroCIStatic = "mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5 shadow-lg shadow-black/20";
+
+function HeroCILiveDemo() {
+  const [stepIdx, setStepIdx] = useState(0);
+  const [displayValue, setDisplayValue] = useState(ciSequence[0].value);
+  const [prefersReduced, setPrefersReduced] = useState(false);
+  const counterRef = useRef<number>(ciSequence[0].value);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReduced(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+    if (mql.addEventListener) mql.addEventListener("change", handler);
+    else mql.addListener(handler);
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener("change", handler);
+      else mql.removeListener(handler);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (prefersReduced) return;
+    const target = ciSequence[stepIdx].value;
+    const from = counterRef.current;
+    const diff = target - from;
+    const duration = 520;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const v = Math.round(from + diff * eased);
+      setDisplayValue(v);
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      else counterRef.current = target;
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [stepIdx, prefersReduced]);
+
+  useEffect(() => {
+    if (prefersReduced) return;
+    const isLast = stepIdx === ciSequence.length - 1;
+    const delay = isLast ? 3200 : 1600;
+    const id = setTimeout(() => {
+      setStepIdx(isLast ? 0 : stepIdx + 1);
+    }, delay);
+    return () => clearTimeout(id);
+  }, [stepIdx, prefersReduced]);
+
+  if (prefersReduced) {
+    const finalStep = ciSequence[ciSequence.length - 1];
+    const visibleData = ciSequence.map((s, i) => ({ i, v: s.value }));
+    return (
+      <div className={heroCIStatic}>
+        <div className={heroCIHeaderRow}>
+          <span className={heroCITitle}>CAREER INDEX · LIVE</span>
+          <div className={heroCIDeltaRowWin}>
+            <TrendingUp className="w-4 h-4 text-greenElectric" strokeWidth={2.5} />
+            <span className={heroCIDeltaTextWin}>+7.5%</span>
+          </div>
         </div>
-      </div>
-      <div className="flex items-end justify-between">
-        <span className="text-textPrimary font-black text-3xl tracking-tight">
-          {player.ci.toLocaleString("it-IT")}
-        </span>
-        <div className="w-36 h-12">
+        <div className={heroCIMainRow}>
+          <div className={heroCICounterWrap}>
+            <span className="text-textPrimary font-black text-3xl tracking-tight">
+              {finalStep.value.toLocaleString("it-IT")}
+            </span>
+            <div className="inline-flex items-center gap-1 text-greenElectric text-[11px] font-bold">
+              <TrendingUp className="w-3 h-3" strokeWidth={2.5} /> +75 totali
+            </div>
+          </div>
+          <div className="flex gap-0.5 flex-wrap justify-end max-w-[110px]">
+            {ciSequence.slice(1).map((s, idx) => {
+              const isActive = true;
+              const pillClass =
+                s.type === "win" ? pillBaseWin :
+                s.type === "loss" ? pillBaseLoss :
+                s.type === "draw" ? pillBaseDraw : pillBaseStart;
+              return (
+                <div key={idx} className={pillClass + (isActive ? " opacity-100" : " opacity-40")}>
+                  {s.type === "win" && <TrendingUp className="w-2.5 h-2.5" strokeWidth={3} />}
+                  {s.type === "loss" && <TrendingDown className="w-2.5 h-2.5" strokeWidth={3} />}
+                  {s.type === "draw" && <Minus className="w-2.5 h-2.5" strokeWidth={3} />}
+                  {s.delta > 0 ? "+" : ""}{s.delta}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className={heroCIChartWrap}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={player.ciData.slice(-8)}>
+            <LineChart data={visibleData}>
               <Line
                 type="monotone"
                 dataKey="v"
@@ -382,65 +491,234 @@ function MiniCIIndex({ player }: { player: typeof demoPlayers[0] }) {
           </ResponsiveContainer>
         </div>
       </div>
+    );
+  }
+
+  const current = ciSequence[stepIdx];
+  const visibleSteps = ciSequence.slice(0, stepIdx + 1);
+  const chartData = visibleSteps.map((s, i) => ({ i, v: s.value }));
+  const totalDash = 500;
+  const progress = stepIdx / (ciSequence.length - 1);
+  const dashOffset = totalDash * (1 - progress);
+
+  const deltaRowClass =
+    current.type === "loss" ? heroCIDeltaRowLoss :
+    current.type === "draw" ? heroCIDeltaRowDraw :
+    heroCIDeltaRowWin;
+  const deltaTextClass =
+    current.type === "loss" ? heroCIDeltaTextLoss :
+    current.type === "draw" ? heroCIDeltaTextDraw :
+    heroCIDeltaTextWin;
+
+  return (
+    <div className={heroCIDemoWrap}>
+      <div className={heroCIHeaderRow}>
+        <span className={heroCITitle}>CAREER INDEX · LIVE</span>
+        <div className={deltaRowClass}>
+          {current.type === "loss" ? (
+            <TrendingDown className="w-4 h-4 text-danger" strokeWidth={2.5} />
+          ) : current.type === "draw" ? (
+            <Minus className="w-4 h-4 text-textMuted" strokeWidth={2.5} />
+          ) : (
+            <TrendingUp className="w-4 h-4 text-greenElectric" strokeWidth={2.5} />
+          )}
+          <span className={deltaTextClass}>
+            {current.type === "start" ? "BASE" : current.delta > 0 ? "+" : ""}{current.delta !== 0 || current.type !== "start" ? current.delta : ""}
+          </span>
+        </div>
+      </div>
+      <div className={heroCIMainRow}>
+        <div className={heroCICounterWrap}>
+          <span className="text-textPrimary font-black text-3xl tracking-tight tabular-nums">
+            {displayValue.toLocaleString("it-IT")}
+          </span>
+          <div
+            className={
+              current.type === "loss"
+                ? "inline-flex items-center gap-1 text-danger text-[11px] font-bold"
+                : current.type === "draw"
+                ? "inline-flex items-center gap-1 text-textMuted text-[11px] font-bold"
+                : "inline-flex items-center gap-1 text-greenElectric text-[11px] font-bold"
+            }
+          >
+            {current.type === "loss" ? (
+              <TrendingDown className="w-3 h-3" strokeWidth={2.5} />
+            ) : current.type === "draw" ? (
+              <Minus className="w-3 h-3" strokeWidth={2.5} />
+            ) : (
+              <TrendingUp className="w-3 h-3" strokeWidth={2.5} />
+            )}
+            TAPPA {stepIdx + 1}/{ciSequence.length}
+          </div>
+        </div>
+        <div className="flex gap-0.5 flex-wrap justify-end max-w-[110px]">
+          {ciSequence.slice(1).map((s, idx) => {
+            const isActive = idx < stepIdx;
+            const isCurrent = idx === stepIdx - 1 || (stepIdx === 0 && idx === -1);
+            const pillClass =
+              s.type === "win" ? pillBaseWin :
+              s.type === "loss" ? pillBaseLoss :
+              s.type === "draw" ? pillBaseDraw : pillBaseStart;
+            return (
+              <div
+                key={idx}
+                className={pillClass + (isActive ? " opacity-100" : " opacity-30") + (isCurrent ? " animate-pulse-glow" : "")}
+              >
+                {s.type === "win" && <TrendingUp className="w-2.5 h-2.5" strokeWidth={3} />}
+                {s.type === "loss" && <TrendingDown className="w-2.5 h-2.5" strokeWidth={3} />}
+                {s.type === "draw" && <Minus className="w-2.5 h-2.5" strokeWidth={3} />}
+                {s.delta > 0 ? "+" : ""}{s.delta}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className={heroCIChartWrap}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 6, right: 6, bottom: 2, left: 6 }}>
+            <Line
+              type="monotone"
+              dataKey="v"
+              stroke="#7CFF6B"
+              strokeWidth={2.5}
+              dot={(props: any) => {
+                const { cx, cy, payload, index } = props;
+                const isLast = index === visibleSteps.length - 1;
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={isLast ? 4 : 0}
+                    fill="#7CFF6B"
+                    stroke="#070A08"
+                    strokeWidth={2}
+                    className={isLast ? "animate-pulse-glow" : ""}
+                  />
+                );
+              }}
+              activeDot={false}
+              strokeLinecap="round"
+              strokeDasharray={totalDash}
+              strokeDashoffset={dashOffset}
+              style={{ transition: "stroke-dashoffset 0.5s ease-out" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
+
+const evoCardOuter = "relative flex flex-col items-center z-10";
+const evoTappaPill = "mb-2 md:mb-3 inline-flex items-center justify-center px-3 py-1 rounded-full border backdrop-blur-sm";
+const evoTappaPill0 = evoTappaPill + " bg-gray-500/10 border-gray-500/30 text-gray-400";
+const evoTappaPill1 = evoTappaPill + " bg-greenPrimary/10 border-greenPrimary/35 text-greenPrimary";
+const evoTappaPill2 = evoTappaPill + " bg-greenElectric/12 border-greenElectric/40 text-greenElectric";
+const evoTappaPill3 = evoTappaPill + " bg-yellow-400/15 border-yellow-400/45 text-yellow-400";
+const evoTappaText = "text-[10px] md:text-[11px] font-black tracking-[0.2em]";
+
+const evoCardShellBase = "relative w-28 h-40 md:w-full md:h-52 rounded-2xl flex flex-col items-center justify-center p-4 transition-all duration-300 group";
+const evoCardShell0 = evoCardShellBase + " bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border border-greenPrimary/25 hover:border-greenElectric/40";
+const evoCardShell1 = evoCardShellBase + " bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border border-greenPrimary/25 hover:border-greenElectric/40";
+const evoCardShell2 = evoCardShellBase + " bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border border-greenElectric/30 hover:border-greenElectric/50";
+const evoCardShell3 = evoCardShellBase + " bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border-2 border-yellow-400/40 hover:border-yellow-400/60 shadow-[0_0_0_1px_rgba(234,179,8,0.15),0_0_24px_rgba(234,179,8,0.1)]";
+
+const evoAccentGlowBase = "absolute -inset-0.5 rounded-2xl opacity-80 blur-[1.5px]";
+const evoAccentGlow0 = evoAccentGlowBase + " bg-gradient-to-br from-gray-500/40 via-greenPrimary/30 to-transparent";
+const evoAccentGlow1 = evoAccentGlowBase + " bg-gradient-to-br from-greenPrimary/40 via-greenPrimary/30 to-transparent";
+const evoAccentGlow2 = evoAccentGlowBase + " bg-gradient-to-br from-greenElectric/50 via-greenPrimary/30 to-transparent";
+const evoAccentGlow3 = evoAccentGlowBase + " bg-gradient-to-br from-yellow-400/60 via-yellow-400/30 to-transparent";
+
+const evoOvrBadge = "w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center border-2 shadow-lg group-hover:scale-105 transition-transform";
+const evoOvrBadge0 = evoOvrBadge + " bg-gradient-to-br from-gray-400 to-greenPrimary/70 border-greenPrimary/40 shadow-greenPrimary/15";
+const evoOvrBadge1 = evoOvrBadge + " bg-gradient-to-br from-greenPrimary to-greenPrimary border-greenPrimary/50 shadow-greenPrimary/20";
+const evoOvrBadge2 = evoOvrBadge + " bg-gradient-to-br from-greenElectric to-greenPrimary border-greenElectric/50 shadow-greenElectric/20";
+const evoOvrBadge3 = evoOvrBadge + " bg-gradient-to-br from-yellow-300 to-yellow-500 border-yellow-300/60 shadow-yellow-400/25";
+
+const evoOvrText = "text-bgPrimary font-black text-xl md:text-2xl";
+
+const evoInfoRow = "mt-3 text-center";
+const evoOvrLabel = "text-textPrimary font-black text-base md:text-lg tracking-tight";
+const evoLvlLabel0 = "text-gray-400 text-[11px] md:text-xs font-bold";
+const evoLvlLabel1 = "text-greenPrimary text-[11px] md:text-xs font-bold";
+const evoLvlLabel2 = "text-greenElectric text-[11px] md:text-xs font-bold";
+const evoLvlLabel3 = "text-yellow-400 text-[11px] md:text-xs font-bold";
+const evoDesc = "text-textMuted/70 text-[10px] md:text-[11px] leading-tight mt-1";
+
+const evoMobileConnBase = "flex items-center justify-center my-2 md:hidden relative h-10";
+const evoMobileConnLineBase = "w-px h-10";
+const evoMobileConnLine01 = evoMobileConnLineBase + " bg-gradient-to-b from-gray-500/40 via-greenPrimary/40 to-greenPrimary/40";
+const evoMobileConnLine12 = evoMobileConnLineBase + " bg-gradient-to-b from-greenPrimary/40 via-greenElectric/50 to-greenElectric/50";
+const evoMobileConnLine23 = evoMobileConnLineBase + " bg-gradient-to-b from-greenElectric/50 via-yellow-400/60 to-yellow-400/60";
+
+const evoTimelineSectionWrap = "relative max-w-5xl mx-auto";
+const evoDesktopTimeline = "hidden md:block absolute left-0 right-0 top-[72px] h-12 pointer-events-none z-0";
+const evoDesktopTrackRow = "relative w-full h-full flex items-center";
+const evoDesktopTrack = "absolute top-1/2 -translate-y-1/2 h-[3px] rounded-full overflow-hidden";
+const evoDesktopTrack01 = "bg-gradient-to-r from-gray-500/30 via-greenPrimary/50 to-greenPrimary/50";
+const evoDesktopTrack12 = "bg-gradient-to-r from-greenPrimary/50 via-greenElectric/60 to-greenElectric/60";
+const evoDesktopTrack23 = "bg-gradient-to-r from-greenElectric/60 via-yellow-400/70 to-yellow-400/70";
+
+const evoPulseBallBase = "absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full";
+const evoPulseBall01 = evoPulseBallBase + " bg-greenPrimary shadow-[0_0_12px_rgba(34,197,94,0.8),0_0_24px_rgba(124,255,107,0.5)]";
+const evoPulseBall12 = evoPulseBallBase + " bg-greenElectric shadow-[0_0_12px_rgba(124,255,107,0.9),0_0_28px_rgba(124,255,107,0.6)]";
+const evoPulseBall23 = evoPulseBallBase + " bg-yellow-400 shadow-[0_0_14px_rgba(234,179,8,0.9),0_0_28px_rgba(234,179,8,0.6)]";
 
 function EvolutionCard({
   ovr,
   lv,
   label,
   desc,
-  accent,
-  last,
   index,
 }: {
   ovr: number;
   lv: number;
   label: string;
   desc: string;
-  accent: string;
-  last?: boolean;
   index: number;
 }) {
-  const delays = ["", "delay-100", "delay-200", "delay-300"];
+  const tappaPill = [evoTappaPill0, evoTappaPill1, evoTappaPill2, evoTappaPill3][index];
+  const cardShell = [evoCardShell0, evoCardShell1, evoCardShell2, evoCardShell3][index];
+  const accentGlow = [evoAccentGlow0, evoAccentGlow1, evoAccentGlow2, evoAccentGlow3][index];
+  const ovrBadge = [evoOvrBadge0, evoOvrBadge1, evoOvrBadge2, evoOvrBadge3][index];
+  const lvlLabel = [evoLvlLabel0, evoLvlLabel1, evoLvlLabel2, evoLvlLabel3][index];
+  const mobileConn = [evoMobileConnLine01, evoMobileConnLine12, evoMobileConnLine23, ""][index];
+  const mobileColor = [
+    "text-greenPrimary/60",
+    "text-greenElectric/70",
+    "text-yellow-400/70",
+    "",
+  ][index];
+
   return (
-    <div className="flex items-center gap-3 md:flex-col md:gap-0">
-      <div className={"relative shrink-0 " + (delays[index] ?? "")}>
-        <div className={"absolute -inset-0.5 rounded-2xl bg-gradient-to-br " + accent + " via-greenPrimary/30 to-transparent opacity-80 blur-[1.5px]"} />
-        <div className="relative w-28 h-36 md:w-full md:h-48 rounded-2xl bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border border-greenPrimary/25 flex flex-col items-center justify-center p-4 hover:border-greenElectric/40 transition-all duration-300 group">
-          <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-greenElectric/10 border border-greenElectric/20">
-            <span className="text-greenElectric/80 text-[9px] font-black tracking-wider">
-              TAPPA {index + 1}
-            </span>
+    <div className={evoCardOuter}>
+      <div className={tappaPill}>
+        <span className={evoTappaText}>TAPPA {index + 1}</span>
+      </div>
+      <div className="relative shrink-0">
+        <div className={accentGlow} />
+        <div className={cardShell}>
+          <div className={ovrBadge}>
+            <span className={evoOvrText}>{ovr}</span>
           </div>
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center border-2 border-greenElectric/50 shadow-lg shadow-greenElectric/20 group-hover:scale-105 transition-transform">
-            <span className="text-bgPrimary font-black text-xl md:text-2xl">
-              {ovr}
-            </span>
-          </div>
-          <div className="mt-3 text-center">
-            <span className="text-textPrimary font-black text-base md:text-lg tracking-tight">
-              OVR {ovr}
-            </span>
+          <div className={evoInfoRow}>
+            <span className={evoOvrLabel}>OVR {ovr}</span>
             <div className="mt-1 space-y-0.5">
-              <p className="text-greenElectric text-[11px] md:text-xs font-bold">
+              <p className={lvlLabel}>
                 LV {lv} · {label}
               </p>
-              <p className="text-textMuted/70 text-[10px] md:text-[11px] leading-tight mt-1">
-                {desc}
-              </p>
+              <p className={evoDesc}>{desc}</p>
             </div>
           </div>
         </div>
       </div>
-      {!last && (
-        <ChevronRight className="w-6 h-6 text-greenElectric/50 md:hidden shrink-0" strokeWidth={2.5} />
-      )}
-      {!last && (
-        <div className="hidden md:flex w-full justify-center py-3 relative">
-          <div className="w-px h-8 bg-gradient-to-b from-greenElectric/40 via-greenPrimary/30 to-transparent" />
-          <ChevronRight className="w-6 h-6 text-greenElectric/60 rotate-90 absolute bottom-0" strokeWidth={2.5} />
+      {index < 3 && (
+        <div className={evoMobileConnBase}>
+          <div className={mobileConn} />
+          <ChevronRight
+            className={"w-5 h-5 rotate-90 absolute bottom-0 " + mobileColor}
+            strokeWidth={2.5}
+          />
         </div>
       )}
     </div>
@@ -455,8 +733,24 @@ export default function LandingPage() {
   const [activePlayer, setActivePlayer] = useState("andrea");
   const currentPlayer = demoPlayers.find((p) => p.id === activePlayer) ?? demoPlayers[0];
 
+  const handleScrollComeFunziona = () => {
+    const el = document.getElementById("come-funziona");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const keyframesCss = `
+    @keyframes evo-ball-travel {
+      0% { left: -4%; opacity: 0; }
+      10% { opacity: 1; }
+      50% { left: 100%; opacity: 1; }
+      60% { opacity: 0; }
+      100% { left: -4%; opacity: 0; }
+    }
+  `;
+
   return (
     <main className="min-h-screen bg-bgPrimary text-textPrimary overflow-x-hidden pitch-wrapper">
+      <style dangerouslySetInnerHTML={{ __html: keyframesCss }} />
       {/* HERO */}
       <section className="relative pt-6 pb-20 md:pt-12 md:pb-32">
         <PitchLines />
@@ -473,6 +767,7 @@ export default function LandingPage() {
             <div className="hidden sm:block">
               <SmartCTA
                 label="ACCEDI"
+                icon={LogIn}
                 variant="secondary"
                 size="md"
                 loggedInLabel="DASHBOARD"
@@ -504,19 +799,21 @@ export default function LandingPage() {
               <div className="mt-9 md:mt-11 flex flex-col sm:flex-row gap-3.5 md:gap-4">
                 <SmartCTA
                   label="CREA LA TUA CARRIERA"
+                  icon={Target}
                   variant="primary"
                   size="lg"
                   fullWidth
                   className="shadow-xl shadow-greenElectric/25 hover:shadow-greenElectric/40 hover:-translate-y-0.5"
                   loggedInLabel="VAI ALLA DASHBOARD"
                 />
-                <a
-                  href="#come-funziona"
+                <button
+                  type="button"
+                  onClick={handleScrollComeFunziona}
                   className="inline-flex items-center justify-center px-7 md:px-8 py-3.5 md:py-4 rounded-xl border border-textPrimary/20 text-textPrimary font-black text-sm md:text-base tracking-wider hover:border-greenElectric/50 hover:text-greenElectric hover:bg-greenElectric/5 transition-all group"
                 >
                   SCOPRI COME FUNZIONA
                   <ChevronRight className="ml-1.5 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
-                </a>
+                </button>
               </div>
 
               <div className="mt-8 md:mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -546,7 +843,7 @@ export default function LandingPage() {
               <div className="absolute -bottom-8 -left-6 w-40 h-40 rounded-full bg-greenPrimary/10 blur-3xl" />
               <div className="relative animate-float-slower">
                 <DemoPlayerCard player={currentPlayer} animate={false} />
-                <MiniCIIndex player={currentPlayer} />
+                <HeroCILiveDemo />
               </div>
             </div>
           </div>
@@ -557,6 +854,7 @@ export default function LandingPage() {
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-gradient-to-t from-bgPrimary via-bgPrimary/98 to-transparent pt-7 pb-4 px-5 safe-bottom">
         <SmartCTA
           label="INIZIA ORA"
+          icon={PlaySquare}
           variant="primary"
           size="lg"
           fullWidth
@@ -836,7 +1134,20 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="relative max-w-5xl mx-auto">
+          <div className={evoTimelineSectionWrap}>
+            <div className={evoDesktopTimeline}>
+              <div className={evoDesktopTrackRow}>
+                <div className={evoDesktopTrack + " " + evoDesktopTrack01} style={{ left: "12.5%", width: "25%" }}>
+                  <div className={evoPulseBall01} style={{ animation: "evo-ball-travel 4s ease-in-out infinite 0s" }} />
+                </div>
+                <div className={evoDesktopTrack + " " + evoDesktopTrack12} style={{ left: "37.5%", width: "25%" }}>
+                  <div className={evoPulseBall12} style={{ animation: "evo-ball-travel 4s ease-in-out infinite 1.33s" }} />
+                </div>
+                <div className={evoDesktopTrack + " " + evoDesktopTrack23} style={{ left: "62.5%", width: "25%" }}>
+                  <div className={evoPulseBall23} style={{ animation: "evo-ball-travel 4s ease-in-out infinite 2.66s" }} />
+                </div>
+              </div>
+            </div>
             <div className="grid md:grid-cols-4 gap-4 md:gap-6 mb-10 md:mb-12">
               {evolutions.map((e, i) => (
                 <EvolutionCard
@@ -845,8 +1156,6 @@ export default function LandingPage() {
                   lv={e.lv}
                   label={e.label}
                   desc={e.desc}
-                  accent={e.accent}
-                  last={i === evolutions.length - 1}
                   index={i}
                 />
               ))}
@@ -988,7 +1297,8 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <SmartCTA
-                  label="INIZIA LA TUA CARRIERA"
+                  label="INIZIA ORA"
+                  icon={PlaySquare}
                   variant="primary"
                   size="lg"
                   fullWidth

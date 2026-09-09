@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Termini e condizioni generali di utilizzo del servizio ${LEGAL_CONFIG.appName}.`,
 };
 
-const { appName, domain, lastUpdatedHuman, ownerName, contactEmail, vatId, address } = LEGAL_CONFIG;
+const { appName, domain, canonicalRoot, territory, contactEmail, lastUpdatedHuman } = LEGAL_CONFIG;
 
 export default function TermsPage() {
   return (
@@ -16,7 +16,7 @@ export default function TermsPage() {
       title="Termini e condizioni d'uso"
       subtitle={`Condizioni contrattuali che regolano l'uso del servizio ${appName}. Ultimo aggiornamento: ${lastUpdatedHuman}.`}
     >
-      <P>I presenti Termini e Condizioni Generali d&apos;Uso ({<em>&ldquo;Termini&rdquo;</em>} ) costituiscono il contratto tra l&apos;Utente (<em>&ldquo;Tu&rdquo;</em>) e il Titolare del servizio (<strong>{ownerName}</strong>, {<em>&ldquo;Noi&rdquo;</em>} ) in relazione all&apos;accesso e all&apos;utilizzo di <strong>{appName}</strong>, tramite il dominio{' '}
+      <P>I presenti Termini e Condizioni Generali d&apos;Uso ({<em>&ldquo;Termini&rdquo;</em>} ) costituiscono il contratto tra l&apos;Utente (<em>&ldquo;Tu&rdquo;</em>) e il Titolare del servizio ({<em>&ldquo;Noi&rdquo;</em>} ) in relazione all&apos;accesso e all&apos;utilizzo di <strong>{appName}</strong>, tramite il dominio{' '}
         <a className="text-greenElectric underline decoration-dotted" href={`https://${domain}`} target="_blank" rel="noreferrer noopener">
           {domain}
         </a>{' '}
@@ -70,7 +70,7 @@ export default function TermsPage() {
           <P>L&apos;abbonamento PRO non influisce in alcun modo su XP, OVR, Career Index, posizioni in classifiche future, risultati di partita o probabilità di sbloccare achievement. PRO concede solo funzionalità di analisi e personalizzazione visuale.</P>
         </SubSection>
         <SubSection title="4.4 Rimborso">
-          <P>Eventuali richieste di rimborso sono valutate caso per caso secondo la normativa applicabile e le regole di Stripe. Scrivi a {contactEmail} indicando l&apos;email dell&apos;account e l&apos;importo pagato.</P>
+          <P>Eventuali richieste di rimborso sono valutate caso per caso secondo la normativa applicabile e le regole di Stripe. Scrivi a <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a> indicando l&apos;email dell&apos;account e l&apos;importo pagato.</P>
         </SubSection>
       </Section>
 
@@ -83,11 +83,6 @@ export default function TermsPage() {
             Nella misura massima consentita dalla legge, non garantiamo continuità, accessibilità o disponibilità temporale illimitata del Servizio, né l&apos;accuratezza o l&apos;affidabilità di risultati derivanti da dati auto-dichiarati, né la conformità del Servizio per utilizzi diversi da quelli descritti nei presenti Termini.
           </p>
         </Blockquote>
-        <Ul>
-          <li>continuità, accessibilità o disponibilità temporale illimitata del Servizio;</li>
-          <li>accuratezza o affidabilità di risultati derivanti da dati auto-dichiarati;</li>
-          <li>conformità del Servizio per utilizzi diversi da quelli descritti nei presenti Termini.</li>
-        </Ul>
         <P>Non siamo responsabili per perdite dirette o indirette derivanti da mancati guadagni sportivi, decisioni personali prese basate su metriche ricreative o disservizi di provider terzi (Google, Stripe, Vercel, Neon).</P>
       </Section>
 
@@ -101,15 +96,14 @@ export default function TermsPage() {
       </Section>
 
       <Section title="8. Legge applicabile e foro">
-        <P>I presenti Termini sono regolati dalla legge italiana. Per ogni controversia relativa all&apos;interpretazione, esecuzione o violazione dei presenti Termini è competente in via esclusiva il Foro del luogo ove ha sede il Titolare, salvo diverse disposizioni inderogabili di legge.</P>
+        <P>I presenti Termini sono regolati dalla legge {territory === 'Italia' ? 'italiana' : 'applicabile'}. Per ogni controversia relativa all&apos;interpretazione, esecuzione o violazione dei presenti Termini è competente in via esclusiva il Foro di {territory === 'Italia' ? 'Roma' : territory}, salvo diverse disposizioni inderogabili di legge.</P>
       </Section>
 
       <Section title="9. Dati del titolare e contatti">
+        <P>Servizio {appName}, operato sotto la giurisdizione italiana ({territory}).</P>
         <Ul>
-          <li><strong>Titolare:</strong> {ownerName}</li>
-          <li><strong>Partita IVA:</strong> {vatId}</li>
-          <li><strong>Indirizzo:</strong> {address}</li>
           <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+          <li><strong>Sito web:</strong> <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
         </Ul>
         <P>Per qualsiasi domanda relativa ai presenti Termini, scrivi all&apos;indirizzo email sopra indicato.</P>
       </Section>

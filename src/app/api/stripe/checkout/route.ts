@@ -4,13 +4,13 @@ import prisma from '@/lib/prisma';
 import stripe from '@/lib/stripe';
 import { z } from 'zod';
 import { hasActivePro } from '@/lib/entitlements';
+import { getAppBaseUrl } from '@/lib/app-url';
 
 const planSchema = z.object({
   plan: z.enum(['monthly', 'yearly']),
 });
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
+const APP_URL = getAppBaseUrl();
 
 export async function POST(req: Request) {
   const session = await auth();

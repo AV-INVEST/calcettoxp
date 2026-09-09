@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Informativa sulla privacy di ${LEGAL_CONFIG.appName}. Dati raccolti, finalità, diritti dell'interessato e servizi utilizzati.`,
 };
 
-const { appName, domain, lastUpdatedHuman, ownerName, contactEmail, services, gdpr, vatId, address } =
+const { appName, domain, canonicalRoot, territory, contactEmail, privacyContactEmail, lastUpdatedHuman, services } =
   LEGAL_CONFIG;
 
 export default function PrivacyPage() {
@@ -36,15 +36,15 @@ export default function PrivacyPage() {
 
       <Section title="1. Titolare del trattamento">
         <P>
-          Titolare del trattamento ai sensi del Regolamento UE 2016/679 (GDPR) è:
+          Servizio {appName}, operato sotto la giurisdizione italiana ({territory}). Email di contatto generale:{' '}
+          <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+          Per questioni privacy scrivere a{' '}
+          <a className="text-greenElectric" href={`mailto:${privacyContactEmail}`}>{privacyContactEmail}</a>.
+          Sito web:{' '}
+          <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">
+            {canonicalRoot}
+          </a>.
         </P>
-        <Ul>
-          <li><strong>Dati identificativi:</strong> {ownerName}</li>
-          <li><strong>Partita IVA:</strong> {vatId}</li>
-          <li><strong>Indirizzo fisico:</strong> {address}</li>
-          <li><strong>Email di contatto generale:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
-          <li><strong>Email contatto privacy (GDPR):</strong> <a className="text-greenElectric" href={`mailto:${gdpr.controllerContactEmailPlaceholder}`}>{gdpr.controllerContactEmailPlaceholder}</a></li>
-        </Ul>
       </Section>
 
       <Section title="2. Tipologie di dati raccolti e finalità">
@@ -80,11 +80,23 @@ export default function PrivacyPage() {
           </Ul>
         </SubSection>
 
-        <SubSection title="2.4 Cookie e preferenze">
+        <SubSection title="2.4 Database e infrastruttura (Neon PostgreSQL, Vercel Hosting, Vercel Blob)">
+          <P>I dati dell&apos;Utente sono memorizzati e gestiti tramite infrastrutture di terze parti conformi:</P>
+          <Ul>
+            <li><strong>{services.database.name}</strong> ({services.database.provider}): database relazionale principale per account, partite e preferenze.</li>
+            <li><strong>{services.hosting.name}</strong> ({services.hosting.provider}): hosting dell&apos;applicazione web, rendering lato server e funzioni serverless.</li>
+            <li><strong>{services.storage.name}</strong> ({services.storage.provider}): storage di immagini del profilo e file caricati dall&apos;Utente.</li>
+            <li>Base giuridica: contratto (art. 6.1.b GDPR) e interesse legittimo alla sicurezza e stabilità del Servizio (art. 6.1.f GDPR).</li>
+            <li>Informativa Neon: <a className="text-greenElectric underline" href={services.database.privacyUrl} target="_blank" rel="noreferrer noopener">{services.database.privacyUrl}</a></li>
+            <li>Informativa Vercel: <a className="text-greenElectric underline" href={services.hosting.privacyUrl} target="_blank" rel="noreferrer noopener">{services.hosting.privacyUrl}</a></li>
+          </Ul>
+        </SubSection>
+
+        <SubSection title="2.5 Cookie e preferenze">
           <P>Vedi sezione specifica <a href="/cookie-policy" className="text-greenElectric underline">Cookie Policy</a> e la pagina <a href="/settings" className="text-greenElectric underline">Impostazioni</a> per modificare le preferenze in qualsiasi momento.</P>
         </SubSection>
 
-        <SubSection title="2.5 Dati di log e sicurezza">
+        <SubSection title="2.6 Dati di log e sicurezza">
           <P>{services.hosting.provider} ({services.hosting.name}) e {services.database.provider} ({services.database.name}) possono raccogliere log tecnici (indirizzo IP anonimizzato ove possibile, tipo di browser, orario della richiesta) per motivi di sicurezza, anti-abuso e stabilità della piattaforma. Tali log sono trattati come strettamente necessari, con conservazione limitata nel tempo e non incrociati con dati personali degli Utenti salvo ove obbligatorio per legge o contrasto frodi.</P>
         </SubSection>
       </Section>
@@ -108,7 +120,7 @@ export default function PrivacyPage() {
       <Section title="5. Profili pubblici e dati condivisi volontariamente">
         <P>{appName} permette di impostare il proprio profilo come <strong>pubblico</strong> o <strong>privato</strong> (sezione <a href="/settings" className="text-greenElectric underline">Impostazioni &rarr; Profilo</a>).</P>
         <Ul>
-          <li>Se il profilo è <em>pubblico</em>, informazioni quali nickname, username, citt&agrave; (se abilitata), nazionalit&agrave;, ruolo, piede preferito, carta giocatore, OVR, livello, Career Index, numero di partite, vittorie, goal, assist, tasso di vittorie, achievement sbloccati, stagione corrente e l&apos;andamento recente del Career Index sono accessibili a chiunque tramite l&apos;URL /p/[username], anche senza account.</li>
+          <li>Se il profilo è <em>pubblico</em>, informazioni quali nickname, username, citt&agrave; (se abilitata), nazionalit&agrave;, ruolo, piede preferito, carta giocatore, OVR, livello, Career Index, numero di partite, vittorie, goal, assist, tasso di vittorie, achievement sbloccati, stagione corrente e l&apos;andamento recente del Career Index sono accessibili a chiunque tramite l&apos;URL pubblico /p/nomeutente (dove nomeutente corrisponde al proprio username), anche senza account.</li>
           <li>Le informazioni sensibili (email, data di nascita esatta, identificativi Google, identificativi Stripe, preferenze private) non sono mai esposte nei profili pubblici.</li>
           <li>L&apos;Utente può rendere il profilo privato in qualsiasi momento: la modifica applica immediatamente il blocco lato server.</li>
         </Ul>
@@ -150,7 +162,7 @@ export default function PrivacyPage() {
         <SubSection title="7.3 Rettifica e richieste particolari">
           <P>Per richieste specifiche (modifica manuale di dati, reclami formali, accesso dati formale, limitazione del trattamento) scrivi a:</P>
           <Ul>
-            <li>Email privacy: <a className="text-greenElectric" href={`mailto:${gdpr.controllerContactEmailPlaceholder}`}>{gdpr.controllerContactEmailPlaceholder}</a></li>
+            <li>Email privacy: <a className="text-greenElectric" href={`mailto:${privacyContactEmail}`}>{privacyContactEmail}</a></li>
             <li>Email generale: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
           </Ul>
         </SubSection>

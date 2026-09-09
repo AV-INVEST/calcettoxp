@@ -9,8 +9,9 @@ import { Home, Trophy, TrendingUp, Target, Users, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
+import { getAppBaseUrl } from '@/lib/app-url';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://calcettoxp.com';
+const APP_URL = getAppBaseUrl();
 
 export const revalidate = 300;
 
