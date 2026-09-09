@@ -1,0 +1,65 @@
+﻿   Ôû▓ Next.js 15.5.25
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Ô£ô (pwa) Compiling for server...
+ Ô£ô (pwa) Compiling for server...
+ Ô£ô (pwa) Compiling for client (static)...
+ Ôùï (pwa) Service worker: C:\Users\viva_\Desktop\CALCETTOXP\public\sw.js
+ Ôùï (pwa)   URL: /sw.js
+ Ôùï (pwa)   Scope: /
+ Ô£ô Compiled successfully in 4.3s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/27) ...
+   Generating static pages (6/27) 
+   Generating static pages (13/27) 
+   Generating static pages (20/27) 
+ Ô£ô Generating static pages (27/27)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+Ôöî Ôùï /                                    33.2 kB         246 kB
+Ôö£ Ôùï /_not-found                            172 B         105 kB
+Ôö£ ãÆ /achievements                        1.99 kB         110 kB
+Ôö£ ãÆ /api/account                           172 B         105 kB
+Ôö£ ãÆ /api/auth/[...nextauth]                172 B         105 kB
+Ôö£ ãÆ /api/data/export                       172 B         105 kB
+Ôö£ ãÆ /api/matches                           172 B         105 kB
+Ôö£ ãÆ /api/matches/[id]                      172 B         105 kB
+Ôö£ ãÆ /api/onboarding                        172 B         105 kB
+Ôö£ ãÆ /api/onboarding/status                 172 B         105 kB
+Ôö£ ãÆ /api/profile                           172 B         105 kB
+Ôö£ ãÆ /api/stripe/checkout                   172 B         105 kB
+Ôö£ ãÆ /api/stripe/portal                     172 B         105 kB
+Ôö£ ãÆ /api/username-check                    172 B         105 kB
+Ôö£ ãÆ /api/webhook/stripe                    172 B         105 kB
+Ôö£ Ôùï /cookie-policy                         180 B         108 kB
+Ôö£ ãÆ /dashboard                           4.02 kB         227 kB
+Ôö£ Ôùï /disclaimer                            180 B         108 kB
+Ôö£ ãÆ /matches                             2.01 kB         110 kB
+Ôö£ ãÆ /matches/[id]                        5.16 kB         113 kB
+Ôö£ ãÆ /matches/new                         7.42 kB         116 kB
+Ôö£ ãÆ /onboarding                          7.27 kB         112 kB
+Ôö£ ãÆ /p/[username]                          198 B         224 kB
+Ôö£ ãÆ /pricing                             2.68 kB         111 kB
+Ôö£ Ôùï /privacy                               180 B         108 kB
+Ôö£ ãÆ /profile                             5.15 kB         120 kB
+Ôö£ Ôùï /robots.txt                            172 B         105 kB
+Ôö£ ãÆ /settings                            8.15 kB         120 kB
+Ôö£ Ôùï /signin                                899 B         113 kB
+Ôö£ Ôùï /sitemap.xml                           172 B         105 kB
+Ôö£ ãÆ /stats                               5.26 kB         221 kB
+Ôöö Ôùï /termini                               180 B         108 kB
++ First Load JS shared by all             105 kB
+  Ôö£ chunks/4696-cb35d3e546487bfb.js      48.4 kB
+  Ôö£ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB
+  Ôöö other shared chunks (total)          2.06 kB
+
+
+ãÆ Middleware                             85.6 kB
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

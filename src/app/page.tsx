@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   PlaySquare, ClipboardList, TrendingUp, Trophy, Flame, ShieldCheck,
   Target, Zap, Award, Crown, Star, ChevronRight, Check, Users,
@@ -17,20 +18,28 @@ import MobileHeader from "@/components/layout/MobileHeader";
 import {
   FreeCTAButton, ProCheckoutButton, YearlyCheckoutButton,
 } from "@/components/pricing/StripeButtons";
+import AndreaImg from "@/../assets/Andrea.jpg";
+import FedericoImg from "@/../assets/Federico.jpg";
+import RiccardoImg from "@/../assets/Riccardo.jpg";
+import MarcoImg from "@/../assets/Marco.jpg";
 
 const demoPlayers = [{ id:"andrea", name:"ANDREA", role:"ATT", roleLabel:"Attaccante", ovr:78, lv:15,
+  image: AndreaImg, imageAlt:"Andrea - Attaccante CalcettoXP",
   stats:[["PAC","85"],["SHO","82"],["PAS","68"],["DRI","76"],["DEF","35"],["PHY","72"]],
   matches:"34", results:"21 V / 4 P / 9 S", goals:"47 gol", assists:"12 assist", winRate:"61.8%", ci:1423, ciDelta:"+9.2%",
   ciData:[{m:1,v:960},{m:2,v:1010},{m:3,v:985},{m:4,v:1070},{m:5,v:1140},{m:6,v:1105},{m:7,v:1230},{m:8,v:1310},{m:9,v:1380},{m:10,v:1423}]},
   { id:"federico", name:"FEDERICO", role:"CEN", roleLabel:"Centrocampista", ovr:74, lv:13,
+  image: FedericoImg, imageAlt:"Federico - Centrocampista CalcettoXP",
   stats:[["PAC","74"],["SHO","65"],["PAS","84"],["DRI","78"],["DEF","62"],["PHY","70"]],
   matches:"41", results:"24 V / 7 P / 10 S", goals:"18 gol", assists:"33 assist", winRate:"58.5%", ci:1356, ciDelta:"+5.8%",
   ciData:[{m:1,v:1020},{m:2,v:1085},{m:3,v:1150},{m:4,v:1120},{m:5,v:1205},{m:6,v:1275},{m:7,v:1240},{m:8,v:1315},{m:9,v:1290},{m:10,v:1356}]},
   { id:"riccardo", name:"RICCARDO", role:"DIF", roleLabel:"Difensore", ovr:71, lv:11,
+  image: RiccardoImg, imageAlt:"Riccardo - Difensore CalcettoXP",
   stats:[["PAC","68"],["SHO","38"],["PAS","62"],["DRI","55"],["DEF","86"],["PHY","80"]],
   matches:"29", results:"16 V / 6 P / 7 S", goals:"5 gol", assists:"8 assist", winRate:"55.2%", cleanSheets:"12", ci:1289, ciDelta:"+6.4%",
   ciData:[{m:1,v:940},{m:2,v:995},{m:3,v:1060},{m:4,v:1030},{m:5,v:1095},{m:6,v:1175},{m:7,v:1145},{m:8,v:1220},{m:9,v:1260},{m:10,v:1289}]},
   { id:"marco", name:"MARCO", role:"POR", roleLabel:"Portiere", ovr:76, lv:14,
+  image: MarcoImg, imageAlt:"Marco - Portiere CalcettoXP",
   stats:[["PAC","58"],["SHO","25"],["PAS","55"],["DRI","40"],["DEF","88"],["PHY","82"]],
   matches:"37", results:"20 V / 9 P / 8 S", goals:"0 gol", saves:"142 parate", winRate:"54.1%", cleanSheets:"15", ci:1368, ciDelta:"+7.1%",
   ciData:[{m:1,v:980},{m:2,v:1045},{m:3,v:1110},{m:4,v:1075},{m:5,v:1160},{m:6,v:1225},{m:7,v:1190},{m:8,v:1280},{m:9,v:1335},{m:10,v:1368}]}];
@@ -121,7 +130,7 @@ function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; ani
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center border-2 border-greenElectric/50 shadow-lg shadow-greenElectric/25 animate-pulse-glow">
-              <span className="text-bgPrimary font-black text-2xl">{player.ovr}</span>
+              <span className="text-bgPrimary font-black text-2xl tabular-nums">{player.ovr}</span>
             </div>
             <span className="text-[10px] text-greenElectric font-bold mt-1 tracking-wider">OVR</span>
           </div>
@@ -135,9 +144,13 @@ function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; ani
         </div>
         <div className="my-5 flex justify-center">
           <div className="relative">
-            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-greenPrimary/10 to-greenElectric/5 blur-xl opacity-60"/>
-            <div className="relative w-32 h-32 rounded-2xl bg-gradient-to-br from-greenPrimary/25 via-greenElectric/15 to-transparent border border-greenElectric/25 flex items-center justify-center">
-              <RoleIcon className="w-16 h-16 text-greenElectric/80" strokeWidth={1.5}/>
+            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-greenPrimary/10 to-greenElectric/5 blur-xl opacity-70"/>
+            <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-greenElectric/25 shadow-2xl shadow-greenElectric/10">
+              <Image src={player.image} alt={player.imageAlt} fill sizes="128px" className="object-cover object-center"/>
+              <div className="absolute inset-0 bg-gradient-to-t from-bgCard/90 via-bgSecondary/30 to-greenElectric/10"/>
+              <div className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-bgPrimary/80 backdrop-blur-[2px] border border-greenElectric/40 flex items-center justify-center shadow-md">
+                <RoleIcon className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>
+              </div>
             </div>
           </div>
         </div>
@@ -149,7 +162,7 @@ function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; ani
           {player.stats.map(([k,v]) => (
             <div key={k} className="flex justify-between items-center border-b border-greenElectric/12 pb-1.5 last:border-b-0">
               <span className="text-textMuted font-black tracking-wide">{k}</span>
-              <span className="text-textPrimary font-black text-sm">{v}</span>
+              <span className="text-textPrimary font-black text-sm tabular-nums">{v}</span>
             </div>
           ))}
         </div>
@@ -161,8 +174,9 @@ function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; ani
 function MobilePlayerFlipCard() {
   const [flipped, setFlipped] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState(0);
   const autoId = useRef<number | null>(null);
-  const player = demoPlayers[0];
+  const player = demoPlayers[selectedIdx];
   useEffect(() => {
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mql.matches);
@@ -187,8 +201,29 @@ function MobilePlayerFlipCard() {
     }
   };
   const RoleIcon = player.role==="POR"?Hand : player.role==="DIF"?ShieldCheck : player.role==="CEN"?Compass : Target;
+  const goalsVal = (player as any).goals ?? "0 gol";
+  const assistsVal = (player as any).assists ?? "0 assist";
   return (
     <div className="w-full max-w-xs mx-auto">
+      <div className="flex items-center justify-center gap-2 mb-4">
+        {demoPlayers.map((p, i) => {
+          const active = i === selectedIdx;
+          const RI = p.role==="POR"?Hand : p.role==="DIF"?ShieldCheck : p.role==="CEN"?Compass : Target;
+          return (
+            <button key={p.id} type="button" onClick={() => { setSelectedIdx(i); setFlipped(false); }}
+              aria-label={`Seleziona ${p.name}`}
+              className={`group relative rounded-full border-2 transition-all duration-200 ${active ? "scale-110 border-greenElectric shadow-[0_0_12px_rgba(124,255,107,0.5)]" : "border-greenPrimary/20 hover:border-greenElectric/40"}`}>
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden relative">
+                <Image src={p.image} alt={p.imageAlt} fill sizes="40px" className="object-cover object-center"/>
+                <div className={`absolute inset-0 transition-opacity ${active ? "bg-greenElectric/10" : "bg-bgPrimary/40 group-hover:bg-bgPrimary/15"}`}/>
+              </div>
+              <div className={`absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-bgPrimary flex items-center justify-center border ${active ? "border-greenElectric" : "border-white/10"} shadow-md`}>
+                <RI className="w-3 h-3 text-greenElectric" strokeWidth={2.5}/>
+              </div>
+            </button>
+          );
+        })}
+      </div>
       <div className="card-flip-perspective w-full" style={{height:"420px"}}>
         <button type="button" onClick={handleTap} aria-label="Tocca per girare la carta"
           className={`card-flip-inner w-full h-full block ${flipped ? "is-flipped" : ""}`}>
@@ -211,11 +246,15 @@ function MobilePlayerFlipCard() {
                   <div className="px-2.5 py-0.5 rounded-full bg-bgPrimary/70 border border-white/5 text-[10px] font-black text-textPrimary tracking-wide">LV {player.lv}</div>
                 </div>
               </div>
-              <div className="flex-1 flex items-center justify-center relative z-10">
+              <div className="flex-1 flex items-center justify-center relative z-10 my-3">
                 <div className="relative">
                   <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-greenPrimary/15 via-greenElectric/10 to-transparent blur-2xl"/>
-                  <div className="relative w-36 h-36 rounded-[28px] bg-gradient-to-br from-greenPrimary/30 via-greenElectric/20 to-transparent border border-greenElectric/35 flex items-center justify-center shadow-2xl shadow-greenElectric/20">
-                    <RoleIcon className="w-20 h-20 text-greenElectric" strokeWidth={1.5}/>
+                  <div className="relative w-40 h-40 rounded-[28px] overflow-hidden border border-greenElectric/35 shadow-2xl shadow-greenElectric/15">
+                    <Image src={player.image} alt={player.imageAlt} fill sizes="160px" className="object-cover object-center"/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-bgCard/85 via-bgSecondary/20 to-greenElectric/12"/>
+                    <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-bgPrimary/85 backdrop-blur-[2px] border border-greenElectric/40 flex items-center justify-center shadow-md">
+                      <RoleIcon className="w-4 h-4 text-greenElectric" strokeWidth={2.2}/>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -241,7 +280,7 @@ function MobilePlayerFlipCard() {
               <div className="relative z-10 grid grid-cols-2 gap-2.5 mb-3">
                 {[
                   ["Partite", player.matches], ["Risultati", player.results],
-                  ["Gol", "47"], ["Assist", "12"],
+                  ["Gol", goalsVal], ["Assist", assistsVal],
                 ].map(([l,v]) => (
                   <div key={l} className="rounded-xl bg-bgPrimary/60 border border-greenPrimary/15 p-3">
                     <div className="text-[10px] text-textMuted font-bold tracking-widest uppercase mb-0.5">{l}</div>
@@ -277,7 +316,7 @@ function MobilePlayerFlipCard() {
         <span className={`w-2 h-2 rounded-full transition-all duration-300 ${!flipped ? "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]" : "bg-textMuted/40"}`} aria-hidden/>
         <span className={`w-2 h-2 rounded-full transition-all duration-300 ${flipped ? "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]" : "bg-textMuted/40"}`} aria-hidden/>
       </div>
-      <p className="text-center text-[11px] text-textMuted/70 mt-2 font-medium">Tocca la carta per vedere i retro</p>
+      <p className="text-center text-[11px] text-textMuted/70 mt-2 font-medium">Tocca la carta per vedere il retro</p>
     </div>
   );
 }
@@ -487,7 +526,7 @@ export default function LandingPage() {
       {/* HERO */}
       <section className="relative pt-4 md:pt-12 md:pb-32 pb-10">
         <PitchLines/>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
+        <div className="relative max-w-5xl mx-auto px-4 md:px-8">
           <div className="hidden md:flex items-center justify-between mb-18">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/25">
@@ -550,7 +589,7 @@ export default function LandingPage() {
 
       {/* MOBILE ONLY: Flip card after hero */}
       <section className="md:hidden pb-4">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4">
           <MobilePlayerFlipCard/>
           <div className="mt-7 flex flex-col gap-3">
             <SmartCTA label="GIOCA ORA" icon={PlaySquare} variant="primary" size="lg" fullWidth
@@ -560,8 +599,8 @@ export default function LandingPage() {
       </section>
 
       {/* COME FUNZIONA */}
-      <section id="come-funziona" className="py-10 md:py-32 relative">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section id="come-funziona" className="py-10 md:py-24 relative">
+        <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-20">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-greenElectric/10 border border-greenElectric/25 mb-3 md:mb-5">
               <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-greenElectric" strokeWidth={2.5}/>
@@ -598,7 +637,7 @@ export default function LandingPage() {
             </div>
           </div>
           {/* Desktop cards */}
-          <div className="hidden md:block relative grid md:grid-cols-3 gap-7">
+          <div className="hidden md:grid relative md:grid-cols-3 gap-7">
             {steps.map((s, i) => (
               <div key={s.title} className="relative group rounded-3xl bg-bgCard/70 backdrop-blur-sm border border-greenPrimary/12 p-9 hover:border-greenElectric/35 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-greenElectric/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
@@ -619,8 +658,8 @@ export default function LandingPage() {
       </section>
 
       {/* DESKTOP ONLY: Players tabs */}
-      <section className="hidden md:block py-20 md:py-32 relative bg-bgSecondary/50">
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
+      <section className="hidden md:block py-20 md:py-24 relative bg-bgSecondary/50">
+        <div className="max-w-6xl mx-auto px-5 md:px-8">
           <div className="text-center mb-14 md:mb-20">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-greenElectric/10 border border-greenElectric/25 mb-5">
               <Users className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2.5}/>
@@ -645,18 +684,22 @@ export default function LandingPage() {
               );
             })}
           </div>
-          <div className="rounded-3xl bg-bgCard/70 backdrop-blur-sm border border-greenPrimary/18 p-14 relative overflow-hidden">
+          <div className="rounded-3xl bg-bgCard/70 backdrop-blur-sm border border-greenPrimary/18 p-10 relative overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-greenElectric/5 rounded-full blur-3xl -translate-y-1/2 pointer-events-none"/>
             <div className="relative grid lg:grid-cols-[320px_1fr] gap-12 items-start">
               <DemoPlayerCard player={currentPlayer} animate/>
               <div className="space-y-9">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                   <div className="flex items-center gap-6">
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/12 border border-greenElectric/30 flex items-center justify-center shrink-0">
-                      {currentPlayer.role==="POR"?<Hand className="w-12 h-12 text-greenElectric/85" strokeWidth={1.5}/>
-                      :currentPlayer.role==="DIF"?<ShieldCheck className="w-12 h-12 text-greenElectric/85" strokeWidth={1.5}/>
-                      :currentPlayer.role==="CEN"?<Compass className="w-12 h-12 text-greenElectric/85" strokeWidth={1.5}/>
-                      :<Target className="w-12 h-12 text-greenElectric/85" strokeWidth={1.5}/>}
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-greenElectric/30 shadow-lg shadow-greenElectric/10 shrink-0">
+                      <Image src={currentPlayer.image} alt={currentPlayer.imageAlt} fill sizes="96px" className="object-cover object-center"/>
+                      <div className="absolute inset-0 bg-gradient-to-t from-bgCard/60 via-transparent to-greenElectric/10"/>
+                      <div className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full bg-bgPrimary/85 backdrop-blur-[2px] border border-greenElectric/40 flex items-center justify-center shadow-md">
+                        {currentPlayer.role==="POR"?<Hand className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>
+                        :currentPlayer.role==="DIF"?<ShieldCheck className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>
+                        :currentPlayer.role==="CEN"?<Compass className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>
+                        :<Target className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>}
+                      </div>
                     </div>
                     <div>
                       <h3 className="text-4xl font-black tracking-tight">{currentPlayer.name}</h3>
@@ -717,9 +760,9 @@ export default function LandingPage() {
       </section>
 
       {/* CAREER INDEX SIMPLE */}
-      <section id="career-index" className="py-12 md:py-28 relative">
+      <section id="career-index" className="py-12 md:py-20 relative">
         <div className="absolute inset-0 hud-bg pointer-events-none"/>
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
+        <div className="relative max-w-4xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-greenElectric/10 border border-greenElectric/25 mb-3 md:mb-5">
               <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 text-greenElectric" strokeWidth={2.5}/>
@@ -758,8 +801,8 @@ export default function LandingPage() {
       </section>
 
       {/* EVOLUZIONE green -> gold */}
-      <section className="py-12 md:py-28 relative progression-tunnel-bg overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section className="py-12 md:py-24 relative progression-tunnel-bg overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-greenElectric/10 border border-greenElectric/25 mb-3 md:mb-5">
               <Award className="w-3 h-3 md:w-3.5 md:h-3.5 text-greenElectric" strokeWidth={2.5}/>
@@ -839,8 +882,8 @@ export default function LandingPage() {
       </section>
 
       {/* TROFEI */}
-      <section id="trofei" className="py-12 md:py-28 relative trophy-room-bg overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section id="trofei" className="py-12 md:py-24 relative trophy-room-bg overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/12 border border-yellow-500/30 mb-3 md:mb-5">
               <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-400" strokeWidth={2.5}/>
@@ -924,8 +967,8 @@ export default function LandingPage() {
       </section>
 
       {/* SOLO / MULTIPLAYER compact */}
-      <section className="py-12 md:py-28 relative stadium-bg overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section className="py-12 md:py-24 relative stadium-bg overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-greenElectric/10 border border-greenElectric/25 mb-3 md:mb-5">
               <Dices className="w-3 h-3 md:w-3.5 md:h-3.5 text-greenElectric" strokeWidth={2.5}/>
@@ -993,8 +1036,8 @@ export default function LandingPage() {
             </div>
           </div>
           {/* Desktop full */}
-          <div className="hidden md:block grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            <div className="relative group rounded-3xl bg-bgCard border-2 border-greenElectric/35 p-12 overflow-hidden">
+          <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="relative group rounded-3xl bg-bgCard border-2 border-greenElectric/35 p-9 overflow-hidden">
               <div className="absolute top-0 right-0 w-56 h-56 bg-greenElectric/12 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-greenElectric/18 transition-all duration-500"/>
               <div className="relative">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-greenElectric/20 to-greenPrimary/15 border border-greenElectric/40 mb-7 shadow-lg shadow-greenElectric/10">
@@ -1022,7 +1065,7 @@ export default function LandingPage() {
                   className="shadow-xl shadow-greenElectric/30 hover:shadow-greenElectric/45" loggedInLabel="CONTINUA LA TUA CARRIERA"/>
               </div>
             </div>
-            <div className="relative group rounded-3xl bg-bgCard/65 border border-textPrimary/12 p-12 overflow-hidden">
+            <div className="relative group rounded-3xl bg-bgCard/65 border border-textPrimary/12 p-9 overflow-hidden">
               <div className="absolute top-0 right-0 w-56 h-56 bg-yellow-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"/>
               <div className="relative">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/18 border border-yellow-500/35 mb-7">
@@ -1056,8 +1099,8 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING PRO */}
-      <section id="pricing" className="py-12 md:py-28 relative pro-gold-bg overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section id="pricing" className="py-12 md:py-24 relative pro-gold-bg overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 md:px-8">
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/12 border border-yellow-500/30 mb-3 md:mb-5">
               <Crown className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-400" strokeWidth={2.5}/>
@@ -1148,7 +1191,7 @@ export default function LandingPage() {
             </div>
           </div>
           {/* Desktop */}
-          <div className="hidden md:block grid md:grid-cols-3 gap-7 max-w-6xl mx-auto">
+          <div className="hidden md:grid md:grid-cols-3 gap-7 max-w-5xl mx-auto">
             <div className="relative rounded-3xl bg-bgCard border border-greenPrimary/20 p-9 flex flex-col hover:border-greenElectric/30 transition-all duration-300">
               <div className="mb-7">
                 <div className="flex items-center gap-2 mb-3">
@@ -1242,9 +1285,9 @@ export default function LandingPage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-12 md:py-28">
-        <div className="max-w-5xl mx-auto px-4 md:px-8">
-          <div className="relative rounded-[24px] md:rounded-[36px] overflow-hidden border border-greenElectric/25 p-6 md:p-16 text-center">
+      <section className="py-12 md:py-24">
+        <div className="max-w-4xl mx-auto px-4 md:px-8">
+          <div className="relative rounded-[24px] md:rounded-[36px] overflow-hidden border border-greenElectric/25 p-6 md:p-12 text-center">
             <div className="absolute inset-0 bg-gradient-to-br from-greenElectric/15 via-greenPrimary/8 via-yellow-500/5 to-transparent"/>
             <div className="absolute -top-20 -left-20 w-56 h-56 rounded-full bg-greenElectric/20 blur-3xl"/>
             <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-yellow-500/15 blur-3xl"/>
