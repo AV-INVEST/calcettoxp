@@ -52,7 +52,6 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "CalcettoXP", url: APP_URL }],
   creator: "CalcettoXP",
-  category: "sports",
   manifest: "/manifest.json",
   alternates: {
     canonical: "/",

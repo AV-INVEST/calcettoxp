@@ -20,14 +20,16 @@ const onboardingSchema = z.object({
 
 export async function POST(req: Request) {
   const session = await auth();
+  const userId: string | undefined =
+    session?.user?.userId ?? session?.user?.id;
 
-  if (!session?.user?.userId) {
+  if (!userId) {
     return NextResponse.json({ ok: false, error: "Non autorizzato" }, { status: 401 });
   }
 
   try {
     const existing = await prisma.playerProfile.findUnique({
-      where: { userId: session.user.userId },
+      where: { userId },
       select: { id: true },
     });
 
@@ -73,7 +75,7 @@ export async function POST(req: Request) {
     const result = await prisma.$transaction(async (tx) => {
       const playerProfile = await tx.playerProfile.create({
         data: {
-          userId: session.user.userId!,
+          userId,
           username: parsed.username,
           nickname: parsed.nickname,
           birthDate: parsed.birthDate ? new Date(parsed.birthDate) : null,

@@ -35,6 +35,31 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = matchCreateSchema.parse(body);
 
+    if (parsed.result === 'WIN' && parsed.goalsFor <= parsed.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Vittoria richiede goalsFor > goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (parsed.result === 'DRAW' && parsed.goalsFor !== parsed.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Pareggio richiede goalsFor === goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (parsed.result === 'LOSS' && parsed.goalsFor >= parsed.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Sconfitta richiede goalsFor < goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (parsed.goals > parsed.goalsFor) {
+      return NextResponse.json(
+        { ok: false, error: 'Gol giocatore non possono superare goalsFor' },
+        { status: 400 }
+      );
+    }
+
     const playedAtDate = new Date(parsed.playedAt);
     const nowUtc = new Date();
 
@@ -91,7 +116,19 @@ export async function POST(req: Request) {
 
     let cleanSheet = parsed.cleanSheet ?? false;
     if (parsed.role !== Role.POR) {
+      if (cleanSheet) {
+        return NextResponse.json(
+          { ok: false, error: 'cleanSheet disponibile solo per ruolo POR' },
+          { status: 400 }
+        );
+      }
       cleanSheet = false;
+    }
+    if (cleanSheet && parsed.goalsAgainst !== 0) {
+      return NextResponse.json(
+        { ok: false, error: 'cleanSheet richiede goalsAgainst === 0' },
+        { status: 400 }
+      );
     }
 
     const ciChange = calculateCareerIndexChange({

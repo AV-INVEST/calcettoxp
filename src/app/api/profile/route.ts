@@ -9,6 +9,7 @@ import {
   canChangeUsername,
   CARD_THEMES,
 } from "@/lib/username-config";
+import { hasActivePro, canCustomizeCard } from "@/lib/entitlements";
 
 const patchSchema = z
   .object({
@@ -90,17 +91,26 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const parsed = patchSchema.parse(body);
 
-    const currentProfile = await prisma.playerProfile.findUnique({
-      where: { userId: session.user.userId },
-      select: {
-        id: true,
-        username: true,
-        birthDate: true,
-        primaryRole: true,
-        lastPrimaryRoleChangeAt: true,
-        lastUsernameChangeAt: true,
-      },
-    });
+    const [currentProfile, subscriptionForEntitlement] = await Promise.all([
+      prisma.playerProfile.findUnique({
+        where: { userId: session.user.userId },
+        select: {
+          id: true,
+          username: true,
+          birthDate: true,
+          primaryRole: true,
+          lastPrimaryRoleChangeAt: true,
+          lastUsernameChangeAt: true,
+        },
+      }),
+      prisma.subscription.findUnique({
+        where: { userId: session.user.userId },
+        select: {
+          subscriptionStatus: true,
+          currentPeriodEnd: true,
+        },
+      }),
+    ]);
 
     if (!currentProfile) {
       return NextResponse.json(
@@ -119,7 +129,21 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const data: Record<string, any> = {};
+    type ProfilePatchData = Partial<{
+      username: string;
+      lastUsernameChangeAt: Date;
+      isPublic: boolean;
+      showCity: boolean;
+      cardTheme: string;
+      primaryRole: Role;
+      lastPrimaryRoleChangeAt: Date;
+      nickname: string;
+      country: string | null;
+      city: string | null;
+      preferredFoot: PreferredFoot | null;
+      secondaryRole: Role | null;
+    }>;
+    const data: ProfilePatchData = {};
 
     if (parsed.username !== undefined && parsed.username !== currentProfile.username) {
       const desired = parsed.username.trim().toLowerCase();
@@ -172,7 +196,21 @@ export async function PATCH(req: Request) {
 
     if (parsed.isPublic !== undefined) data.isPublic = parsed.isPublic;
     if (parsed.showCity !== undefined) data.showCity = parsed.showCity;
-    if (parsed.cardTheme !== undefined) data.cardTheme = parsed.cardTheme;
+    if (parsed.cardTheme !== undefined) {
+      const desiredTheme = parsed.cardTheme;
+      const FREE_THEMES = ['CLASSIC'];
+      const isPro = hasActivePro(subscriptionForEntitlement);
+      if (!FREE_THEMES.includes(desiredTheme) && !isPro) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Tema premium disponibile solo con abbonamento PRO',
+          },
+          { status: 403 }
+        );
+      }
+      data.cardTheme = desiredTheme;
+    }
 
     if (parsed.primaryRole !== undefined && parsed.primaryRole !== currentProfile.primaryRole) {
       const now = new Date();

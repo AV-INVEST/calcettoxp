@@ -65,7 +65,16 @@ export default function MatchEditForm(props: Props) {
     setSuccess(null);
 
     try {
-      const payload: Record<string, any> = {};
+      const payload: Partial<{
+        result: MatchResult;
+        goalsFor: number;
+        goalsAgainst: number;
+        role: Role;
+        goals: number;
+        assists: number;
+        cleanSheet: boolean;
+        notes: string | null;
+      }> = {};
       if (result !== props.initialResult) payload.result = result;
       if (goalsFor !== props.initialGoalsFor) payload.goalsFor = goalsFor;
       if (goalsAgainst !== props.initialGoalsAgainst) payload.goalsAgainst = goalsAgainst;

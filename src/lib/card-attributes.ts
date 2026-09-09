@@ -7,6 +7,7 @@ export type PlayerSummary = {
   assists: number;
   level: number;
   xp: number;
+  careerIndex: number;
   role: string;
   recentMatches: Array<{
     careerIndexChange: number;

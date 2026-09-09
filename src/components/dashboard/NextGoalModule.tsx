@@ -2,11 +2,12 @@ import { pickNextGoal, ChosenNextGoal } from '@/lib/next-goal';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Progress } from '@/components/ui/Progress';
+import type { LucideIcon } from 'lucide-react';
 import { Target, Trophy, Flame, Zap, Crown, TrendingUp, Footprints } from 'lucide-react';
 
 const CATEGORY_META: Record<
   string,
-  { Icon: React.ComponentType<{ className?: string; size?: number }>; tint: string }
+  { Icon: LucideIcon; tint: string }
 > = {
   matches: { Icon: Footprints, tint: 'text-greenElectric' },
   wins: { Icon: Trophy, tint: 'text-greenElectric' },

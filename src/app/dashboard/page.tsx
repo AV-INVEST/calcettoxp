@@ -128,6 +128,7 @@ export default async function DashboardPage() {
     assists: playerProfile.assists,
     level: playerProfile.level,
     xp: playerProfile.xp,
+    careerIndex: playerProfile.careerIndex,
     role: playerProfile.primaryRole,
     recentMatches: recentMatches.map((m) => ({
       careerIndexChange: m.careerIndexChange,

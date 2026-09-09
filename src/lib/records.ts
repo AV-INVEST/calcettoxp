@@ -1,4 +1,4 @@
-import { Match, PlayerProfile, Season } from '@prisma/client';
+import type { Match, PlayerProfile, PlayerSeason } from '@prisma/client';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -14,26 +14,41 @@ export interface PersonalRecord {
 }
 
 export interface RecordsInput {
-  profile: Pick<PlayerProfile, 'careerIndex' | 'ovr'>;
+  profile: Pick<PlayerProfile, 'careerIndex' | 'overall'>;
   matches: Pick<
     Match,
     | 'id'
     | 'goals'
     | 'assists'
     | 'result'
-    | 'matchDate'
-    | 'opponentName'
+    | 'playedAt'
     | 'seasonKey'
   >[];
-  seasons: Pick<Season, 'id' | 'key' | 'label' | 'startAt' | 'endAt' | 'matches' | 'wins' | 'goals' | 'careerIndexEnd' | 'careerIndexStart'>[];
+  seasons: Pick<
+    PlayerSeason,
+    | 'seasonKey'
+    | 'name'
+    | 'startDate'
+    | 'endDate'
+    | 'matches'
+    | 'wins'
+    | 'goals'
+    | 'startCareerIndex'
+    | 'endCareerIndex'
+    | 'peakCareerIndex'
+    | 'startOverall'
+    | 'endOverall'
+  >[];
   isPro?: boolean;
 }
 
-function calcStreaks<T extends { result: 'WIN' | 'DRAW' | 'LOSS'; matchDate: Date | string }>(
+type MatchLike = { result: 'WIN' | 'DRAW' | 'LOSS'; playedAt: Date | string };
+
+function calcStreaks<T extends MatchLike>(
   arr: T[],
 ): { longestWin: number; longestUnbeaten: number } {
   const sorted = [...arr].sort(
-    (a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime(),
+    (a, b) => new Date(a.playedAt).getTime() - new Date(b.playedAt).getTime(),
   );
   let longestWin = 0;
   let longestUnbeaten = 0;
@@ -58,68 +73,68 @@ function calcStreaks<T extends { result: 'WIN' | 'DRAW' | 'LOSS'; matchDate: Dat
 
 export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
   const { profile, matches, seasons, isPro = false } = input;
-  const { longestWin, longestUnbeaten } = calcStreaks(
-    matches as { result: any; matchDate: Date | string }[],
-  );
+  const { longestWin, longestUnbeaten } = calcStreaks(matches);
 
   let mostGoalsInMatch: number = 0;
-  let mostGoalsMatchInfo: { matchDate?: Date | string; opponent?: string | null } | null = null;
+  let mostGoalsMatchInfo: { playedAt?: Date | string } | null = null;
   let mostAssistsInMatch: number = 0;
-  let mostAssistsMatchInfo: { matchDate?: Date | string; opponent?: string | null } | null = null;
+  let mostAssistsMatchInfo: { playedAt?: Date | string } | null = null;
 
   for (const m of matches) {
     if ((m.goals ?? 0) > mostGoalsInMatch) {
       mostGoalsInMatch = m.goals ?? 0;
-      mostGoalsMatchInfo = { matchDate: m.matchDate, opponent: m.opponentName };
+      mostGoalsMatchInfo = { playedAt: m.playedAt };
     }
     if ((m.assists ?? 0) > mostAssistsInMatch) {
       mostAssistsInMatch = m.assists ?? 0;
-      mostAssistsMatchInfo = { matchDate: m.matchDate, opponent: m.opponentName };
+      mostAssistsMatchInfo = { playedAt: m.playedAt };
     }
   }
 
   let bestSeason: (typeof seasons)[number] | null = null;
   let bestSeasonGain = -Infinity;
   let mostGoalsSeason: (typeof seasons)[number] | null = null;
+  let highestSeasonPeak = -Infinity;
   for (const s of seasons) {
-    const start = s.careerIndexStart ?? 1000;
-    const end = s.careerIndexEnd ?? start;
+    const start = s.startCareerIndex ?? 1000;
+    const end = s.endCareerIndex ?? start;
     const gain = end - start;
     if (gain > bestSeasonGain) {
       bestSeasonGain = gain;
       bestSeason = s;
+    }
+    if ((s.peakCareerIndex ?? 0) > highestSeasonPeak) {
+      highestSeasonPeak = s.peakCareerIndex ?? 0;
     }
     if (!mostGoalsSeason || (s.goals ?? 0) > (mostGoalsSeason.goals ?? 0)) {
       mostGoalsSeason = s;
     }
   }
 
-  function fmtMatchInfo(info: { matchDate?: Date | string; opponent?: string | null } | null): string | null {
+  function fmtMatchInfo(info: { playedAt?: Date | string } | null): string | null {
     if (!info) return null;
-    const parts: string[] = [];
-    if (info.matchDate) {
+    if (info.playedAt) {
       try {
-        parts.push(format(new Date(info.matchDate), 'dd/MM/yyyy', { locale: it }));
+        return format(new Date(info.playedAt), 'dd/MM/yyyy', { locale: it });
       } catch {
-        /* ignore */
+        return null;
       }
     }
-    if (info.opponent) parts.push(`vs ${info.opponent}`);
-    return parts.length ? parts.join(' · ') : null;
+    return null;
   }
 
   const list: PersonalRecord[] = [
     {
       id: 'highest-ci',
       label: 'Career Index più alto',
-      value: Math.max(profile.careerIndex ?? 0, ...seasons.map((s) => s.careerIndexEnd ?? 0)),
+      value: Math.max(profile.careerIndex ?? 0, highestSeasonPeak),
       icon: 'CI',
       tier: 'FREE',
     },
     {
       id: 'highest-ovr',
       label: 'OVR più alto',
-      value: profile.ovr ?? 40,
+      value: profile.overall ?? 40,
       icon: 'OVR',
       tier: 'FREE',
     },
@@ -161,11 +176,11 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     {
       id: 'best-season',
       label: 'Stagione migliore (Career Index)',
-      value: bestSeason ? bestSeason.label : 'N/D',
+      value: bestSeason ? bestSeason.name : 'N/D',
       sublabel: bestSeason
         ? bestSeasonGain > 0
           ? `+${bestSeasonGain.toFixed(0)} punti Career Index · ${bestSeason.matches ?? 0} partite`
-          : `${bestSeason.label} · ${bestSeason.matches ?? 0} partite`
+          : `${bestSeason.name} · ${bestSeason.matches ?? 0} partite`
         : 'Nessuna stagione completata',
       icon: 'BEST_SEASON',
       tier: 'PRO',
@@ -173,9 +188,9 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     {
       id: 'most-goals-season',
       label: 'Stagione con più goal',
-      value: mostGoalsSeason ? mostGoalsSeason.label : 'N/D',
+      value: mostGoalsSeason ? mostGoalsSeason.name : 'N/D',
       sublabel: mostGoalsSeason
-        ? `${mostGoalsSeason.goals ?? 0} goal · ${mostGoalsSeason.label}`
+        ? `${mostGoalsSeason.goals ?? 0} goal · ${mostGoalsSeason.name}`
         : 'Nessun goal ancora',
       icon: 'MOST_GOALS_SEASON',
       tier: 'PRO',

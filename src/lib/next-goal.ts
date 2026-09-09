@@ -10,7 +10,7 @@ export interface MilestoneGoal {
   id: string;
   label: string;
   target: number;
-  current: number;
+  current?: number;
   category: MilestoneCategory;
   tier: 'FREE' | 'PRO';
 }

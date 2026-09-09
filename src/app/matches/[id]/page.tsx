@@ -25,6 +25,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import MatchEditForm from "./_components/MatchEditForm";
+import type { Role as PrismaRole, MatchResult as PrismaMatchResult } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Dettaglio partita | CalcettoXP",
@@ -282,10 +283,10 @@ export default async function MatchDetailPage({
           {!isLocked && (
             <MatchEditForm
               matchId={match.id}
-              initialResult={match.result as any}
+              initialResult={match.result as "WIN" | "DRAW" | "LOSS"}
               initialGoalsFor={match.goalsFor}
               initialGoalsAgainst={match.goalsAgainst}
-              initialRole={match.role as any}
+              initialRole={match.role as "POR" | "DIF" | "CEN" | "ATT"}
               initialGoals={match.goals}
               initialAssists={match.assists}
               initialCleanSheet={match.cleanSheet}

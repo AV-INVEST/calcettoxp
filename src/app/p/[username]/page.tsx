@@ -185,11 +185,13 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           <p className="text-textMuted">
             L&apos;utente ha deciso di non condividere pubblicamente la propria carriera.
           </p>
-          <Link href="/" prefetch>
-            <a className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-greenPrimary text-bgPrimary font-bold hover:bg-greenElectric transition">
-              <Home className="w-4 h-4" aria-hidden />
-              TORNA ALLA HOME
-            </a>
+          <Link
+            href="/"
+            prefetch
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-greenPrimary text-bgPrimary font-bold hover:bg-greenElectric transition"
+          >
+            <Home className="w-4 h-4" aria-hidden />
+            TORNA ALLA HOME
           </Link>
         </div>
       </div>
@@ -213,6 +215,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     assists: profile.assists,
     level: profile.level,
     xp: 0,
+    careerIndex: profile.careerIndex,
     role: profile.primaryRole,
     recentMatches: summaryRecent,
   });
@@ -253,7 +256,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             <div className="mx-auto md:mx-0">
               <PlayerCard
                 nickname={profile.nickname}
-                role={profile.primaryRole as any}
+                role={profile.primaryRole}
                 overall={profile.overall}
                 level={profile.level}
                 careerIndex={profile.careerIndex}
@@ -313,7 +316,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                       <Icon className="w-4 h-4 text-greenElectric" aria-hidden />
                     </div>
                     <p className="text-xl font-bold text-textPrimary">
-                      {String((profile as any)[key] ?? 0)}
+                      {String(
+                        (profile as unknown as Record<string, number | string | null | undefined>)[
+                          key
+                        ] ?? 0
+                      )}
                     </p>
                     <p className="text-[11px] uppercase tracking-wider text-textMuted">{label}</p>
                   </div>

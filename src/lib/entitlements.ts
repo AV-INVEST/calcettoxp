@@ -1,11 +1,23 @@
+export type SubscriptionStatusLike =
+  | 'INACTIVE'
+  | 'ACTIVE'
+  | 'PAST_DUE'
+  | 'CANCELED'
+  | 'TRIALING'
+  | null
+  | undefined;
+
 export type SubscriptionShape = {
-  subscriptionStatus?: 'INACTIVE' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING' | null;
-  currentPeriodEnd?: Date | null;
+  subscriptionStatus?: SubscriptionStatusLike;
+  currentPeriodEnd?: Date | string | null | undefined;
 };
 
-export function hasActivePro(sub?: SubscriptionShape): boolean {
+export function hasActivePro(
+  sub: SubscriptionShape | null | undefined
+): boolean {
   if (!sub) return false;
-  if (sub.subscriptionStatus !== 'ACTIVE' && sub.subscriptionStatus !== 'TRIALING') {
+  const status = sub.subscriptionStatus;
+  if (status !== 'ACTIVE' && status !== 'TRIALING') {
     return false;
   }
   if (sub.currentPeriodEnd) {
@@ -17,18 +29,26 @@ export function hasActivePro(sub?: SubscriptionShape): boolean {
   return true;
 }
 
-export function canAccessAdvancedStats(sub?: SubscriptionShape): boolean {
+export function canAccessAdvancedStats(
+  sub: SubscriptionShape | null | undefined
+): boolean {
   return hasActivePro(sub);
 }
 
-export function canCustomizeCard(sub?: SubscriptionShape): boolean {
+export function canCustomizeCard(
+  sub: SubscriptionShape | null | undefined
+): boolean {
   return hasActivePro(sub);
 }
 
-export function canAccessFullHistory(sub?: SubscriptionShape): boolean {
+export function canAccessFullHistory(
+  sub: SubscriptionShape | null | undefined
+): boolean {
   return hasActivePro(sub);
 }
 
-export function canAccessSeasonComparison(sub?: SubscriptionShape): boolean {
+export function canAccessSeasonComparison(
+  sub: SubscriptionShape | null | undefined
+): boolean {
   return hasActivePro(sub);
 }

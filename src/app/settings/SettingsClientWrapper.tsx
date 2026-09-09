@@ -26,6 +26,7 @@ interface InitialProfile {
   canChangeRole: boolean;
   daysLeftRole: number;
   nextRoleChangeISO: string | null;
+  isPro: boolean;
 }
 
 interface Props {
@@ -46,6 +47,8 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
   const { data: session, status } = useSession();
   const [isPending, startTransition] = useTransition();
 
+  const isPro = initialProfile.isPro;
+
   const [usernameInput, setUsernameInput] = useState(initialProfile.username);
   const [usernameStatus, setUsernameStatus] = useState<
     'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'reserved'
@@ -65,10 +68,6 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
   const [deleteErr, setDeleteErr] = useState<string | null>(null);
 
   const checkTimer = useRef<number | null>(null);
-
-  const isPro =
-    status === 'authenticated' &&
-    (session as any)?.user?.pro === true;
 
   async function checkUsernameAvailability(value: string) {
     const desired = value.trim().toLowerCase();
@@ -121,7 +120,18 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
       try {
         setGlobalMsg(null);
         setUsernameError(null);
-        const body: Record<string, any> = {
+        const body: Partial<{
+          isPublic: boolean;
+          showCity: boolean;
+          cardTheme: CardTheme;
+          username: string;
+          nickname: string;
+          country: string | null;
+          city: string | null;
+          preferredFoot: string | null;
+          primaryRole: string;
+          secondaryRole: string | null;
+        }> = {
           isPublic,
           showCity,
           cardTheme,

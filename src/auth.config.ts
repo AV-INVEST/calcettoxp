@@ -1,9 +1,10 @@
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import type { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Session {
-    user: {
+    user?: {
       id?: string;
       userId?: string;
       name?: string | null;
@@ -13,11 +14,7 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    userId?: string;
-  }
-}
+type TokenLike = JWT & { userId?: unknown; sub?: string };
 
 export const authConfig = {
   providers: [
@@ -32,14 +29,17 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id;
+        (token as TokenLike).userId = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.userId && session.user) {
-        session.user.userId = token.userId;
-        session.user.id = token.userId;
+      const tk = token as TokenLike;
+      const idValue = (tk.userId ?? tk.sub) as string | undefined;
+      const s = session as Session;
+      if (idValue && s.user) {
+        (s.user as { userId?: string; id?: string }).userId = idValue;
+        (s.user as { id?: string }).id = idValue;
       }
       return session;
     },
@@ -48,5 +48,5 @@ export const authConfig = {
     signIn: "/signin",
   },
   trustHost: true,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;

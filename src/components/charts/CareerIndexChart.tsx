@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { format } from "date-fns";
+import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown, Trophy, Minus } from "lucide-react";
 
 export interface CareerIndexDataPoint {
@@ -39,7 +40,7 @@ interface CustomTooltipProps {
 
 const resultStyles: Record<
   NonNullable<CareerIndexDataPoint["result"]>,
-  { bg: string; border: string; text: string; icon: React.ComponentType<{ size?: number }> }
+  { bg: string; border: string; text: string; icon: LucideIcon }
 > = {
   WIN: {
     bg: "rgba(34, 197, 94, 0.15)",
@@ -105,7 +106,9 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
             {(() => {
               const Icon = resultStyles[point.result].icon;
               return point.result === "LOSS" ? (
-                <Icon size={12} style={{ transform: "rotate(180deg)" }} />
+                <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>
+                  <Icon size={12} />
+                </span>
               ) : (
                 <Icon size={12} />
               );

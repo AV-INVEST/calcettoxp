@@ -162,7 +162,8 @@ export default function OnboardingWizard() {
         if (!cancelled && j.exists) {
           router.replace("/dashboard");
         }
-      } catch {
+      } catch (err) {
+        console.warn("onboarding status check failed:", err);
       } finally {
         if (!cancelled) setChecking(false);
       }

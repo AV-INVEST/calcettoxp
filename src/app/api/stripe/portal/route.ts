@@ -3,6 +3,9 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import stripe from '@/lib/stripe';
 
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
+
 export async function POST(req: Request) {
   const session = await auth();
 
@@ -30,17 +33,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const origin = req.headers.get('origin');
-    if (!origin) {
-      return NextResponse.json(
-        { ok: false, error: 'Origin header mancante' },
-        { status: 400 }
-      );
-    }
+    const returnUrl = `${APP_URL}/settings`;
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: subscription.stripeCustomerId,
-      return_url: `${origin}/profile`,
+      return_url: returnUrl,
     });
 
     if (!portalSession.url) {

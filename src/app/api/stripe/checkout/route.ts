@@ -3,10 +3,14 @@ import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import stripe from '@/lib/stripe';
 import { z } from 'zod';
+import { hasActivePro } from '@/lib/entitlements';
 
 const planSchema = z.object({
   plan: z.enum(['monthly', 'yearly']),
 });
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'https://calcettoxp.com';
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -50,6 +54,8 @@ export async function POST(req: Request) {
         select: {
           id: true,
           stripeCustomerId: true,
+          subscriptionStatus: true,
+          currentPeriodEnd: true,
         },
       }),
     ]);
@@ -58,6 +64,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { ok: false, error: 'Utente non trovato' },
         { status: 400 }
+      );
+    }
+
+    if (existingSubscription && hasActivePro(existingSubscription)) {
+      return NextResponse.json(
+        { ok: false, error: 'Abbonamento PRO già attivo' },
+        { status: 409 }
       );
     }
 
@@ -90,13 +103,8 @@ export async function POST(req: Request) {
       });
     }
 
-    const origin = req.headers.get('origin');
-    if (!origin) {
-      return NextResponse.json(
-        { ok: false, error: 'Origin header mancante' },
-        { status: 400 }
-      );
-    }
+    const successUrl = `${APP_URL}/dashboard?pro=success`;
+    const cancelUrl = `${APP_URL}/pricing?canceled=1`;
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -107,8 +115,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${origin}/dashboard?pro=success`,
-      cancel_url: `${origin}/pricing?canceled=1`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       metadata: {
         userId,
       },

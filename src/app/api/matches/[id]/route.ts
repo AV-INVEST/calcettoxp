@@ -139,6 +139,24 @@ export async function PATCH(
     const oldAssists = existingMatch.assists;
     const oldCleanSheet = existingMatch.cleanSheet;
 
+    const laterMatchExists = await prisma.match.count({
+      where: {
+        playerId: player.id,
+        playedAt: { gt: existingMatch.playedAt },
+      },
+      take: 1,
+    });
+    if (laterMatchExists > 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'Non puoi modificare una partita con partite successive già registrate (mantiene la catena Career Index coerente).',
+        },
+        { status: 400 }
+      );
+    }
+
     const merged = {
       result: parsed.result ?? existingMatch.result,
       goalsFor: parsed.goalsFor ?? existingMatch.goalsFor,
@@ -150,9 +168,46 @@ export async function PATCH(
       notes: parsed.notes !== undefined ? parsed.notes : existingMatch.notes,
     };
 
+    if (merged.result === 'WIN' && merged.goalsFor <= merged.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Vittoria richiede goalsFor > goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (merged.result === 'DRAW' && merged.goalsFor !== merged.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Pareggio richiede goalsFor === goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (merged.result === 'LOSS' && merged.goalsFor >= merged.goalsAgainst) {
+      return NextResponse.json(
+        { ok: false, error: 'Sconfitta richiede goalsFor < goalsAgainst' },
+        { status: 400 }
+      );
+    }
+    if (merged.goals > merged.goalsFor) {
+      return NextResponse.json(
+        { ok: false, error: 'Gol giocatore non possono superare goalsFor' },
+        { status: 400 }
+      );
+    }
+
     let cleanSheet = merged.cleanSheet;
     if (merged.role !== Role.POR) {
+      if (cleanSheet) {
+        return NextResponse.json(
+          { ok: false, error: 'cleanSheet disponibile solo per ruolo POR' },
+          { status: 400 }
+        );
+      }
       cleanSheet = false;
+    }
+    if (cleanSheet && merged.goalsAgainst !== 0) {
+      return NextResponse.json(
+        { ok: false, error: 'cleanSheet richiede goalsAgainst === 0' },
+        { status: 400 }
+      );
     }
 
     const newCIChange = calculateCareerIndexChange({

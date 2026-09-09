@@ -7,9 +7,14 @@ import { format, differenceInDays, addDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { SettingsClientWrapper } from './SettingsClientWrapper';
+import type { CardTheme } from '@/lib/username-config';
 import { CookiePreferencesButton } from '@/components/legal/CookiePreferencesButton';
 import { DeleteAccountTriggerButton } from './DeleteAccountTriggerButton';
 import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import {
+  ProCheckoutButton,
+  AlreadyProPortalButton,
+} from '@/components/pricing/StripeButtons';
 
 export const metadata: Metadata = {
   title: 'Impostazioni | CalcettoXP',
@@ -72,10 +77,7 @@ export default async function SettingsPage() {
 
   if (!profileRes || !user) redirect('/onboarding');
 
-  const isPro = hasActivePro({
-    subscriptionStatus: subscription?.subscriptionStatus as any,
-    currentPeriodEnd: subscription?.currentPeriodEnd,
-  });
+  const isPro = hasActivePro(subscription);
 
   const now = new Date();
   const nextUsernameChange = profileRes.lastUsernameChangeAt
@@ -153,7 +155,7 @@ export default async function SettingsPage() {
             nickname: profileRes.nickname,
             isPublic: profileRes.isPublic,
             showCity: profileRes.showCity,
-            cardTheme: (profileRes.cardTheme as any) || 'CLASSIC',
+            cardTheme: (profileRes.cardTheme as CardTheme) || ('CLASSIC' as CardTheme),
             primaryRole: profileRes.primaryRole,
             secondaryRole: profileRes.secondaryRole,
             preferredFoot: profileRes.preferredFoot,
@@ -165,6 +167,7 @@ export default async function SettingsPage() {
             canChangeRole,
             daysLeftRole,
             nextRoleChangeISO,
+            isPro,
           }}
           initialRoleLabels={ROLE_LABELS}
           initialFootLabels={FOOT_LABELS}
@@ -209,34 +212,15 @@ export default async function SettingsPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {isPro ? (
-                  <form action="/api/stripe/portal" method="POST">
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-11 rounded-xl bg-bgSecondary border border-white/10 text-textPrimary font-semibold hover:bg-white/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary"
-                    >
-                      Gestisci abbonamento
-                    </button>
-                  </form>
+                  <AlreadyProPortalButton />
                 ) : (
                   <>
-                    <form action="/api/stripe/checkout" method="POST">
-                      <input type="hidden" name="plan" value="monthly" />
-                      <button
-                        type="submit"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-11 rounded-xl bg-greenPrimary text-bgPrimary font-bold hover:bg-greenElectric transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenElectric"
-                      >
-                        Passa a PRO
-                      </button>
-                    </form>
-                    <form action="/api/stripe/checkout" method="POST">
-                      <input type="hidden" name="plan" value="yearly" />
-                      <button
-                        type="submit"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-11 rounded-xl bg-bgSecondary border border-white/10 text-textPrimary font-semibold hover:bg-white/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary"
-                      >
-                        Annuale &euro;29,90
-                      </button>
-                    </form>
+                    <ProCheckoutButton plan="monthly" variant="primary">
+                      Passa a PRO
+                    </ProCheckoutButton>
+                    <ProCheckoutButton plan="yearly" variant="secondary">
+                      Annuale &euro;29,90
+                    </ProCheckoutButton>
                   </>
                 )}
               </div>

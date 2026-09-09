@@ -1,10 +1,11 @@
-type AchievementResult = {
+import { PrismaClient } from '@prisma/client';
+import type { PlayerProfile, Match, PlayerAchievement, Achievement } from '@prisma/client';
+
+export type AchievementResult = {
   achievementId: string;
   key: string;
   name: string;
 };
-
-type AnyRecord = Record<string, any>;
 
 const ACHIEVEMENTS: Record<string, { name: string }> = {
   FIRST_MATCH: { name: 'Prima Partita' },
@@ -30,74 +31,114 @@ const ACHIEVEMENTS: Record<string, { name: string }> = {
   FIFTY_WINS: { name: '50 Vittorie' },
 };
 
+type PrismaLike = {
+  match: {
+    findMany: (args: {
+      where: { playerId: string };
+      orderBy: { playedAt: 'desc' };
+      take: number;
+      select: { result: true; playedAt: true };
+    }) => Promise<Array<{ result: 'WIN' | 'DRAW' | 'LOSS'; playedAt: Date | string }>>;
+    count: (args: { where: { playerId: string; result: 'WIN' | 'DRAW' | 'LOSS' } }) => Promise<number>;
+  };
+  playerAchievement: {
+    findMany: (args: { where: { playerProfileId: string } }) => Promise<Array<{ achievementId: string }>>;
+    create: (args: { data: any }) => Promise<any>;
+  };
+  achievement: {
+    findMany: () => Promise<Array<Achievement>>;
+  };
+};
+
+type PlayerWithProfile = Pick<
+  PlayerProfile,
+  | 'id'
+  | 'matchesPlayed'
+  | 'wins'
+  | 'draws'
+  | 'losses'
+  | 'goals'
+  | 'assists'
+  | 'cleanSheets'
+  | 'careerIndex'
+  | 'level'
+  | 'xp'
+> & {
+  achievements?: Array<{
+    achievementId: string;
+    achievement?: Pick<Achievement, 'key'>;
+    unlockedAt: Date | null;
+  }>;
+};
+
+type MatchLike = Pick<Match, 'result' | 'goals' | 'assists'> & {
+  playerStats?: {
+    matchesPlayed?: number;
+    wins?: number;
+    goals?: number;
+    careerIndex?: number;
+    level?: number;
+  };
+  stats?: {
+    matchesPlayed?: number;
+    wins?: number;
+    goals?: number;
+    careerIndex?: number;
+    level?: number;
+  };
+};
+
 function mk(key: string): AchievementResult | null {
   const def = ACHIEVEMENTS[key];
   if (!def) return null;
   return { achievementId: key, key, name: def.name };
 }
 
-function safeGet<T = any>(obj: any, path: string[], fallback?: T): T | undefined {
-  let current = obj;
-  for (const key of path) {
-    if (current == null) return fallback;
-    current = current[key];
-  }
-  return current as T;
-}
-
 async function fetchRecentMatches(
-  player: AnyRecord,
-  prisma: any,
+  player: PlayerWithProfile & { id: string },
+  prisma: PrismaLike | undefined,
   count: number
-): Promise<Array<{ result: string; playedAt: any }>> {
-  try {
-    if (prisma && prisma.match && typeof prisma.match.findMany === 'function') {
-      const playerId = safeGet(player, ['id']) ?? safeGet(player, ['playerId']);
-      if (playerId != null) {
-        const res = await prisma.match.findMany({
-          where: {
-            OR: [
-              { playerId },
-              { players: { some: { id: playerId } } },
-              { homeTeam: { players: { some: { id: playerId } } } },
-              { awayTeam: { players: { some: { id: playerId } } } },
-            ],
-          },
-          orderBy: { playedAt: 'desc' },
-          take: count,
-          select: { result: true, playedAt: true },
-        });
-        if (Array.isArray(res) && res.length > 0) return res;
-      }
+): Promise<Array<{ result: string; playedAt: Date | string | null | undefined }>> {
+  if (prisma && prisma.match && typeof prisma.match.findMany === 'function') {
+    const playerId = player.id;
+    const res = await prisma.match.findMany({
+      where: { playerId },
+      orderBy: { playedAt: 'desc' },
+      take: count,
+      select: { result: true, playedAt: true },
+    });
+    if (Array.isArray(res) && res.length > 0) {
+      return res.map((m) => ({
+        result: String(m.result),
+        playedAt: m.playedAt,
+      }));
     }
-  } catch {
-  }
-  const inline = safeGet<any[]>(player, ['recentMatches']) ?? safeGet<any[]>(player, ['matches']);
-  if (Array.isArray(inline)) {
-    return inline.slice(0, count).map((m) => ({
-      result: safeGet(m, ['result'], ''),
-      playedAt: safeGet(m, ['playedAt']),
-    }));
   }
   return [];
 }
 
-function hasUnbeatenStreak(matches: Array<{ result: string }>, length: number): boolean {
+function hasUnbeatenStreak(
+  matches: Array<{ result: string }>,
+  length: number
+): boolean {
   if (matches.length < length) return false;
   const slice = matches.slice(0, length);
   return slice.every((m) => m.result === 'WIN' || m.result === 'DRAW');
 }
 
-function hasWinStreak(matches: Array<{ result: string }>, length: number): boolean {
+function hasWinStreak(
+  matches: Array<{ result: string }>,
+  length: number
+): boolean {
   if (matches.length < length) return false;
   const slice = matches.slice(0, length);
   return slice.every((m) => m.result === 'WIN');
 }
 
 export async function checkAchievementsAfterMatch(
-  player: AnyRecord = {},
-  match: AnyRecord = {},
-  prisma?: any
+  player: PlayerWithProfile & { id: string },
+  match: MatchLike,
+  prisma?: PrismaLike
 ): Promise<AchievementResult[]> {
   const unlocked: AchievementResult[] = [];
   const push = (key: string) => {
@@ -105,86 +146,76 @@ export async function checkAchievementsAfterMatch(
     if (a) unlocked.push(a);
   };
 
-  try {
-    const matchesPlayed: number =
-      safeGet<number>(match, ['playerStats', 'matchesPlayed']) ??
-      safeGet<number>(match, ['stats', 'matchesPlayed']) ??
-      safeGet<number>(player, ['matchesPlayed']) ??
-      safeGet<number>(player, ['stats', 'matchesPlayed']) ??
-      0;
+  const matchesPlayed: number =
+    match.playerStats?.matchesPlayed ??
+    match.stats?.matchesPlayed ??
+    player.matchesPlayed ??
+    0;
 
-    const wins: number =
-      safeGet<number>(match, ['playerStats', 'wins']) ??
-      safeGet<number>(match, ['stats', 'wins']) ??
-      safeGet<number>(player, ['wins']) ??
-      safeGet<number>(player, ['stats', 'wins']) ??
-      0;
+  const wins: number =
+    match.playerStats?.wins ??
+    match.stats?.wins ??
+    player.wins ??
+    0;
 
-    const totalGoals: number =
-      safeGet<number>(match, ['playerStats', 'goals']) ??
-      safeGet<number>(match, ['stats', 'goals']) ??
-      safeGet<number>(player, ['goals']) ??
-      safeGet<number>(player, ['stats', 'goals']) ??
-      0;
+  const totalGoals: number =
+    match.playerStats?.goals ??
+    match.stats?.goals ??
+    player.goals ??
+    0;
 
-    const matchGoals: number =
-      safeGet<number>(match, ['goals']) ??
-      safeGet<number>(match, ['playerGoals']) ??
-      safeGet<number>(match, ['stats', 'goals']) ??
-      0;
+  const matchGoals: number = match.goals ?? 0;
 
-    const matchResult: string = safeGet<string>(match, ['result']) ?? '';
-    const careerIndex: number =
-      safeGet<number>(player, ['careerIndex']) ??
-      safeGet<number>(player, ['stats', 'careerIndex']) ??
-      safeGet<number>(match, ['playerStats', 'careerIndex']) ??
-      0;
+  const matchResult: string = String(match.result ?? '');
+  const careerIndex: number =
+    player.careerIndex ??
+    match.playerStats?.careerIndex ??
+    match.stats?.careerIndex ??
+    0;
 
-    const level: number =
-      safeGet<number>(player, ['level']) ??
-      safeGet<number>(player, ['stats', 'level']) ??
-      safeGet<number>(match, ['playerStats', 'level']) ??
-      0;
+  const level: number =
+    player.level ??
+    match.playerStats?.level ??
+    match.stats?.level ??
+    0;
 
-    const existingAchievements: string[] = Array.isArray(safeGet(player, ['achievements']))
-      ? (safeGet<any[]>(player, ['achievements'])!).map((a: any) =>
-          typeof a === 'string' ? a : safeGet(a, ['key']) ?? safeGet(a, ['achievementId']) ?? ''
-        )
-      : [];
-
-    const alreadyUnlocked = new Set(existingAchievements.filter(Boolean));
-    const tryUnlock = (key: string, cond: boolean) => {
-      if (cond && !alreadyUnlocked.has(key)) push(key);
-    };
-
-    tryUnlock('FIRST_MATCH', matchesPlayed >= 1 || matchResult !== '');
-    tryUnlock('FIRST_WIN', (matchResult === 'WIN' && matchesPlayed >= 1) || wins >= 1);
-    tryUnlock('FIRST_GOAL', totalGoals >= 1 || matchGoals >= 1);
-    tryUnlock('HAT_TRICK', matchGoals >= 3);
-    tryUnlock('FIVE_GOALS', matchGoals >= 5);
-    tryUnlock('MATCHES_10', matchesPlayed >= 10);
-    tryUnlock('MATCHES_50', matchesPlayed >= 50);
-    tryUnlock('MATCHES_100', matchesPlayed >= 100);
-    tryUnlock('GOALS_10', totalGoals >= 10);
-    tryUnlock('GOALS_50', totalGoals >= 50);
-    tryUnlock('GOALS_100', totalGoals >= 100);
-    tryUnlock('CAREER_INDEX_1200', careerIndex >= 1200);
-    tryUnlock('CAREER_INDEX_1500', careerIndex >= 1500);
-    tryUnlock('LEVEL_10', level >= 10);
-    tryUnlock('LEVEL_25', level >= 25);
-    tryUnlock('LEVEL_50', level >= 50);
-    tryUnlock('TEN_WINS', wins >= 10);
-    tryUnlock('FIFTY_WINS', wins >= 50);
-
-    try {
-      const recent10 = await fetchRecentMatches(player, prisma, 10);
-      tryUnlock('UNBEATEN_5', hasUnbeatenStreak(recent10, 5));
-      tryUnlock('UNBEATEN_10', hasUnbeatenStreak(recent10, 10));
-      tryUnlock('ON_FIRE', hasWinStreak(recent10, 5));
-    } catch {
+  const existingKeySet = new Set<string>();
+  if (Array.isArray(player.achievements)) {
+    for (const a of player.achievements) {
+      if (a.unlockedAt) {
+        const k = a.achievement?.key ?? a.achievementId;
+        if (k) existingKeySet.add(k);
+      }
     }
-  } catch {
   }
+
+  const tryUnlock = (key: string, cond: boolean) => {
+    if (cond && !existingKeySet.has(key)) push(key);
+  };
+
+  tryUnlock('FIRST_MATCH', matchesPlayed >= 1 || matchResult !== '');
+  tryUnlock('FIRST_WIN', (matchResult === 'WIN' && matchesPlayed >= 1) || wins >= 1);
+  tryUnlock('FIRST_GOAL', totalGoals >= 1 || matchGoals >= 1);
+  tryUnlock('HAT_TRICK', matchGoals >= 3);
+  tryUnlock('FIVE_GOALS', matchGoals >= 5);
+  tryUnlock('MATCHES_10', matchesPlayed >= 10);
+  tryUnlock('MATCHES_50', matchesPlayed >= 50);
+  tryUnlock('MATCHES_100', matchesPlayed >= 100);
+  tryUnlock('GOALS_10', totalGoals >= 10);
+  tryUnlock('GOALS_50', totalGoals >= 50);
+  tryUnlock('GOALS_100', totalGoals >= 100);
+  tryUnlock('CAREER_INDEX_1200', careerIndex >= 1200);
+  tryUnlock('CAREER_INDEX_1500', careerIndex >= 1500);
+  tryUnlock('LEVEL_10', level >= 10);
+  tryUnlock('LEVEL_25', level >= 25);
+  tryUnlock('LEVEL_50', level >= 50);
+  tryUnlock('TEN_WINS', wins >= 10);
+  tryUnlock('FIFTY_WINS', wins >= 50);
+
+  const recent10 = await fetchRecentMatches(player, prisma, 10);
+  tryUnlock('UNBEATEN_5', hasUnbeatenStreak(recent10, 5));
+  tryUnlock('UNBEATEN_10', hasUnbeatenStreak(recent10, 10));
+  tryUnlock('ON_FIRE', hasWinStreak(recent10, 5));
 
   return unlocked;
 }

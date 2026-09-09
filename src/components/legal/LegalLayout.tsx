@@ -106,8 +106,12 @@ export function SubSection({
   );
 }
 
-export function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-textPrimary/90 leading-relaxed">{children}</p>;
+export function P({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`text-textPrimary/90 leading-relaxed ${className ?? ""}`}>
+      {children}
+    </p>
+  );
 }
 
 export function Ul({ children }: { children: React.ReactNode }) {

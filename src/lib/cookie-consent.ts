@@ -4,7 +4,7 @@ export interface CookieConsentPreferences {
   necessary: true;
   analytics: boolean;
   marketing: boolean;
-  version: 1;
+  version: number;
   updatedAt: number;
 }
 
