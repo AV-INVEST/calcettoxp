@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Shield, Crown, Zap, Target, Award, Flame } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { CardTheme, CARD_THEMES } from "@/lib/username-config";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
@@ -73,7 +74,7 @@ const THEME_CONFIG: Record<
 interface AttributeProps {
   label: string;
   value: number;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 }
 
 function Attribute({

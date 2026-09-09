@@ -23,9 +23,10 @@ import {
   Goal,
   Footprints,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { AchievementRequirementType } from "@prisma/client";
 
-const ACHIEVEMENT_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
   FIRST_MATCH: Zap,
   FIRST_WIN: Trophy,
   FIRST_GOAL: Target,

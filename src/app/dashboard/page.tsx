@@ -26,6 +26,7 @@ import {
   Award,
   ChevronRight,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { format } from "date-fns";
 import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 
@@ -192,7 +193,7 @@ export default async function DashboardPage() {
 
   const resultStyles: Record<
     MatchResult,
-    { variant: "verde" | "rosso" | "grigio"; icon: React.ComponentType<{ size?: number; className?: string }> }
+    { variant: "verde" | "rosso" | "grigio"; icon: LucideIcon }
   > = {
     WIN: { variant: "verde", icon: Trophy },
     DRAW: { variant: "grigio", icon: Minus },
