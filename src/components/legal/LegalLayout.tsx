@@ -84,8 +84,8 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-xl md:text-2xl font-bold text-textPrimary">{title}</h2>
+    <section className="space-y-4 pt-2">
+      <h2 className="text-xl md:text-2xl font-black text-textPrimary tracking-tight">{title}</h2>
       <div className="space-y-3 text-[14.5px] text-textPrimary/90">{children}</div>
     </section>
   );
@@ -99,8 +99,8 @@ export function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2 pt-1">
-      <h3 className="font-bold text-textPrimary">{title}</h3>
+    <div className="space-y-2 pt-2">
+      <h3 className="font-extrabold text-textPrimary tracking-tight">{title}</h3>
       <div className="space-y-2 text-[14px] text-textPrimary/90">{children}</div>
     </div>
   );
@@ -115,5 +115,17 @@ export function P({ children, className }: { children: React.ReactNode; classNam
 }
 
 export function Ul({ children }: { children: React.ReactNode }) {
-  return <ul className="list-disc space-y-1 pl-6 marker:text-greenElectric/70">{children}</ul>;
+  return <ul className="list-disc space-y-2 pl-6 marker:text-greenElectric/70">{children}</ul>;
+}
+
+export function Blockquote({ children, accent = true }: { children: React.ReactNode; accent?: boolean }) {
+  return (
+    <blockquote
+      className={`border-l-4 ${
+        accent ? 'border-greenElectric/70' : 'border-white/20'
+      } bg-bgSecondary/60 rounded-r-2xl p-4 md:p-5 my-4 space-y-3`}
+    >
+      {children}
+    </blockquote>
+  );
 }

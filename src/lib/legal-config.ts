@@ -1,49 +1,66 @@
-export const LEGAL_CONFIG = {
-  domain: 'calcettoxp.com',
-  appName: 'CalcettoXP',
-  tagline: 'Trasforma ogni calcetto nella tua carriera.',
+function buildLegalConfig() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
 
-  ownerName: '[NOME PROPRIETARIO O RAGIONE SOCIALE]',
-  contactEmail: '[EMAIL DI CONTATTO]',
-  companyName: '[DENOMINAZIONE AZIENDA - SE APPLICABILE]',
-  vatId: '[PARTITA IVA - SE APPLICABILE]',
-  address: '[INDIRIZZO FISICO - SE APPLICABILE]',
-  territory: 'Italia',
+  const lastUpdated = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-  lastUpdated: '2026-09-09',
-  lastUpdatedHuman: '9 settembre 2026',
+  const monthNames = [
+    "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+    "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre",
+  ];
+  const lastUpdatedHuman = `${day} ${monthNames[month]} ${year}`;
 
-  services: {
-    auth: {
-      name: 'Google OAuth',
-      provider: 'Google LLC',
-      privacyUrl: 'https://policies.google.com/privacy',
-    },
-    database: {
-      name: 'Neon PostgreSQL',
-      provider: 'Neon (Kiosk Labs DB, Inc.)',
-      privacyUrl: 'https://neon.tech/privacy',
-    },
-    hosting: {
-      name: 'Vercel Hosting',
-      provider: 'Vercel Inc.',
-      privacyUrl: 'https://vercel.com/legal/privacy-policy',
-    },
-    payments: {
-      name: 'Stripe Payments',
-      provider: 'Stripe, Inc.',
-      privacyUrl: 'https://stripe.com/privacy',
-    },
-    storage: {
-      name: 'Vercel Blob',
-      provider: 'Vercel Inc.',
-      privacyUrl: 'https://vercel.com/legal/privacy-policy',
-    },
-  },
+  return {
+    domain: 'calcettoxp.com',
+    appName: 'CalcettoXP',
+    tagline: 'Trasforma ogni calcetto nella tua carriera.',
 
-  gdpr: {
-    controllerContactEmailPlaceholder: '[EMAIL CONTATTO PRIVACY]',
-  },
-} as const;
+    ownerName: '[Dati titolare da completare]',
+    contactEmail: '[Email di contatto da inserire]',
+    companyName: '[Dati titolare da completare]',
+    vatId: '[Partita IVA da inserire]',
+    address: '[Indirizzo fisico da completare]',
+    territory: 'Italia',
+
+    lastUpdated,
+    lastUpdatedHuman,
+
+    services: {
+      auth: {
+        name: 'Google OAuth',
+        provider: 'Google LLC',
+        privacyUrl: 'https://policies.google.com/privacy',
+      },
+      database: {
+        name: 'Neon PostgreSQL',
+        provider: 'Neon (Kiosk Labs DB, Inc.)',
+        privacyUrl: 'https://neon.tech/privacy',
+      },
+      hosting: {
+        name: 'Vercel Hosting',
+        provider: 'Vercel Inc.',
+        privacyUrl: 'https://vercel.com/legal/privacy-policy',
+      },
+      payments: {
+        name: 'Stripe Payments',
+        provider: 'Stripe, Inc.',
+        privacyUrl: 'https://stripe.com/privacy',
+      },
+      storage: {
+        name: 'Vercel Blob',
+        provider: 'Vercel Inc.',
+        privacyUrl: 'https://vercel.com/legal/privacy-policy',
+      },
+    },
+
+    gdpr: {
+      controllerContactEmailPlaceholder: '[Email contatto privacy da inserire]',
+    },
+  } as const;
+}
+
+export const LEGAL_CONFIG = buildLegalConfig();
 
 export type LegalConfigShape = typeof LEGAL_CONFIG;

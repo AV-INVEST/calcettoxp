@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LEGAL_CONFIG } from '@/lib/legal-config';
-import { LegalLayout, Section, SubSection, P, Ul, legalMetaBase } from '@/components/legal/LegalLayout';
+import { LegalLayout, Section, SubSection, P, Ul, Blockquote, legalMetaBase } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
   ...legalMetaBase,
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Informativa sulla privacy di ${LEGAL_CONFIG.appName}. Dati raccolti, finalità, diritti dell'interessato e servizi utilizzati.`,
 };
 
-const { appName, domain, tagline, lastUpdatedHuman, ownerName, contactEmail, services, gdpr } =
+const { appName, domain, lastUpdatedHuman, ownerName, contactEmail, services, gdpr, vatId, address } =
   LEGAL_CONFIG;
 
 export default function PrivacyPage() {
@@ -36,14 +36,15 @@ export default function PrivacyPage() {
 
       <Section title="1. Titolare del trattamento">
         <P>
-          Titolare del trattamento ai sensi del Regolamento UE 2016/679 (GDPR) è{' '}
-          <strong>{ownerName}</strong>, contattabile all&apos;indirizzo email:{' '}
-          <a className="text-greenElectric" href={`mailto:${contactEmail}`}>
-            {contactEmail}
-          </a>
-          . Eventuali recapiti aggiuntivi sono indicati all&apos;interno della configurazione del
-          prodotto.
+          Titolare del trattamento ai sensi del Regolamento UE 2016/679 (GDPR) è:
         </P>
+        <Ul>
+          <li><strong>Dati identificativi:</strong> {ownerName}</li>
+          <li><strong>Partita IVA:</strong> {vatId}</li>
+          <li><strong>Indirizzo fisico:</strong> {address}</li>
+          <li><strong>Email di contatto generale:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+          <li><strong>Email contatto privacy (GDPR):</strong> <a className="text-greenElectric" href={`mailto:${gdpr.controllerContactEmailPlaceholder}`}>{gdpr.controllerContactEmailPlaceholder}</a></li>
+        </Ul>
       </Section>
 
       <Section title="2. Tipologie di dati raccolti e finalità">
@@ -123,12 +124,40 @@ export default function PrivacyPage() {
       </Section>
 
       <Section title="7. Diritti dell&apos;interessato">
-        <P>L&apos;Utente può esercitare in qualsiasi momento i propri diritti ai sensi degli artt. 15-22 GDPR, inclusi i diritti di accesso, rettifica, cancellazione, limitazione, opposizione e portabilità, oltre al diritto di revocare il consenso in qualsiasi momento (senza pregiudicare la liceità del trattamento basata sul consenso prima della revoca) e il diritto di proporre reclamo al Garante per la Protezione dei Dati Personali.</P>
-        <Ul>
-          <li>Scarica una copia dei tuoi dati: vai su <a href="/settings" className="text-greenElectric underline">Impostazioni &rarr; Dati &rarr; Scarica i miei dati</a>. Il file JSON scaricabile include profilo, partite, storico Career Index, stagioni, achievement e preferenze.</li>
-          <li>Cancella definitivamente il tuo account: vai su <a href="/settings" className="text-greenElectric underline">Impostazioni &rarr; Dati &rarr; Elimina account</a>. Prima della cancellazione definitiva, il sistema annulla automaticamente eventuali abbonamenti Stripe attivi per evitare addebiti successivi.</li>
-          <li>Per richieste particolari (es. modifica manuale, reclami, accesso dati formale) scrivi a: <a className="text-greenElectric" href={`mailto:${gdpr.controllerContactEmailPlaceholder}`}>{gdpr.controllerContactEmailPlaceholder}</a> oppure a {contactEmail}.</li>
-        </Ul>
+        <Blockquote accent={false}>
+          <p className="font-bold text-textPrimary leading-snug">
+            L&apos;Utente può esercitare in qualsiasi momento i propri diritti ai sensi degli artt. 15-22 GDPR.
+          </p>
+          <p className="text-textMuted text-sm">
+            Tra cui: diritto di accesso, rettifica, cancellazione (&ldquo;diritto all&apos;oblio&rdquo;), limitazione del trattamento, opposizione e portabilità dei dati. È inoltre garantito il diritto di revocare il consenso in qualsiasi momento (senza pregiudicare la liceità del trattamento basata sul consenso prima della revoca) e il diritto di proporre reclamo al Garante per la Protezione dei Dati Personali.
+          </p>
+        </Blockquote>
+
+        <SubSection title="7.1 Diritto di accesso e portabilità">
+          <Ul>
+            <li>Scarica una copia dei tuoi dati: vai su <a href="/settings" className="text-greenElectric underline">Impostazioni &rarr; Dati &rarr; Scarica i miei dati</a>.</li>
+            <li>Il file JSON scaricabile include: profilo, partite, storico Career Index, stagioni, achievement e preferenze.</li>
+          </Ul>
+        </SubSection>
+
+        <SubSection title="7.2 Diritto di cancellazione (oblio)">
+          <Ul>
+            <li>Cancella definitivamente il tuo account: vai su <a href="/settings" className="text-greenElectric underline">Impostazioni &rarr; Dati &rarr; Elimina account</a>.</li>
+            <li>Prima della cancellazione definitiva, il sistema annulla automaticamente eventuali abbonamenti Stripe attivi per evitare addebiti successivi.</li>
+          </Ul>
+        </SubSection>
+
+        <SubSection title="7.3 Rettifica e richieste particolari">
+          <P>Per richieste specifiche (modifica manuale di dati, reclami formali, accesso dati formale, limitazione del trattamento) scrivi a:</P>
+          <Ul>
+            <li>Email privacy: <a className="text-greenElectric" href={`mailto:${gdpr.controllerContactEmailPlaceholder}`}>{gdpr.controllerContactEmailPlaceholder}</a></li>
+            <li>Email generale: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+          </Ul>
+        </SubSection>
+
+        <SubSection title="7.4 Reclamo all&apos;autorità di controllo">
+          <P>Se l&apos;Utente ritiene che il trattamento dei propri dati violi il GDPR, ha sempre il diritto di proporre reclamo al Garante per la Protezione dei Dati Personali (Autorità Garante) secondo le modalità indicate sul sito ufficiale.</P>
+        </SubSection>
       </Section>
 
       <Section title="8. Modifiche alla presente informativa">

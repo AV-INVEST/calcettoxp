@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LEGAL_CONFIG } from '@/lib/legal-config';
-import { LegalLayout, Section, SubSection, P, Ul, legalMetaBase } from '@/components/legal/LegalLayout';
+import { LegalLayout, Section, SubSection, P, Ul, Blockquote, legalMetaBase } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
   ...legalMetaBase,
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Termini e condizioni generali di utilizzo del servizio ${LEGAL_CONFIG.appName}.`,
 };
 
-const { appName, domain, lastUpdatedHuman, ownerName, contactEmail } = LEGAL_CONFIG;
+const { appName, domain, lastUpdatedHuman, ownerName, contactEmail, vatId, address } = LEGAL_CONFIG;
 
 export default function TermsPage() {
   return (
@@ -75,7 +75,14 @@ export default function TermsPage() {
       </Section>
 
       <Section title="5. Limitazioni di responsabilità">
-        <P>Il Servizio è fornito &ldquo;così com&apos;è&rdquo; ({<em>&ldquo;as is&rdquo;</em>}). Nella misura massima consentita dalla legge, non garantiamo:</P>
+        <Blockquote accent={false}>
+          <p className="font-bold text-textPrimary leading-snug">
+            Il Servizio è fornito &ldquo;così com&apos;è&rdquo; ({<em>&ldquo;as is&rdquo;</em>}).
+          </p>
+          <p className="text-textMuted text-sm leading-relaxed">
+            Nella misura massima consentita dalla legge, non garantiamo continuità, accessibilità o disponibilità temporale illimitata del Servizio, né l&apos;accuratezza o l&apos;affidabilità di risultati derivanti da dati auto-dichiarati, né la conformità del Servizio per utilizzi diversi da quelli descritti nei presenti Termini.
+          </p>
+        </Blockquote>
         <Ul>
           <li>continuità, accessibilità o disponibilità temporale illimitata del Servizio;</li>
           <li>accuratezza o affidabilità di risultati derivanti da dati auto-dichiarati;</li>
@@ -97,8 +104,14 @@ export default function TermsPage() {
         <P>I presenti Termini sono regolati dalla legge italiana. Per ogni controversia relativa all&apos;interpretazione, esecuzione o violazione dei presenti Termini è competente in via esclusiva il Foro del luogo ove ha sede il Titolare, salvo diverse disposizioni inderogabili di legge.</P>
       </Section>
 
-      <Section title="9. Contatti">
-        <P>Per qualsiasi domanda relativa ai presenti Termini, scrivi a: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</P>
+      <Section title="9. Dati del titolare e contatti">
+        <Ul>
+          <li><strong>Titolare:</strong> {ownerName}</li>
+          <li><strong>Partita IVA:</strong> {vatId}</li>
+          <li><strong>Indirizzo:</strong> {address}</li>
+          <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+        </Ul>
+        <P>Per qualsiasi domanda relativa ai presenti Termini, scrivi all&apos;indirizzo email sopra indicato.</P>
       </Section>
     </LegalLayout>
   );

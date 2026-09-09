@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LEGAL_CONFIG } from '@/lib/legal-config';
-import { LegalLayout, Section, SubSection, P, Ul, legalMetaBase } from '@/components/legal/LegalLayout';
+import { LegalLayout, Section, SubSection, P, Ul, Blockquote, legalMetaBase } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
   ...legalMetaBase,
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: `Politica sui cookie e preferenze di tracciamento di ${LEGAL_CONFIG.appName}. Categorie di cookie, durata e modalità di gestione.`,
 };
 
-const { appName, lastUpdatedHuman } = LEGAL_CONFIG;
+const { appName, lastUpdatedHuman, ownerName, contactEmail, vatId, address } = LEGAL_CONFIG;
 
 export default function CookiePolicyPage() {
   return (
@@ -52,7 +52,14 @@ export default function CookiePolicyPage() {
       </Section>
 
       <Section title="2. Modalità di blocco preventivo">
-        <P>{appName} implementa un sistema di <strong>blocco preventivo (&ldquo;cookie blocking&rdquo;)</strong>: fino a quando non esprimi una scelta:</P>
+        <Blockquote>
+          <p className="font-bold text-textPrimary leading-snug">
+            {appName} implementa un sistema di <strong>blocco preventivo (&ldquo;cookie blocking&rdquo;)</strong>.
+          </p>
+          <p className="text-textMuted leading-relaxed">
+            Fino a quando non esprimi una scelta esplicita sulle preferenze cookie:
+          </p>
+        </Blockquote>
         <Ul>
           <li>Solo i cookie Necessari sono installati e attivi.</li>
           <li>Nessun script analitico o marketing viene caricato nel browser.</li>
@@ -79,9 +86,19 @@ export default function CookiePolicyPage() {
       </Section>
 
       <Section title="5. Riferimenti normativi">
-          <P>
+        <P>
           La presente policy è ispirata alle Linee guida cookie e strumenti simili del Garante per la Protezione dei Dati Personali (Provv. 10/2020, 30/06/2020) e alle successive novità interpretative.
-          </P>
+        </P>
+      </Section>
+
+      <Section title="6. Titolare e contatti">
+        <Ul>
+          <li><strong>Titolare del trattamento:</strong> {ownerName}</li>
+          <li><strong>Partita IVA:</strong> {vatId}</li>
+          <li><strong>Indirizzo:</strong> {address}</li>
+          <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+        </Ul>
+        <P>Per domande sulla Cookie Policy o sulle preferenze di tracciamento, contattaci all&apos;indirizzo email sopra indicato.</P>
       </Section>
     </LegalLayout>
   );

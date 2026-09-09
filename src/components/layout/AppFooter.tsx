@@ -12,7 +12,7 @@ const LEGAL_LINKS = [
 ];
 
 export default function AppFooter() {
-  const year = 2026;
+  const year = new Date().getFullYear();
   return (
     <footer
       className="py-10 md:py-12 border-t border-greenPrimary/10"

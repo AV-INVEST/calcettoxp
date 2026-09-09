@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LEGAL_CONFIG } from '@/lib/legal-config';
-import { LegalLayout, Section, SubSection, P, Ul, legalMetaBase } from '@/components/legal/LegalLayout';
+import { LegalLayout, Section, SubSection, P, Ul, Blockquote, legalMetaBase } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
   ...legalMetaBase,
@@ -8,24 +8,24 @@ export const metadata: Metadata = {
   description: `Dichiarazioni importanti sulla natura ricreativa delle metriche di ${LEGAL_CONFIG.appName} e la separazione tra Solo Career e dati certificati.`,
 };
 
-const { appName } = LEGAL_CONFIG;
+const { appName, lastUpdatedHuman, contactEmail } = LEGAL_CONFIG;
 
 export default function DisclaimerPage() {
   return (
     <LegalLayout
       title="Disclaimer"
-      subtitle="Avvertenze importanti sulla natura ricreativa di CalcettoXP, sul significato delle metriche e sulla separazione tra dati auto-dichiarati e dati verificati."
+      subtitle={`Avvertenze importanti sulla natura ricreativa di ${appName}, sul significato delle metriche e sulla separazione tra dati auto-dichiarati e dati verificati. Ultimo aggiornamento: ${lastUpdatedHuman}.`}
     >
       <Section title="1. Avvertenza generale">
-        <blockquote className="border-l-4 border-greenElectric/70 bg-bgSecondary/60 rounded-r-2xl p-4 md:p-5 my-3 space-y-3">
-          <p className="text-lg md:text-xl font-bold text-textPrimary leading-snug">
+        <Blockquote>
+          <p className="text-lg md:text-xl font-black text-textPrimary leading-snug tracking-tight">
             Le statistiche della Solo Career sono inserite direttamente dall&apos;utente.
           </p>
-          <p className="text-textMuted">
+          <p className="text-textMuted leading-relaxed">
             {appName} attualmente gestisce un solo flusso di registrazione: le informazioni sulle partite
             sono compilate dall&apos;Utente e non sono verificate da terzi, arbitri, federazioni o meccanismi di conferma incrociata.
           </p>
-        </blockquote>
+        </Blockquote>
       </Section>
 
       <Section title="2. Cosa rappresentano Career Index, OVR e attributi della carta giocatore">
@@ -85,6 +85,10 @@ export default function DisclaimerPage() {
 
       <Section title="6. La tua responsabilità">
         <P>Sei tu il solo responsabile dei dati che inserisci, della loro veridicità e del loro utilizzo. Registra solo partite che hai realmente giocato e che ricordi in buona fede: la qualità dell&apos;esperienza di {appName} dipende dall&apos;onestà di ciascun giocatore.</P>
+      </Section>
+
+      <Section title="7. Contatti">
+        <P>Per qualsiasi domanda relativa al presente Disclaimer, scrivi a: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</P>
       </Section>
     </LegalLayout>
   );
