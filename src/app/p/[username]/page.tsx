@@ -3,17 +3,12 @@ import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import { calculateCardAttributes } from '@/lib/card-attributes';
 import PlayerCard from '@/components/player/PlayerCard';
-import dynamic from 'next/dynamic';
+import CareerIndexChart from '@/components/charts/CareerIndexChart';
 import Link from 'next/link';
 import { Home, Trophy, TrendingUp, Target, Users, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
-
-const CareerIndexChart = dynamic(
-  () => import('@/components/charts/CareerIndexChart').then((m) => m.default),
-  { ssr: false }
-);
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://calcettoxp.com';
 
