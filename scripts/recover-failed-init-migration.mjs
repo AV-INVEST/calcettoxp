@@ -29,9 +29,9 @@
 //         "prisma migrate deploy && next build"
 
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-import fs from "node:fs";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 
 const MIGRATION_NAME = "20260909212241_init";
 const APP_TABLES = ["User", "Account", "Session", "PlayerProfile"];
@@ -83,24 +83,12 @@ function prismaCli(args, extraEnv = {}) {
 }
 
 async function loadPrismaClient() {
-  const modPath = findNodeModule("@prisma/client");
-  const { PrismaClient } = await import(modPath);
-  return { PrismaClient };
-}
-
-function findNodeModule(name) {
-  const start = path.dirname(fileURLToPath(import.meta.url));
-  let cur = start;
-  while (true) {
-    const candidate = path.join(cur, "node_modules", name);
-    if (fs.existsSync(candidate)) return candidate;
-    const parent = path.dirname(cur);
-    if (parent === cur) break;
-    cur = parent;
+  const mod = require("@prisma/client");
+  const { PrismaClient } = mod;
+  if (typeof PrismaClient !== "function") {
+    throw new Error("[recover] @prisma/client resolved but PrismaClient export is not a constructor");
   }
-  throw new Error(
-    `[recover] Could not find Node module "${name}". Expected in node_modules.`
-  );
+  return { PrismaClient };
 }
 
 // Real Prisma _prisma_migrations state semantics (no `is_success` column):
