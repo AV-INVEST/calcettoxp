@@ -52,6 +52,92 @@
   }
 }
 
+@keyframes flip-card {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes sheet-up {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-down {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: -200% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes ci-grow-green {
+  0% { transform: scaleY(0.2); opacity: 0.3; }
+  50% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0.85); opacity: 0.8; }
+}
+
+@keyframes ci-drop-red {
+  0% { transform: scaleY(0.2); opacity: 0.3; }
+  50% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(0.85); opacity: 0.8; }
+}
+
+@keyframes trophy-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(234, 179, 8, 0.75)); }
+}
+
+@keyframes ci-dot-travel {
+  0% { left: 0%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes card-shimmer {
+  0% { transform: translateX(-100%) rotate(12deg); }
+  100% { transform: translateX(200%) rotate(12deg); }
+}
+
 @layer base {
   :root {
     --bg-primary: #070A08;
@@ -183,6 +269,154 @@
     );
     background-size: 200% auto;
     animation: shimmer-border 3s linear infinite;
+  }
+
+  .animate-sheet-up {
+    animation: sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  .animate-sheet-down {
+    animation: sheet-down 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.22s ease-out forwards;
+  }
+
+  .animate-fade-out {
+    animation: fade-out 0.18s ease-in forwards;
+  }
+
+  .animate-trophy-glow {
+    animation: trophy-glow 3s ease-in-out infinite;
+  }
+
+  .card-flip-perspective {
+    perspective: 1200px;
+  }
+
+  .card-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .card-flip-inner.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-flip-face {
+    position: absolute;
+    inset: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  .card-flip-back {
+    transform: rotateY(180deg) translateZ(0);
+  }
+
+  .body-locked {
+    overflow: hidden !important;
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
+
+  .body-locked-ios {
+    position: fixed;
+    width: 100%;
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .trophy-room-bg {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(234, 179, 8, 0.1) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(234, 179, 8, 0.03) 0%, transparent 40%),
+      #0A0E0B;
+  }
+
+  .stadium-bg {
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 10%, rgba(250, 204, 21, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 15% 90%, rgba(234, 179, 8, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 30% at 85% 90%, rgba(234, 179, 8, 0.05) 0%, transparent 50%);
+  }
+
+  .pro-gold-bg {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(234, 179, 8, 0.08) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(234, 179, 8, 0.02) 0%, transparent 50%);
+  }
+
+  .hud-bg {
+    background:
+      linear-gradient(180deg, rgba(34, 197, 94, 0.04) 0%, transparent 100%),
+      linear-gradient(90deg, rgba(124, 255, 107, 0.02) 0%, transparent 50%, rgba(124, 255, 107, 0.02) 100%);
+  }
+
+  .progression-tunnel-bg {
+    background:
+      radial-gradient(ellipse 100% 80% at 50% 100%, rgba(124, 255, 107, 0.04) 0%, transparent 60%),
+      linear-gradient(180deg, transparent 0%, rgba(234, 179, 8, 0.03) 100%);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #FACC15 0%, #EAB308 50%, #A16207 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-green-gold {
+    background: linear-gradient(135deg, #7CFF6B 0%, #22C55E 40%, #EAB308 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shine-effect::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: shine 3.5s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+    overflow: hidden;
+  }
+
+  .no-text-wrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn-touch-min {
+    min-height: 56px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-sheet-up,
+    .animate-sheet-down,
+    .animate-fade-in,
+    .animate-fade-out,
+    .animate-trophy-glow,
+    .shine-effect::after,
+    .card-flip-inner {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 }
 

@@ -10,7 +10,7 @@ export interface ButtonProps
 }
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary focus-visible:ring-offset-2 focus-visible:ring-offset-bgPrimary disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 font-bold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary focus-visible:ring-offset-2 focus-visible:ring-offset-bgPrimary disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] whitespace-nowrap overflow-hidden text-ellipsis";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
