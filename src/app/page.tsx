@@ -27,22 +27,22 @@ const demoPlayers = [{ id:"andrea", name:"ANDREA", role:"ATT", roleLabel:"Attacc
   image: AndreaImg, imageAlt:"Andrea - Attaccante CalcettoXP",
   stats:[["PAC","85"],["SHO","82"],["PAS","68"],["DRI","76"],["DEF","35"],["PHY","72"]],
   matches:"34", results:"21 V / 4 P / 9 S", goals:"47 gol", assists:"12 assist", winRate:"61.8%", ci:1423, ciDelta:"+9.2%",
-  ciData:[{m:1,v:960},{m:2,v:1010},{m:3,v:985},{m:4,v:1070},{m:5,v:1140},{m:6,v:1105},{m:7,v:1230},{m:8,v:1310},{m:9,v:1380},{m:10,v:1423}]},
+  ciData:[{m:1,v:920},{m:2,v:1050},{m:3,v:990},{m:4,v:1180},{m:5,v:1080},{m:6,v:1260},{m:7,v:1190},{m:8,v:1350},{m:9,v:1300},{m:10,v:1423}]},
   { id:"federico", name:"FEDERICO", role:"CEN", roleLabel:"Centrocampista", ovr:74, lv:13,
   image: FedericoImg, imageAlt:"Federico - Centrocampista CalcettoXP",
   stats:[["PAC","74"],["SHO","65"],["PAS","84"],["DRI","78"],["DEF","62"],["PHY","70"]],
   matches:"41", results:"24 V / 7 P / 10 S", goals:"18 gol", assists:"33 assist", winRate:"58.5%", ci:1356, ciDelta:"+5.8%",
-  ciData:[{m:1,v:1020},{m:2,v:1085},{m:3,v:1150},{m:4,v:1120},{m:5,v:1205},{m:6,v:1275},{m:7,v:1240},{m:8,v:1315},{m:9,v:1290},{m:10,v:1356}]},
+  ciData:[{m:1,v:1000},{m:2,v:1040},{m:3,v:1095},{m:4,v:1130},{m:5,v:1175},{m:6,v:1210},{m:7,v:1255},{m:8,v:1290},{m:9,v:1325},{m:10,v:1356}]},
   { id:"riccardo", name:"RICCARDO", role:"DIF", roleLabel:"Difensore", ovr:71, lv:11,
   image: RiccardoImg, imageAlt:"Riccardo - Difensore CalcettoXP",
   stats:[["PAC","68"],["SHO","38"],["PAS","62"],["DRI","55"],["DEF","86"],["PHY","80"]],
   matches:"29", results:"16 V / 6 P / 7 S", goals:"5 gol", assists:"8 assist", winRate:"55.2%", cleanSheets:"12", ci:1289, ciDelta:"+6.4%",
-  ciData:[{m:1,v:940},{m:2,v:995},{m:3,v:1060},{m:4,v:1030},{m:5,v:1095},{m:6,v:1175},{m:7,v:1145},{m:8,v:1220},{m:9,v:1260},{m:10,v:1289}]},
+  ciData:[{m:1,v:960},{m:2,v:990},{m:3,v:1025},{m:4,v:1005},{m:5,v:1065},{m:6,v:1100},{m:7,v:1075},{m:8,v:1195},{m:9,v:1240},{m:10,v:1289}]},
   { id:"marco", name:"MARCO", role:"POR", roleLabel:"Portiere", ovr:76, lv:14,
   image: MarcoImg, imageAlt:"Marco - Portiere CalcettoXP",
   stats:[["PAC","58"],["SHO","25"],["PAS","55"],["DRI","40"],["DEF","88"],["PHY","82"]],
   matches:"37", results:"20 V / 9 P / 8 S", goals:"0 gol", saves:"142 parate", winRate:"54.1%", cleanSheets:"15", ci:1368, ciDelta:"+7.1%",
-  ciData:[{m:1,v:980},{m:2,v:1045},{m:3,v:1110},{m:4,v:1075},{m:5,v:1160},{m:6,v:1225},{m:7,v:1190},{m:8,v:1280},{m:9,v:1335},{m:10,v:1368}]}];
+  ciData:[{m:1,v:990},{m:2,v:995},{m:3,v:1000},{m:4,v:1140},{m:5,v:1145},{m:6,v:1150},{m:7,v:1290},{m:8,v:1295},{m:9,v:1300},{m:10,v:1368}]}];
 
 const steps = [
   { icon:PlaySquare, title:"GIOCA", desc:"Scendi in campo come sempre." },
@@ -74,21 +74,24 @@ const pricingPro = [
 ];
 const ciSimpleSequence = [
   { label:"START", delta:0, value:1000, type:"start" as const },
-  { label:"VITTORIA", delta:+18, value:1018, type:"win" as const },
-  { label:"SCONFITTA", delta:-15, value:1003, type:"loss" as const },
-  { label:"PAREGGIO", delta:0, value:1003, type:"draw" as const },
-  { label:"VITTORIA", delta:+20, value:1023, type:"win" as const },
+  { label:"VITTORIA", delta:+22, value:1022, type:"win" as const },
+  { label:"SCONFITTA", delta:-18, value:1004, type:"loss" as const },
+  { label:"PAREGGIO", delta:+3, value:1007, type:"draw" as const },
+  { label:"VITTORIA", delta:+35, value:1042, type:"win" as const },
+  { label:"VITTORIA", delta:+19, value:1061, type:"win" as const },
+  { label:"SCONFITTA", delta:-18, value:1043, type:"loss" as const },
+  { label:"VITTORIA", delta:+37, value:1080, type:"win" as const },
 ];
 const ciLegacySequence = [
   { step:0, label:"START", delta:0, value:1000, type:"start" },
-  { step:1, label:"VITTORIA", delta:+18, value:1018, type:"win" },
-  { step:2, label:"VITTORIA", delta:+16, value:1034, type:"win" },
-  { step:3, label:"PAREGGIO", delta:0, value:1034, type:"draw" },
-  { step:4, label:"SCONFITTA", delta:-15, value:1019, type:"loss" },
-  { step:5, label:"VITTORIA", delta:+23, value:1042, type:"win" },
-  { step:6, label:"VITTORIA", delta:+18, value:1060, type:"win" },
-  { step:7, label:"SCONFITTA", delta:-13, value:1047, type:"loss" },
-  { step:8, label:"VITTORIA", delta:+28, value:1075, type:"win" },
+  { step:1, label:"VITTORIA", delta:+22, value:1022, type:"win" },
+  { step:2, label:"VITTORIA", delta:+31, value:1053, type:"win" },
+  { step:3, label:"SCONFITTA", delta:-20, value:1033, type:"loss" },
+  { step:4, label:"PAREGGIO", delta:+3, value:1036, type:"draw" },
+  { step:5, label:"VITTORIA", delta:+38, value:1074, type:"win" },
+  { step:6, label:"SCONFITTA", delta:-20, value:1054, type:"loss" },
+  { step:7, label:"VITTORIA", delta:+29, value:1083, type:"win" },
+  { step:8, label:"VITTORIA", delta:+40, value:1123, type:"win" },
 ];
 const allAchievements = [
   { icon:Star, name:"DEBUTTO", desc:"Prima partita registrata", role:"Tutti" },
@@ -121,50 +124,95 @@ function PitchLines(){ return (
 );}
 
 function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; animate?:boolean }) {
-  const wrap = "relative mx-auto w-full max-w-[300px]" + (animate ? " animate-float-slow" : "");
-  const RoleIcon = player.role==="POR"?Hand : player.role==="DIF"?ShieldCheck : player.role==="CEN"?Compass : Target;
+  var isPremium = player.id === "andrea";
+  var wrap = "relative mx-auto w-full max-w-[300px]" + (animate ? " animate-float-slow" : "");
+  var RoleIcon = player.role==="POR"?Hand : player.role==="DIF"?ShieldCheck : player.role==="CEN"?Compass : Target;
+  var borderGlow = isPremium
+    ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-700 opacity-90"
+    : "bg-gradient-to-br from-greenElectric via-greenPrimary to-greenElectric/20 opacity-70";
+  var cardBorder = isPremium ? "border-yellow-400/50" : "border-greenPrimary/25";
+  var cardBg = isPremium
+    ? "bg-gradient-to-br from-bgSecondary via-[#1A160B] to-bgCard"
+    : "bg-gradient-to-br from-bgSecondary to-bgCard";
+  var ovrGrad = isPremium
+    ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600"
+    : "bg-gradient-to-br from-greenElectric to-greenPrimary";
+  var ovrBorder = isPremium ? "border-yellow-300/60 shadow-yellow-500/35" : "border-greenElectric/50 shadow-greenElectric/25";
+  var ovrLabel = isPremium ? "text-yellow-300" : "text-greenElectric";
+  var roleBg = isPremium ? "bg-yellow-400/18 border-yellow-400/45" : "bg-greenElectric/15 border-greenElectric/35";
+  var roleText = isPremium ? "text-yellow-300" : "text-greenElectric";
+  var imgBorder = isPremium ? "border-yellow-400/45 shadow-yellow-500/20" : "border-greenElectric/25 shadow-greenElectric/10";
+  var imgOverlayTop = isPremium ? "border-yellow-400/50" : "border-greenElectric/40";
+  var imgIcon = isPremium ? "text-yellow-400" : "text-greenElectric";
+  var shineClass = isPremium ? "shine-effect" : "";
+  var roleBadgeClass = "px-3 py-1 rounded-md " + roleBg + " border";
+  var ovrBadgeClass = "w-16 h-16 rounded-full " + ovrGrad + " flex items-center justify-center border-2 " + ovrBorder + " shadow-lg animate-pulse-glow";
+  var ovrLabelClass = "text-[10px] " + ovrLabel + " font-bold mt-1 tracking-wider";
+  var roleSpanClass = roleText + " text-xs font-black tracking-widest";
+  var cardWrapClass = "relative rounded-3xl " + cardBg + " p-5 border " + cardBorder + " " + shineClass;
+  var glowWrapClass = "absolute -inset-0.5 rounded-3xl " + borderGlow + " blur-[2px]";
+  var ambientPhoto = isPremium
+    ? "bg-gradient-to-br from-yellow-500/18 via-yellow-400/10 to-transparent"
+    : "bg-gradient-to-br from-greenPrimary/10 to-greenElectric/5";
+  var photoOverlay = isPremium ? "to-yellow-400/12" : "to-greenElectric/10";
+  var ambientPhotoClass = "absolute -inset-2 rounded-2xl " + ambientPhoto + " blur-xl opacity-70";
+  var photoFrame = "relative w-32 h-32 rounded-2xl overflow-hidden border " + imgBorder + " shadow-2xl";
+  var photoBadgeClass = "absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-bgPrimary/80 backdrop-blur-[2px] border " + imgOverlayTop + " flex items-center justify-center shadow-md";
+  var iconClass = "w-3.5 h-3.5 " + imgIcon;
+  var titleClass = "font-black text-2xl tracking-tight text-textPrimary";
+  var divider = isPremium ? "via-yellow-400/60" : "via-greenElectric/50";
+  var dividerClass = "h-px w-20 mx-auto mt-2 bg-gradient-to-r from-transparent " + divider + " to-transparent";
+  var statBorder = isPremium ? "border-yellow-400/15" : "border-greenElectric/12";
+  var gradientTop = "from-bgCard/90 via-bgSecondary/30 " + photoOverlay;
+  var photoTint = "absolute inset-0 bg-gradient-to-t " + gradientTop;
+  var titleStyle = isPremium ? {textShadow:"0 0 20px rgba(250, 204, 21, 0.25)"} : undefined;
   return (
     <div className={wrap}>
-      <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-greenElectric via-greenPrimary to-greenElectric/20 opacity-70 blur-[2px]"/>
-      <div className="relative rounded-3xl bg-gradient-to-br from-bgSecondary to-bgCard p-5 border border-greenPrimary/25">
+      <div className={glowWrapClass}/>
+      <div className={cardWrapClass}>
+        {isPremium ? (
+          <div className="flex justify-center mb-2 relative z-20 shrink-0">
+            <div className="px-3 py-0.5 rounded-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600 shadow-lg shadow-yellow-500/30 flex items-center gap-1">
+              <Crown className="w-3 h-3 text-bgPrimary" strokeWidth={2.5}/>
+              <span className="text-bgPrimary text-[9px] font-black tracking-[0.18em]">PRO</span>
+            </div>
+          </div>
+        ) : null}
         <div className="flex justify-between items-start mb-4">
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center border-2 border-greenElectric/50 shadow-lg shadow-greenElectric/25 animate-pulse-glow">
-              <span className="text-bgPrimary font-black text-2xl tabular-nums">{player.ovr}</span>
-            </div>
-            <span className="text-[10px] text-greenElectric font-bold mt-1 tracking-wider">OVR</span>
+            <div className={ovrBadgeClass}><span className="text-bgPrimary font-black text-2xl tabular-nums">{player.ovr}</span></div>
+            <span className={ovrLabelClass}>OVR</span>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <div className="px-3 py-1 rounded-md bg-greenElectric/15 border border-greenElectric/35">
-              <span className="text-greenElectric text-xs font-black tracking-widest">{player.role}</span>
-            </div>
+            <div className={roleBadgeClass}><span className={roleSpanClass}>{player.role}</span></div>
             <span className="text-textMuted text-xs mt-1 font-medium">LV <span className="text-textPrimary font-bold text-sm">{player.lv}</span></span>
-            <span className="text-textMuted/80 text-[10px] font-medium">{player.roleLabel}</span>
           </div>
         </div>
         <div className="my-5 flex justify-center">
           <div className="relative">
-            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-br from-greenPrimary/10 to-greenElectric/5 blur-xl opacity-70"/>
-            <div className="relative w-32 h-32 rounded-2xl overflow-hidden border border-greenElectric/25 shadow-2xl shadow-greenElectric/10">
+            <div className={ambientPhotoClass}/>
+            <div className={photoFrame}>
               <Image src={player.image} alt={player.imageAlt} fill sizes="128px" className="object-cover object-center"/>
-              <div className="absolute inset-0 bg-gradient-to-t from-bgCard/90 via-bgSecondary/30 to-greenElectric/10"/>
-              <div className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-bgPrimary/80 backdrop-blur-[2px] border border-greenElectric/40 flex items-center justify-center shadow-md">
-                <RoleIcon className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2}/>
-              </div>
+              <div className={photoTint}/>
+              <div className={photoBadgeClass}><RoleIcon className={iconClass} strokeWidth={2}/></div>
             </div>
           </div>
         </div>
         <div className="text-center mb-5">
-          <h3 className="text-textPrimary font-black text-2xl tracking-tight">{player.name}</h3>
-          <div className="h-px w-20 mx-auto mt-2 bg-gradient-to-r from-transparent via-greenElectric/50 to-transparent"/>
+          <h3 className={titleClass} style={titleStyle}>{player.name}</h3>
+          <div className={dividerClass}/>
         </div>
         <div className="grid grid-cols-2 gap-2.5 text-xs">
-          {player.stats.map(([k,v]) => (
-            <div key={k} className="flex justify-between items-center border-b border-greenElectric/12 pb-1.5 last:border-b-0">
-              <span className="text-textMuted font-black tracking-wide">{k}</span>
-              <span className="text-textPrimary font-black text-sm tabular-nums">{v}</span>
-            </div>
-          ))}
+          {player.stats.map(function(s){
+            var k=s[0], v=s[1];
+            var rowCls = "flex justify-between items-center border-b " + statBorder + " pb-1.5 last:border-b-0";
+            return (
+              <div key={k} className={rowCls}>
+                <span className="text-textMuted font-black tracking-wide">{k}</span>
+                <span className="text-textPrimary font-black text-sm tabular-nums">{v}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -173,26 +221,32 @@ function DemoPlayerCard({ player, animate }: { player:typeof demoPlayers[0]; ani
 
 function MobilePlayerFlipCard() {
   const [flipped, setFlipped] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const autoId = useRef<number | null>(null);
   const player = demoPlayers[selectedIdx];
+
   useEffect(() => {
+    setMounted(true);
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mql.matches);
     const h = (e:MediaQueryListEvent) => setPrefersReduced(e.matches);
     if(mql.addEventListener) mql.addEventListener("change",h); else mql.addListener(h);
     return () => { if(mql.removeEventListener) mql.removeEventListener("change",h); else mql.removeListener(h); };
   }, []);
+
   const startAuto = () => {
     if(autoId.current) window.clearInterval(autoId.current);
     autoId.current = window.setInterval(() => setFlipped(f => !f), 4500);
   };
+
   useEffect(() => {
-    if(prefersReduced) return;
+    if(!mounted || prefersReduced) return;
     startAuto();
     return () => { if(autoId.current) window.clearInterval(autoId.current); };
-  }, [prefersReduced]);
+  }, [mounted, prefersReduced]);
+
   const handleTap = () => {
     if(autoId.current) window.clearInterval(autoId.current);
     setFlipped(f => !f);
@@ -200,25 +254,102 @@ function MobilePlayerFlipCard() {
       window.setTimeout(startAuto, 7000);
     }
   };
+
+  const isPremium = player.id === "andrea";
   const RoleIcon = player.role==="POR"?Hand : player.role==="DIF"?ShieldCheck : player.role==="CEN"?Compass : Target;
   const goalsVal = (player as any).goals ?? "0 gol";
   const assistsVal = (player as any).assists ?? "0 assist";
+
+  const frontBorder = isPremium
+    ? "bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-700 opacity-95"
+    : "bg-gradient-to-br from-greenElectric via-greenPrimary/80 via-yellow-500/10 to-greenElectric/30 opacity-80";
+  const frontCard = isPremium
+    ? "bg-gradient-to-br from-bgSecondary via-[#1A160B] to-bgSecondary border-yellow-400/55"
+    : "bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border-greenElectric/30";
+  const frontOvrGrad = isPremium
+    ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600"
+    : "bg-gradient-to-br from-greenElectric to-greenPrimary";
+  const frontOvrBorder = isPremium
+    ? "border-yellow-300/65 shadow-yellow-500/40"
+    : "border-greenElectric/50 shadow-greenElectric/30";
+  const frontOvrTxt = isPremium ? "text-yellow-200" : "text-greenElectric";
+  const frontRoleBg = isPremium
+    ? "bg-yellow-400/22 border-yellow-400/50"
+    : "bg-greenElectric/18 border-greenElectric/40";
+  const frontRoleTxt = isPremium ? "text-yellow-200" : "text-greenElectric";
+  const frontAmb1 = isPremium ? "bg-yellow-400/18" : "bg-greenElectric/15";
+  const frontAmb2 = isPremium ? "bg-yellow-500/12" : "bg-greenPrimary/10";
+  const frontPhotoBg = isPremium
+    ? "bg-gradient-to-br from-yellow-500/25 via-yellow-400/15 to-transparent"
+    : "bg-gradient-to-br from-greenPrimary/15 via-greenElectric/10 to-transparent";
+  const frontPhotoBorder = isPremium
+    ? "border-yellow-400/50 shadow-yellow-500/25"
+    : "border-greenElectric/35 shadow-greenElectric/15";
+  const frontPhotoOverlay = isPremium ? "to-yellow-400/15" : "to-greenElectric/12";
+  const frontPhotoBadgeBorder = isPremium ? "border-yellow-400/55" : "border-greenElectric/40";
+  const frontPhotoBadgeIcon = isPremium ? "text-yellow-400" : "text-greenElectric";
+  const frontDivider = isPremium
+    ? "via-yellow-400/65"
+    : "via-greenElectric/50";
+
+  const backBorder = isPremium
+    ? "bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-700 opacity-95"
+    : "bg-gradient-to-br from-greenElectric via-greenPrimary/80 to-greenElectric/30 opacity-80";
+  const backCard = isPremium
+    ? "bg-gradient-to-br from-bgSecondary via-[#1A160B] to-bgSecondary border-yellow-400/55"
+    : "bg-gradient-to-br from-bgCard via-bgSecondary to-bgCard border-greenElectric/25";
+  const backAmb1 = isPremium ? "bg-yellow-400/18" : "bg-yellow-500/10";
+  const backAmb2 = isPremium ? "bg-yellow-500/14" : "bg-greenElectric/12";
+  const backStatsIcon = isPremium ? "text-yellow-300" : "text-greenElectric";
+  const backStatsLabel = isPremium ? "text-yellow-300" : "text-greenElectric";
+  const backStatsBadge = isPremium
+    ? "border-yellow-400/35 bg-yellow-400/10 text-yellow-300"
+    : "border-greenElectric/20 bg-bgPrimary/60 text-greenElectric";
+  const backStatCard = isPremium
+    ? "bg-bgPrimary/60 border-yellow-400/20"
+    : "bg-bgPrimary/60 border-greenPrimary/15";
+  const backCIShell = isPremium
+    ? "bg-gradient-to-br from-yellow-400/18 via-yellow-500/10 to-transparent border-yellow-400/35"
+    : "bg-gradient-to-br from-greenElectric/15 via-greenPrimary/8 to-transparent border-greenElectric/25";
+  const backCIAccent = isPremium
+    ? "bg-yellow-400/18 border-yellow-400/35 text-yellow-300"
+    : "bg-greenElectric/15 border-greenElectric/30 text-greenElectric";
+  const backCIBar = isPremium
+    ? "bg-gradient-to-r from-yellow-400 to-yellow-300"
+    : "bg-gradient-to-r from-greenPrimary to-greenElectric";
+  const backCIIcon = isPremium ? "text-yellow-300" : "text-greenElectric";
+  const backDivider = isPremium
+    ? "via-yellow-400/40"
+    : "via-greenElectric/30";
+
   return (
-    <div className="w-full max-w-xs mx-auto">
+    <div className="w-full max-w-xs mx-auto pt-2">
       <div className="flex items-center justify-center gap-2 mb-4">
         {demoPlayers.map((p, i) => {
           const active = i === selectedIdx;
+          const pPremium = p.id === "andrea";
           const RI = p.role==="POR"?Hand : p.role==="DIF"?ShieldCheck : p.role==="CEN"?Compass : Target;
+          const activeCls = pPremium
+            ? "scale-110 border-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.6)]"
+            : "scale-110 border-greenElectric shadow-[0_0_12px_rgba(124,255,107,0.5)]";
+          const activeBg = pPremium ? "bg-yellow-400/12" : "bg-greenElectric/10";
+          const activeIcon = pPremium ? "text-yellow-400" : "text-greenElectric";
+          const activeBdr = pPremium ? "border-yellow-400" : "border-greenElectric";
           return (
             <button key={p.id} type="button" onClick={() => { setSelectedIdx(i); setFlipped(false); }}
               aria-label={`Seleziona ${p.name}`}
-              className={`group relative rounded-full border-2 transition-all duration-200 ${active ? "scale-110 border-greenElectric shadow-[0_0_12px_rgba(124,255,107,0.5)]" : "border-greenPrimary/20 hover:border-greenElectric/40"}`}>
+              className={`group relative rounded-full border-2 transition-all duration-200 ${active ? activeCls : "border-greenPrimary/20 hover:border-greenElectric/40"} ${pPremium && !active ? "border-yellow-500/30" : ""}`}>
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden relative">
                 <Image src={p.image} alt={p.imageAlt} fill sizes="40px" className="object-cover object-center"/>
-                <div className={`absolute inset-0 transition-opacity ${active ? "bg-greenElectric/10" : "bg-bgPrimary/40 group-hover:bg-bgPrimary/15"}`}/>
+                <div className={`absolute inset-0 transition-opacity ${active ? activeBg : "bg-bgPrimary/40 group-hover:bg-bgPrimary/15"}`}/>
+                {pPremium && (
+                  <div className="absolute -top-1 -left-1 w-[14px] h-[14px] rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center shadow-md">
+                    <Crown className="w-[9px] h-[9px] text-bgPrimary" strokeWidth={3}/>
+                  </div>
+                )}
               </div>
-              <div className={`absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-bgPrimary flex items-center justify-center border ${active ? "border-greenElectric" : "border-white/10"} shadow-md`}>
-                <RI className="w-3 h-3 text-greenElectric" strokeWidth={2.5}/>
+              <div className={`absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-bgPrimary flex items-center justify-center border ${active ? activeBdr : "border-white/10"} shadow-md`}>
+                <RI className={`w-3 h-3 ${active ? activeIcon : "text-greenElectric"}`} strokeWidth={2.5}/>
               </div>
             </button>
           );
@@ -226,86 +357,101 @@ function MobilePlayerFlipCard() {
       </div>
       <div className="card-flip-perspective w-full" style={{height:"420px"}}>
         <button type="button" onClick={handleTap} aria-label="Tocca per girare la carta"
-          className={`card-flip-inner w-full h-full block ${flipped ? "is-flipped" : ""}`}>
+          className={`card-flip-inner w-full h-full block ${mounted && flipped ? "is-flipped" : ""}`}>
           <div className="card-flip-face rounded-[26px] overflow-hidden">
-            <div className="absolute -inset-0.5 rounded-[26px] bg-gradient-to-br from-greenElectric via-greenPrimary/80 via-yellow-500/10 to-greenElectric/30 opacity-80 blur-[2px]"/>
-            <div className="relative w-full h-full rounded-[25px] bg-gradient-to-br from-bgSecondary via-bgCard to-bgSecondary border border-greenElectric/30 p-5 flex flex-col overflow-hidden shine-effect">
-              <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-greenElectric/15 blur-3xl"/>
-              <div className="absolute -bottom-20 -left-16 w-40 h-40 rounded-full bg-greenPrimary/10 blur-3xl"/>
+            <div className={`absolute -inset-0.5 rounded-[26px] ${frontBorder} blur-[2px]`}/>
+            <div className={`relative w-full h-full rounded-[25px] ${frontCard} p-4 flex flex-col overflow-hidden border ${isPremium ? "shine-effect" : ""}`}>
+              {isPremium && (
+                <div className="flex justify-center mb-1 relative z-20 shrink-0">
+                  <div className="px-3 py-0.5 rounded-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600 shadow-lg shadow-yellow-500/30 flex items-center gap-1">
+                    <Crown className="w-3 h-3 text-bgPrimary" strokeWidth={2.5}/>
+                    <span className="text-bgPrimary text-[9px] font-black tracking-[0.18em]">PRO</span>
+                  </div>
+                </div>
+              )}
+              <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full ${frontAmb1} blur-3xl`}/>
+              <div className={`absolute -bottom-20 -left-16 w-40 h-40 rounded-full ${frontAmb2} blur-3xl`}/>
               <div className="flex justify-between items-start relative z-10">
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center border-2 border-greenElectric/50 shadow-lg shadow-greenElectric/30 animate-pulse-glow">
+                  <div className={`w-16 h-16 rounded-full ${frontOvrGrad} flex items-center justify-center border-2 ${frontOvrBorder} shadow-lg ${mounted ? "animate-pulse-glow" : ""}`}>
                     <span className="text-bgPrimary font-black text-2xl tabular-nums">{player.ovr}</span>
                   </div>
-                  <span className="text-[10px] text-greenElectric font-black mt-1 tracking-[0.2em]">OVR</span>
+                  <span className={`text-[10px] ${frontOvrTxt} font-black mt-1 tracking-[0.2em]`}>OVR</span>
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
-                  <div className="px-3 py-1 rounded-md bg-greenElectric/18 border border-greenElectric/40">
-                    <span className="text-greenElectric text-xs font-black tracking-[0.25em]">{player.role}</span>
+                  <div className={`px-3 py-1 rounded-md ${frontRoleBg} border`}>
+                    <span className={`${frontRoleTxt} text-xs font-black tracking-[0.25em]`}>{player.role}</span>
                   </div>
                   <div className="px-2.5 py-0.5 rounded-full bg-bgPrimary/70 border border-white/5 text-[10px] font-black text-textPrimary tracking-wide">LV {player.lv}</div>
                 </div>
               </div>
               <div className="flex-1 flex items-center justify-center relative z-10 my-3">
                 <div className="relative">
-                  <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-greenPrimary/15 via-greenElectric/10 to-transparent blur-2xl"/>
-                  <div className="relative w-40 h-40 rounded-[28px] overflow-hidden border border-greenElectric/35 shadow-2xl shadow-greenElectric/15">
+                  <div className={`absolute -inset-4 rounded-3xl ${frontPhotoBg} blur-2xl`}/>
+                  <div className={`relative w-40 h-40 rounded-[28px] overflow-hidden border ${frontPhotoBorder} shadow-2xl`}>
                     <Image src={player.image} alt={player.imageAlt} fill sizes="160px" className="object-cover object-center"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-bgCard/85 via-bgSecondary/20 to-greenElectric/12"/>
-                    <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-bgPrimary/85 backdrop-blur-[2px] border border-greenElectric/40 flex items-center justify-center shadow-md">
-                      <RoleIcon className="w-4 h-4 text-greenElectric" strokeWidth={2.2}/>
+                    <div className={`absolute inset-0 bg-gradient-to-t from-bgCard/85 via-bgSecondary/20 ${frontPhotoOverlay}`}/>
+                    <div className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-bgPrimary/85 backdrop-blur-[2px] border ${frontPhotoBadgeBorder} flex items-center justify-center shadow-md`}>
+                      <RoleIcon className={`w-4 h-4 ${frontPhotoBadgeIcon}`} strokeWidth={2.2}/>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="text-center relative z-10 pb-1">
-                <h3 className="text-textPrimary font-black text-3xl tracking-[0.15em]">{player.name}</h3>
-                <p className="text-textMuted/80 text-xs mt-1.5 font-medium tracking-wider">{player.roleLabel}</p>
-                <div className="h-px w-28 mx-auto mt-3 bg-gradient-to-r from-transparent via-greenElectric/50 to-transparent"/>
+                <h3 className="text-textPrimary font-black text-3xl tracking-[0.15em]" style={isPremium ? {textShadow:"0 0 22px rgba(250, 204, 21, 0.3)"} : undefined}>{player.name}</h3>
+                <div className={`h-px w-28 mx-auto mt-3 bg-gradient-to-r from-transparent ${frontDivider} to-transparent`}/>
               </div>
             </div>
           </div>
           <div className="card-flip-face card-flip-back rounded-[26px] overflow-hidden">
-            <div className="absolute -inset-0.5 rounded-[26px] bg-gradient-to-br from-yellow-500/30 via-greenPrimary/60 via-greenElectric/40 to-yellow-500/20 opacity-75 blur-[2px]"/>
-            <div className="relative w-full h-full rounded-[25px] bg-gradient-to-br from-bgCard via-bgSecondary to-bgCard border border-greenElectric/25 p-5 flex flex-col overflow-hidden">
-              <div className="absolute -top-20 -left-20 w-44 h-44 rounded-full bg-yellow-500/10 blur-3xl"/>
-              <div className="absolute -bottom-24 -right-20 w-48 h-48 rounded-full bg-greenElectric/12 blur-3xl"/>
-              <div className="relative z-10 flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-greenElectric" strokeWidth={2.2}/>
-                  <span className="text-[10px] text-greenElectric font-black tracking-[0.2em]">STATISTICHE</span>
+            <div className={`absolute -inset-0.5 rounded-[26px] ${backBorder} blur-[2px]`}/>
+            <div className={`relative w-full h-full rounded-[25px] ${backCard} p-4 flex flex-col overflow-hidden border ${isPremium ? "shine-effect" : ""}`}>
+              <div className={`absolute -top-20 -left-20 w-44 h-44 rounded-full ${backAmb1} blur-3xl`}/>
+              <div className={`absolute -bottom-24 -right-20 w-48 h-48 rounded-full ${backAmb2} blur-3xl`}/>
+              {isPremium && (
+                <div className="flex justify-center mb-1 relative z-20 shrink-0">
+                  <div className="px-3 py-0.5 rounded-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600 shadow-lg shadow-yellow-500/30 flex items-center gap-1">
+                    <Crown className="w-3 h-3 text-bgPrimary" strokeWidth={2.5}/>
+                    <span className="text-bgPrimary text-[9px] font-black tracking-[0.18em]">PRO</span>
+                  </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-bgPrimary/60 border border-greenElectric/20 text-[10px] font-black text-greenElectric tracking-wider">LV {player.lv}</span>
+              )}
+              <div className="relative z-10 flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Award className={`w-4 h-4 ${backStatsIcon}`} strokeWidth={2.2}/>
+                  <span className={`text-[10px] ${backStatsLabel} font-black tracking-[0.2em]`}>STATISTICHE</span>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full border text-[10px] font-black tracking-wider ${backStatsBadge}`}>LV {player.lv}</span>
               </div>
               <div className="relative z-10 grid grid-cols-2 gap-2.5 mb-3">
                 {[
                   ["Partite", player.matches], ["Risultati", player.results],
                   ["Gol", goalsVal], ["Assist", assistsVal],
                 ].map(([l,v]) => (
-                  <div key={l} className="rounded-xl bg-bgPrimary/60 border border-greenPrimary/15 p-3">
+                  <div key={l} className={`rounded-xl border p-3 ${backStatCard}`}>
                     <div className="text-[10px] text-textMuted font-bold tracking-widest uppercase mb-0.5">{l}</div>
                     <div className="text-textPrimary font-black text-lg tabular-nums">{v}</div>
                   </div>
                 ))}
               </div>
-              <div className="relative z-10 rounded-2xl bg-gradient-to-br from-greenElectric/15 via-greenPrimary/8 to-transparent border border-greenElectric/25 p-3 mb-3">
+              <div className={`relative z-10 rounded-2xl p-3 mb-3 border ${backCIShell}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-[9px] text-textMuted font-black tracking-[0.2em] mb-1">CAREER INDEX</div>
                     <div className="text-textPrimary font-black text-2xl tracking-tight tabular-nums">{player.ci.toLocaleString("it-IT")}</div>
                   </div>
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-greenElectric/15 border border-greenElectric/30">
-                    <TrendingUp className="w-3.5 h-3.5 text-greenElectric" strokeWidth={2.5}/>
-                    <span className="text-greenElectric text-[11px] font-black">{player.ciDelta}</span>
+                  <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border ${backCIAccent}`}>
+                    <TrendingUp className={`w-3.5 h-3.5 ${backCIIcon}`} strokeWidth={2.5}/>
+                    <span className={`text-[11px] font-black ${backCIIcon}`}>{player.ciDelta}</span>
                   </div>
                 </div>
                 <div className="mt-2.5 h-1 rounded-full bg-bgPrimary/50 overflow-hidden">
-                  <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-greenPrimary to-greenElectric"/>
+                  <div className={`h-full w-[68%] rounded-full ${backCIBar}`}/>
                 </div>
                 <p className="text-[10px] text-textMuted/80 mt-2 leading-tight">In progressione costante. Continua a vincere.</p>
               </div>
               <div className="relative z-10 mt-auto">
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-greenElectric/30 to-transparent mb-2"/>
+                <div className={`h-px w-full bg-gradient-to-r from-transparent ${backDivider} to-transparent mb-2`}/>
                 <p className="text-center text-[10px] text-textMuted font-bold tracking-[0.2em]">· COLLEZIONABILE ·</p>
               </div>
             </div>
@@ -313,8 +459,8 @@ function MobilePlayerFlipCard() {
         </button>
       </div>
       <div className="flex items-center justify-center gap-2 mt-4">
-        <span className={`w-2 h-2 rounded-full transition-all duration-300 ${!flipped ? "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]" : "bg-textMuted/40"}`} aria-hidden/>
-        <span className={`w-2 h-2 rounded-full transition-all duration-300 ${flipped ? "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]" : "bg-textMuted/40"}`} aria-hidden/>
+        <span className={`w-2 h-2 rounded-full transition-all duration-300 ${mounted && !flipped ? (isPremium ? "bg-yellow-400 scale-125 shadow-[0_0_8px_rgba(250,204,21,0.7)]" : "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]") : "bg-textMuted/40"}`} aria-hidden/>
+        <span className={`w-2 h-2 rounded-full transition-all duration-300 ${mounted && flipped ? (isPremium ? "bg-yellow-400 scale-125 shadow-[0_0_8px_rgba(250,204,21,0.7)]" : "bg-greenElectric scale-125 shadow-[0_0_8px_rgba(124,255,107,0.7)]") : "bg-textMuted/40"}`} aria-hidden/>
       </div>
       <p className="text-center text-[11px] text-textMuted/70 mt-2 font-medium">Tocca la carta per vedere il retro</p>
     </div>
@@ -322,12 +468,14 @@ function MobilePlayerFlipCard() {
 }
 
 function SimpleCIDemo() {
+  const [mounted, setMounted] = useState(false);
   const [stepIdx, setStepIdx] = useState(1);
   const [displayValue, setDisplayValue] = useState(ciSimpleSequence[1].value);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const counterRef = useRef<number>(ciSimpleSequence[1].value);
   const rafRef = useRef<number | null>(null);
   useEffect(() => {
+    setMounted(true);
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mql.matches);
     const h = (e:MediaQueryListEvent) => setPrefersReduced(e.matches);
@@ -335,7 +483,7 @@ function SimpleCIDemo() {
     return () => { if(mql.removeEventListener) mql.removeEventListener("change",h); else mql.removeListener(h); };
   }, []);
   useEffect(() => {
-    if(prefersReduced) return;
+    if(!mounted || prefersReduced) return;
     const target = ciSimpleSequence[stepIdx].value;
     const from = counterRef.current;
     const diff = target - from;
@@ -351,13 +499,13 @@ function SimpleCIDemo() {
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => { if(rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [stepIdx, prefersReduced]);
+  }, [stepIdx, prefersReduced, mounted]);
   useEffect(() => {
-    if(prefersReduced) return;
+    if(!mounted || prefersReduced) return;
     const isLast = stepIdx === ciSimpleSequence.length - 1;
     const id = setTimeout(() => setStepIdx(isLast ? 1 : stepIdx + 1), 2000);
     return () => clearTimeout(id);
-  }, [stepIdx, prefersReduced]);
+  }, [stepIdx, prefersReduced, mounted]);
   const current = ciSimpleSequence[stepIdx];
   const chartData = ciSimpleSequence.slice(0, stepIdx + 1).map((s,i) => ({i, v:s.value}));
   const colors = {
@@ -367,13 +515,14 @@ function SimpleCIDemo() {
     start:{t:"text-greenPrimary", bg:"bg-greenPrimary/10", bd:"border-greenPrimary/30", s:"#22C55E"},
   }[current.type];
   const Delta = current.type==="loss"?TrendingDown : current.type==="draw"?Minus : TrendingUp;
+  const changePct = Math.round(((ciSimpleSequence[ciSimpleSequence.length-1].value - ciSimpleSequence[0].value) / ciSimpleSequence[0].value) * 100 * 10) / 10;
   if(prefersReduced){
     const final = ciSimpleSequence[ciSimpleSequence.length - 1];
     return (
       <div className="w-full max-w-sm mx-auto rounded-3xl bg-bgCard/90 backdrop-blur-sm border border-greenPrimary/20 p-5 hud-bg">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] text-textMuted font-black tracking-[0.2em]">CAREER INDEX</span>
-          <span className="text-greenElectric text-xs font-bold">+2.3%</span>
+          <span className="text-[10px] text-textMuted font-black tracking-[0.18em]">CAREER INDEX · IN TEMPO REALE</span>
+          <span className="text-greenElectric text-xs font-bold">+{changePct}%</span>
         </div>
         <div className="text-textPrimary font-black text-4xl tabular-nums tracking-tight mb-4">{final.value.toLocaleString("it-IT")}</div>
         <div className="h-24">
@@ -390,10 +539,9 @@ function SimpleCIDemo() {
     <div className="w-full max-w-sm mx-auto rounded-3xl bg-bgCard/90 backdrop-blur-sm border border-greenPrimary/20 p-5 relative overflow-hidden hud-bg">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-56 h-40 bg-greenElectric/10 rounded-full blur-3xl pointer-events-none"/>
       <div className="relative z-10 flex items-center justify-between mb-3">
-        <span className="text-[10px] text-textMuted font-black tracking-[0.2em]">CAREER INDEX</span>
-        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border ${colors.bg} ${colors.bd}`}>
+        <span className="text-[10px] text-textMuted font-black tracking-[0.16em]">CAREER INDEX · IN TEMPO REALE</span>
+        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border ${colors.bg} ${colors.bd}`}>
           <Delta className={`w-3 h-3 ${colors.t}`} strokeWidth={2.5}/>
-          <span className={`text-[10px] font-black ${colors.t} tracking-wider`}>LIVE</span>
         </div>
       </div>
       <div className="relative z-10 mb-3">
@@ -424,12 +572,14 @@ function SimpleCIDemo() {
 }
 
 function LegacyHeroCILiveDemo() {
+  const [mounted, setMounted] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
   const [displayValue, setDisplayValue] = useState(ciLegacySequence[0].value);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const counterRef = useRef<number>(ciLegacySequence[0].value);
   const rafRef = useRef<number | null>(null);
   useEffect(() => {
+    setMounted(true);
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReduced(mql.matches);
     const h = (e:MediaQueryListEvent) => setPrefersReduced(e.matches);
@@ -437,7 +587,7 @@ function LegacyHeroCILiveDemo() {
     return () => { if(mql.removeEventListener) mql.removeEventListener("change",h); else mql.removeListener(h); };
   }, []);
   useEffect(() => {
-    if(prefersReduced) return;
+    if(!mounted || prefersReduced) return;
     const target = ciLegacySequence[stepIdx].value;
     const from = counterRef.current;
     const diff = target - from;
@@ -453,18 +603,18 @@ function LegacyHeroCILiveDemo() {
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => { if(rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [stepIdx, prefersReduced]);
+  }, [stepIdx, prefersReduced, mounted]);
   useEffect(() => {
-    if(prefersReduced) return;
+    if(!mounted || prefersReduced) return;
     const isLast = stepIdx === ciLegacySequence.length - 1;
     const id = setTimeout(() => setStepIdx(isLast ? 0 : stepIdx + 1), isLast ? 3200 : 1600);
     return () => clearTimeout(id);
-  }, [stepIdx, prefersReduced]);
+  }, [stepIdx, prefersReduced, mounted]);
   if(prefersReduced){
     const fs = ciLegacySequence[ciLegacySequence.length - 1];
     return (
       <div className="mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5">
-        <span className="text-textMuted text-[11px] font-bold tracking-[0.18em]">CAREER INDEX · LIVE</span>
+        <span className="text-textMuted text-[11px] font-bold tracking-[0.18em]">CAREER INDEX · IN TEMPO REALE</span>
         <div className="text-textPrimary font-black text-3xl tracking-tight mt-2">{fs.value.toLocaleString("it-IT")}</div>
       </div>
     );
@@ -476,7 +626,7 @@ function LegacyHeroCILiveDemo() {
   return (
     <div className="mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5">
       <div className="flex items-center justify-between">
-        <span className="text-textMuted text-[11px] font-bold tracking-[0.18em]">CAREER INDEX · LIVE</span>
+        <span className="text-textMuted text-[11px] font-bold tracking-[0.16em]">CAREER INDEX · IN TEMPO REALE</span>
         <div className="flex items-center gap-1.5">
           <DI className={`w-4 h-4 ${color}`} strokeWidth={2.5}/>
           <span className={`text-xs font-bold ${color}`}>
@@ -524,20 +674,20 @@ export default function LandingPage() {
       <div className="md:hidden"><MobileHeader/></div>
 
       {/* HERO */}
-      <section className="relative pt-4 md:pt-12 md:pb-32 pb-10">
+      <section className="relative pt-4 md:pt-10 md:pb-28 pb-10">
         <PitchLines/>
         <div className="relative max-w-5xl mx-auto px-4 md:px-8">
-          <div className="hidden md:flex items-center justify-between mb-18">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/25">
-                <Zap className="w-5 h-5 text-bgPrimary" strokeWidth={3}/>
+          <div className="grid md:grid-cols-2 md:gap-10 gap-8 items-start">
+            <div className="hidden md:flex md:col-span-2 items-center justify-between mb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/25">
+                  <Zap className="w-5 h-5 text-bgPrimary" strokeWidth={3}/>
+                </div>
+                <span className="font-black text-greenElectric text-2xl tracking-tight">CalcettoXP</span>
               </div>
-              <span className="font-black text-greenElectric text-2xl tracking-tight">CalcettoXP</span>
+              <SmartCTA label="ACCEDI" icon={LogIn} variant="secondary" size="md" loggedInLabel="DASHBOARD"/>
             </div>
-            <SmartCTA label="ACCEDI" icon={LogIn} variant="secondary" size="md" loggedInLabel="DASHBOARD"/>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 items-center">
-            <div>
+            <div className="md:pt-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-greenElectric/25 bg-greenElectric/8 px-3.5 py-1.5 mb-5 backdrop-blur-sm md:mb-7">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-greenElectric opacity-50"/>
@@ -556,8 +706,8 @@ export default function LandingPage() {
                   className="shadow-xl shadow-greenElectric/25 hover:shadow-greenElectric/40 !min-h-[56px]"
                   loggedInLabel="VAI ALLA DASHBOARD"/>
                 <button type="button" onClick={() => scrollTo("come-funziona")}
-                  className="inline-flex items-center justify-center px-6 md:px-8 min-h-[56px] rounded-2xl border border-textPrimary/20 text-textPrimary font-black text-sm md:text-base tracking-wider hover:border-greenElectric/50 hover:text-greenElectric hover:bg-greenElectric/5 transition-all group">
-                  SCOPRI COME
+                  className="inline-flex items-center justify-center px-6 md:px-7 min-h-[56px] rounded-2xl border border-textPrimary/20 text-textPrimary font-black text-sm md:text-base tracking-wider hover:border-greenElectric/50 hover:text-greenElectric hover:bg-greenElectric/5 transition-all group">
+                  SCOPRI
                   <ChevronRight className="ml-1.5 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5}/>
                 </button>
               </div>
@@ -575,7 +725,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="relative hidden md:block">
+            <div className="relative hidden md:block md:pt-1">
               <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-greenElectric/10 blur-3xl"/>
               <div className="absolute -bottom-8 -left-6 w-40 h-40 rounded-full bg-greenPrimary/10 blur-3xl"/>
               <div className="relative animate-float-slower">
@@ -1089,8 +1239,12 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <button disabled className="w-full inline-flex items-center justify-center gap-2.5 h-14 px-7 rounded-2xl text-lg font-bold bg-textPrimary/5 border border-textPrimary/15 text-textMuted cursor-not-allowed">
-                  SARÀ DISPONIBILE PRESTO
+                <button disabled className="w-full inline-flex items-center justify-center gap-2.5 h-14 px-7 rounded-2xl text-lg font-bold bg-yellow-500/5 border border-yellow-500/20 text-yellow-400/90 cursor-not-allowed">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-40"/>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-400"/>
+                  </span>
+                  IN ARRIVO
                 </button>
               </div>
             </div>

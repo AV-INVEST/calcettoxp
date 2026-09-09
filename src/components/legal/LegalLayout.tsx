@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { Home, FileText } from 'lucide-react';
+import AppFooter from '@/components/layout/AppFooter';
 
 export const legalMetaBase: Metadata = {
   robots: { index: true, follow: true },
@@ -18,9 +19,9 @@ interface LegalLayoutProps {
 
 export function LegalLayout({ children, title, subtitle }: LegalLayoutProps) {
   return (
-    <div className="min-h-[100dvh] w-full bg-bgPrimary pb-20 relative">
+    <div className="min-h-[100dvh] w-full bg-bgPrimary relative flex flex-col">
       <div className="absolute inset-0 pitch-wrapper opacity-20 pointer-events-none" aria-hidden />
-      <header className="sticky top-0 z-30 bg-bgPrimary/80 backdrop-blur-md border-b border-white/5">
+      <header className="sticky top-0 z-30 bg-bgPrimary/80 backdrop-blur-md border-b border-white/5 relative">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <Link href="/" className="inline-flex items-center gap-2 group">
             <span className="text-greenElectric text-2xl font-black tracking-tight">
@@ -38,7 +39,7 @@ export function LegalLayout({ children, title, subtitle }: LegalLayoutProps) {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-10 pb-16 space-y-8">
+      <main className="relative z-10 max-w-3xl mx-auto w-full px-4 sm:px-6 pt-10 pb-12 md:pb-16 space-y-8 flex-1">
         <header className="space-y-3">
           <div className="inline-flex items-center gap-2 text-greenElectric text-xs uppercase tracking-[0.2em] font-bold">
             <FileText className="w-3.5 h-3.5" aria-hidden />
@@ -50,28 +51,14 @@ export function LegalLayout({ children, title, subtitle }: LegalLayoutProps) {
           {subtitle && <p className="text-textMuted max-w-2xl">{subtitle}</p>}
         </header>
 
-        <article className="space-y-6 text-textPrimary text-[15px] leading-relaxed">
+        <article className="space-y-6 md:space-y-8 text-textPrimary text-[15px] leading-relaxed">
           {children}
         </article>
-
-        <footer className="pt-6 border-t border-white/5 text-xs text-textMuted flex flex-wrap items-center gap-3">
-          <Link href="/" className="hover:text-greenElectric transition">
-            Torna alla home
-          </Link>
-          <span aria-hidden>·</span>
-          <Link href="/settings" className="hover:text-greenElectric transition">
-            Impostazioni
-          </Link>
-          <span aria-hidden>·</span>
-          <Link href="/privacy" className="hover:text-greenElectric transition">
-            Privacy
-          </Link>
-          <span aria-hidden>·</span>
-          <Link href="/cookie-policy" className="hover:text-greenElectric transition">
-            Cookie
-          </Link>
-        </footer>
       </main>
+
+      <div className="relative z-10 w-full">
+        <AppFooter />
+      </div>
     </div>
   );
 }

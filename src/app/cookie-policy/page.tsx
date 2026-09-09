@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { LEGAL_CONFIG } from '@/lib/legal-config';
 import { LegalLayout, Section, SubSection, P, Ul, Blockquote, legalMetaBase } from '@/components/legal/LegalLayout';
+import { CookiePrefCard } from '@/components/legal/CookiePrefCard';
 
 export const metadata: Metadata = {
   ...legalMetaBase,
@@ -16,6 +17,8 @@ export default function CookiePolicyPage() {
       title="Cookie Policy"
       subtitle={`Come ${appName} utilizza i cookie e strumenti simili. Ultimo aggiornamento: ${lastUpdatedHuman}.`}
     >
+      <CookiePrefCard />
+
       <P>
         La presente Cookie Policy descrive l&apos;uso di cookie, localStorage e tecnologie simili da parte di <strong>{appName}</strong>.
       </P>
