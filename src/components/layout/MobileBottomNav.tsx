@@ -27,8 +27,13 @@ export default function MobileBottomNav() {
   };
 
   return (
-    <nav className="sticky bottom-0 z-50 md:hidden">
-      <div className="bg-bgCard/95 backdrop-blur-xl border-t border-white/5 px-2 pb-2 pt-3 safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden">
+      <div
+        className="bg-bgCard/95 backdrop-blur-xl border-t border-white/5 px-2 pt-3"
+        style={{
+          paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + 0.5rem)`,
+        }}
+      >
         <div className="flex items-end justify-around">
           {navItems.slice(0, 2).map((item) => (
             <Link

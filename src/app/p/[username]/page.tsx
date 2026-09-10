@@ -262,10 +262,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   }));
 
   return (
-    <div className="min-h-[100dvh] w-full bg-bgPrimary pb-24 relative">
+    <div className="min-h-[100dvh] w-full bg-bgPrimary pb-28 md:pb-16 relative overflow-x-hidden">
       <div className="absolute inset-0 pitch-wrapper opacity-20 pointer-events-none" aria-hidden />
 
-      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 pb-16 space-y-8">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 space-y-8">
         {!viewerSession?.user?.userId && (
           <section>
             <div className="relative overflow-hidden rounded-2xl border border-greenElectric/20 bg-gradient-to-br from-greenPrimary/10 via-greenElectric/5 to-transparent p-[1px] shadow-[0_0_40px_rgba(124,255,107,0.08)]">

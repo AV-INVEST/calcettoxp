@@ -1017,9 +1017,9 @@ export default async function DashboardPage() {
 
         {/* 13) FREE vs PRO TEASERS — Dark + Gold Premium (4 eleganti, NON invasivi) */}
         {!isPro && (
-          <section className="space-y-3">
-            <div className="flex items-end justify-between px-0.5">
-              <div className="flex items-center gap-2">
+          <section className="space-y-3 md:space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 px-0.5">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Crown size={16} className="text-amber-400" />
                 <h2 className="text-sm font-bold uppercase tracking-wider text-amber-300/90">
                   Vantaggi esclusivi
@@ -1032,17 +1032,17 @@ export default async function DashboardPage() {
                 Profondità carriera · Personalizzazione · Analytics
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
-                <div className="absolute top-2 right-2 text-amber-400/70">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent flex flex-col">
+                <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
                     <Palette size={16} className="text-amber-400" />
                   </div>
-                  <div>
-                    <p className="text-sm font-black text-textPrimary">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-textPrimary leading-tight">
                       Temi Premium
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">
@@ -1052,16 +1052,16 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
-                <div className="absolute top-2 right-2 text-amber-400/70">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent flex flex-col">
+                <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
                     <BarChart3 size={16} className="text-amber-400" />
                   </div>
-                  <div>
-                    <p className="text-sm font-black text-textPrimary">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-textPrimary leading-tight">
                       Analytics avanzate
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">
@@ -1071,16 +1071,16 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
-                <div className="absolute top-2 right-2 text-amber-400/70">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent flex flex-col">
+                <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
                     <History size={16} className="text-amber-400" />
                   </div>
-                  <div>
-                    <p className="text-sm font-black text-textPrimary">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-textPrimary leading-tight">
                       Storico completo
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">
@@ -1090,16 +1090,16 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
-                <div className="absolute top-2 right-2 text-amber-400/70">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent flex flex-col">
+                <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
                     <Star size={16} className="text-amber-400" />
                   </div>
-                  <div>
-                    <p className="text-sm font-black text-textPrimary">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-textPrimary leading-tight">
                       Record avanzati
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">

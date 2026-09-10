@@ -14,39 +14,45 @@ export default function MultiplayerComingSoonCard() {
           }}
         />
       </div>
-      <CardContent className="p-6 relative">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <Users size={24} className="text-textMuted" />
+      <CardContent className="p-4 md:p-6 relative">
+        {/* Header: su mobile [icona + titolo] con badge a destra sulla stessa riga */}
+        <div className="mb-3 md:mb-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5 md:gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                  <Users size={20} className="md:w-[24px] md:h-[24px] text-textMuted" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-bgCard border border-white/10 flex items-center justify-center">
+                  <Lock size={10} className="md:w-[11px] md:h-[11px] text-textMuted" />
+                </div>
               </div>
-              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-bgCard border border-white/10 flex items-center justify-center">
-                <Lock size={11} className="text-textMuted" />
+              <div className="min-w-0 pt-0.5">
+                <h3 className="text-base md:text-lg font-bold text-textPrimary">
+                  Multiplayer
+                </h3>
               </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-textPrimary">Multiplayer</h3>
-              <p className="text-sm text-textMuted mt-0.5 max-w-xs">
-                Sfida altri giocatori, partecipa a partite verificate e scala il
-                ranking della tua città.
-              </p>
-            </div>
+            <Badge
+              variant="elettrico"
+              className="shrink-0 px-2.5 md:px-3 py-1 md:py-1.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest"
+            >
+              <span className="flex items-center gap-1 md:gap-1.5">
+                <Sparkles size={10} className="md:w-[11px] md:h-[11px]" />
+                IN ARRIVO
+              </span>
+            </Badge>
           </div>
-          <Badge
-            variant="elettrico"
-            className="shrink-0 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest"
-          >
-            <span className="flex items-center gap-1.5">
-              <Sparkles size={11} />
-              IN ARRIVO
-            </span>
-          </Badge>
+          {/* Descrizione a tutta larghezza sotto l'header (mobile), accanto su desktop */}
+          <p className="text-sm text-textMuted mt-3 md:mt-2 md:ml-[52px] md:pl-0 leading-relaxed">
+            Sfida altri giocatori, partecipa a partite verificate e scala il
+            ranking della tua città.
+          </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="rounded-xl bg-white/5 p-3 text-center border border-white/5">
-            <div className="w-8 h-8 mx-auto rounded-lg bg-white/5 flex items-center justify-center mb-2">
+        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4">
+          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">
@@ -56,8 +62,8 @@ export default function MultiplayerComingSoonCard() {
               --
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-3 text-center border border-white/5">
-            <div className="w-8 h-8 mx-auto rounded-lg bg-white/5 flex items-center justify-center mb-2">
+          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">
@@ -67,8 +73,8 @@ export default function MultiplayerComingSoonCard() {
               --
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-3 text-center border border-white/5">
-            <div className="w-8 h-8 mx-auto rounded-lg bg-white/5 flex items-center justify-center mb-2">
+          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">

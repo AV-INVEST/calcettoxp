@@ -229,58 +229,65 @@ export default async function ProfilePage() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1 justify-center md:justify-start">
-                  <h2 className="text-2xl md:text-3xl font-black tracking-tight truncate">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight truncate">
                     @{player.username}
                   </h2>
                   {isPro ? (
-                    <Badge variant="elettrico" className="text-[10px] shadow-[0_0_15px_rgba(250,204,21,0.15)] border-amber-400/30">
+                    <Badge variant="elettrico" className="text-[10px] shadow-[0_0_15px_rgba(250,204,21,0.15)] border-amber-400/30 shrink-0">
                       <Crown size={10} className="mr-1" /> PRO
                     </Badge>
                   ) : (
-                    <Badge variant="grigio" className="text-[10px] tracking-wide">
+                    <Badge variant="grigio" className="text-[10px] tracking-wide shrink-0">
                       FREE
                     </Badge>
                   )}
                 </div>
                 {user?.name && user.name !== player.username && user.name !== player.nickname && (
-                  <p className="text-textMuted text-sm mb-2 text-center md:text-left">{user.name}</p>
+                  <p className="text-textMuted text-sm mb-1 md:mb-2 text-center md:text-left truncate max-w-full">
+                    {user.name}
+                  </p>
                 )}
                 {player.nickname && player.nickname !== player.username && (
-                  <p className="text-textMuted text-xs mb-2 text-center md:text-left opacity-70">
+                  <p className="text-textMuted text-xs mb-1 md:mb-2 text-center md:text-left opacity-70 truncate max-w-full">
                     aka {player.nickname}
                   </p>
                 )}
 
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-sm text-textMuted">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-lg leading-none">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 md:gap-x-4 gap-y-1 md:gap-y-1.5 text-xs md:text-sm text-textMuted">
+                  <span className="flex items-center gap-1 md:gap-1.5 min-w-0">
+                    <span className="text-base md:text-lg leading-none shrink-0">
                       {countryFlagEmoji(player.country)}
                     </span>
-                    {player.country || "Nazionalità non impostata"}
+                    <span className="truncate">
+                      {player.country || "Nazionalità non impostata"}
+                    </span>
                   </span>
                   {player.city && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin size={14} /> {player.city}
+                    <span className="flex items-center gap-1 md:gap-1.5 min-w-0">
+                      <MapPin size={12} className="md:w-[14px] md:h-[14px] shrink-0" />
+                      <span className="truncate">{player.city}</span>
                     </span>
                   )}
                   {age !== null && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar size={14} /> {age} anni
+                    <span className="flex items-center gap-1 md:gap-1.5 shrink-0">
+                      <Calendar size={12} className="md:w-[14px] md:h-[14px] shrink-0" />
+                      <span>{age} anni</span>
                     </span>
                   )}
                   {player.preferredFoot && (
-                    <span className="flex items-center gap-1.5">
-                      <Footprints size={14} /> {FOOT_LABELS[player.preferredFoot]}
+                    <span className="flex items-center gap-1 md:gap-1.5 shrink-0">
+                      <Footprints size={12} className="md:w-[14px] md:h-[14px] shrink-0" />
+                      <span>{FOOT_LABELS[player.preferredFoot]}</span>
                     </span>
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-3">
-                  <Badge variant="verde" className="text-xs">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 md:gap-2 mt-2 md:mt-3">
+                  <Badge variant="verde" className="text-[11px] md:text-xs">
                     {player.primaryRole} · {ROLE_LABELS[player.primaryRole]}
                   </Badge>
                   {player.secondaryRole && (
-                    <Badge variant="grigio" className="text-xs">
+                    <Badge variant="grigio" className="text-[11px] md:text-xs">
                       {player.secondaryRole} · {ROLE_LABELS[player.secondaryRole]}
                     </Badge>
                   )}
@@ -290,9 +297,9 @@ export default async function ProfilePage() {
                     const now = new Date();
                     if (nextAvail > now) {
                       return (
-                        <Badge variant="grigio" className="text-[10px]">
+                        <Badge variant="grigio" className="text-[9px] md:text-[10px]">
                           <CalendarDays size={10} className="mr-1" />
-                          Cambio ruolo disponibile il {format(nextAvail, "dd/MM/yy")}
+                          Cambio ruolo {format(nextAvail, "dd/MM/yy")}
                         </Badge>
                       );
                     }
@@ -301,39 +308,42 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
-              <div className="md:ml-auto flex md:flex-col gap-2 md:gap-3 items-center md:items-end w-full md:w-auto">
-                <div className="flex items-center gap-3 md:gap-4 bg-bgSecondary/60 rounded-2xl p-3 md:px-5 md:py-4 border border-white/5 flex-1 md:flex-none justify-center">
-                  <StatPill label="LV" value={player.level} icon={<Star size={14} className="text-yellow-400" />} />
-                  <div className="w-px h-8 bg-white/10" />
-                  <StatPill
+              <div className="md:ml-auto flex md:flex-col gap-2 md:gap-3 items-stretch md:items-end w-full md:w-auto">
+                {/* Mobile: 3 colonne equal width, Desktop: flex row come prima */}
+                <div className="grid grid-cols-3 md:flex md:items-center gap-1 md:gap-3 lg:gap-4 bg-bgSecondary/60 rounded-2xl p-2 md:p-3 lg:px-5 lg:py-4 border border-white/5 w-full md:w-auto">
+                  <MobileStatPill label="LV" value={player.level} icon={<Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-400" />} />
+                  <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
+                  <MobileStatPill
                     label="OVR"
                     value={player.overall}
-                    icon={<Award size={14} className="text-greenElectric" />}
+                    icon={<Award size={12} className="md:w-[14px] md:h-[14px] text-greenElectric" />}
                     accent
                   />
-                  <div className="w-px h-8 bg-white/10" />
-                  <StatPill
+                  <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
+                  <MobileStatPill
                     label="CI"
                     value={player.careerIndex}
-                    icon={<TrendingUp size={14} className="text-greenPrimary" />}
+                    icon={<TrendingUp size={12} className="md:w-[14px] md:h-[14px] text-greenPrimary" />}
                     accent
                   />
                 </div>
-                <EditProfileModalWrapper
-                  initial={{
-                    username: player.username,
-                    nickname: player.nickname,
-                    country: player.country,
-                    city: player.city,
-                    preferredFoot: player.preferredFoot,
-                    primaryRole: player.primaryRole,
-                    secondaryRole: player.secondaryRole,
-                    birthDate: player.birthDate,
-                    lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
-                    lastUsernameChangeAt: player.lastUsernameChangeAt,
-                    isPro,
-                  }}
-                />
+                <div className="flex justify-center md:justify-end">
+                  <EditProfileModalWrapper
+                    initial={{
+                      username: player.username,
+                      nickname: player.nickname,
+                      country: player.country,
+                      city: player.city,
+                      preferredFoot: player.preferredFoot,
+                      primaryRole: player.primaryRole,
+                      secondaryRole: player.secondaryRole,
+                      birthDate: player.birthDate,
+                      lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
+                      lastUsernameChangeAt: player.lastUsernameChangeAt,
+                      isPro,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
@@ -641,7 +651,7 @@ export default async function ProfilePage() {
   );
 }
 
-function StatPill({
+function MobileStatPill({
   label,
   value,
   icon,
@@ -653,14 +663,18 @@ function StatPill({
   accent?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-1.5 bg-bgPrimary rounded-lg px-2 py-1 border border-white/5">
+    <div className="flex flex-col md:flex-row md:items-center md:gap-2 items-center min-w-0">
+      <div className="flex items-center gap-1 md:gap-1.5 bg-bgPrimary rounded-lg px-1.5 md:px-2 py-1 border border-white/5 shrink-0">
         {icon}
-        <span className="text-[10px] font-black text-textMuted uppercase tracking-wider">
+        <span className="text-[9px] md:text-[10px] font-black text-textMuted uppercase tracking-wider">
           {label}
         </span>
       </div>
-      <div className={`text-xl font-black tabular-nums ${accent ? "text-greenElectric" : ""}`}>
+      <div
+        className={`text-lg md:text-xl font-black tabular-nums truncate w-full text-center md:text-left md:w-auto ${
+          accent ? "text-greenElectric" : "text-textPrimary"
+        }`}
+      >
         {value}
       </div>
     </div>

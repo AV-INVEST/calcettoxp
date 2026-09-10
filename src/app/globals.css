@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (max-width: 767px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 4px rgba(124, 255, 107, 0.4), 0 0 8px rgba(124, 255, 107, 0.2);

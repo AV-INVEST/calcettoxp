@@ -409,46 +409,64 @@ export default async function StatsPage() {
         )}
 
         {!isPro && (
-          <Card className="mb-6 border-2 border-greenElectric/40 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-greenElectric/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <CardContent className="p-6 md:p-8 relative">
-              <div className="flex flex-col md:flex-row md:items-center gap-5">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shrink-0 shadow-xl shadow-greenElectric/30">
-                  <Crown size={30} className="text-bgPrimary" />
+          <Card className="mb-6 border-2 border-amber-500/30 relative overflow-hidden bg-gradient-to-br from-amber-500/[0.04] via-transparent to-amber-400/[0.03]">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <CardContent className="p-5 md:p-8 relative">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-xl shadow-amber-500/25 border border-amber-300/30">
+                  <Crown size={26} className="md:w-[30px] md:h-[30px] text-amber-950" />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="elettrico">
-                      <Crown size={12} className="mr-1" /> PRO
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
+                      <Crown size={12} className="mr-1 text-amber-300" /> PRO
                     </Badge>
-                    <h3 className="text-xl font-black">Passa a PRO per statistiche avanzate</h3>
+                    <h3 className="text-lg md:text-xl font-black text-text-primary">
+                      Passa a PRO per statistiche avanzate
+                    </h3>
                   </div>
-                  <ul className="text-textMuted text-sm mt-3 space-y-1.5 grid md:grid-cols-2 gap-1">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Analisi 7/30/90 giorni
+                  <ul className="text-textMuted text-xs md:text-sm mt-2 md:mt-3 space-y-1 md:space-y-1.5 grid md:grid-cols-2 gap-1">
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Analisi 7/30/90 giorni</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Statistiche per ruolo
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Statistiche per ruolo</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Record personali
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Record personali</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Migliori streak
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Migliori streak</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Andamento stagioni
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Andamento stagioni</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle size={14} className="text-greenElectric" /> Confronto stagioni
+                    <li className="flex items-center gap-2 min-w-0">
+                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                      <span className="truncate">Confronto stagioni</span>
                     </li>
                   </ul>
                 </div>
-                <Link href="/pricing">
-                  <Button size="lg" className="md:ml-4">
-                    Sblocca PRO <ChevronRight size={18} />
-                  </Button>
-                </Link>
+                <div className="flex md:ml-4 md:shrink-0 justify-center md:justify-end w-full md:w-auto">
+                  <Link href="/pricing" className="w-full md:w-auto">
+                    <div
+                      className="group inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-5 md:px-6 py-3 md:py-3.5 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.18)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.3)] active:scale-[0.99]"
+                    >
+                      <Crown size={15} />
+                      <span>Sblocca PRO</span>
+                      <ChevronRight
+                        size={17}
+                        className="transition-transform group-hover:translate-x-0.5"
+                      />
+                    </div>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

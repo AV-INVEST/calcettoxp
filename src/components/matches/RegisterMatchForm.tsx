@@ -230,7 +230,7 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-4 md:space-y-6">
       {error && (
         <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-danger">
           <AlertCircle size={20} className="mt-0.5 shrink-0" />
@@ -239,7 +239,7 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       )}
 
       <Card>
-        <CardContent className="p-5 space-y-4">
+        <CardContent className="p-4 md:p-5 space-y-4">
           <div>
             <label className="mb-2 block text-sm font-semibold text-textPrimary">
               Data e ora
@@ -259,8 +259,8 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       </Card>
 
       <Card>
-        <CardContent className="p-5 space-y-5">
-          <div className="flex items-center justify-between">
+        <CardContent className="p-4 md:p-5 space-y-4 md:space-y-5">
+          <div className="flex items-center justify-between gap-2">
             <label className="block text-sm font-semibold text-textPrimary">
               Punteggio partita
             </label>
@@ -272,65 +272,70 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
                   ? "grigio"
                   : "rosso"
               }
+              className="shrink-0"
             >
               {derivedResultLabel[derivedResult]}
             </Badge>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <div>
-              <label className="mb-2 block text-center text-xs font-bold uppercase tracking-wider text-textMuted">
+          <div className="grid grid-cols-2 gap-2 md:gap-3 pt-1">
+            <div className="flex flex-col items-stretch">
+              <label className="mb-2 block text-center text-[11px] md:text-xs font-bold uppercase tracking-wider text-textMuted">
                 Squadra 1
               </label>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-1.5 md:gap-2">
                 <button
                   type="button"
                   onClick={() => step(setTeam1Score, team1Score, -1, 0, 30)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Minus size={18} />
                 </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={30}
-                  value={team1Score}
-                  onChange={(e) => setTeam1Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                  className="text-center text-2xl font-black tabular-nums"
-                />
+                <div className="flex-1 max-w-[72px] md:max-w-none">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={30}
+                    value={team1Score}
+                    onChange={(e) => setTeam1Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                    className="text-center text-2xl md:text-2xl font-black tabular-nums h-10 md:h-11 !px-1"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => step(setTeam1Score, team1Score, +1, 0, 30)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Plus size={18} />
                 </button>
               </div>
             </div>
-            <div>
-              <label className="mb-2 block text-center text-xs font-bold uppercase tracking-wider text-textMuted">
+            <div className="flex flex-col items-stretch">
+              <label className="mb-2 block text-center text-[11px] md:text-xs font-bold uppercase tracking-wider text-textMuted">
                 Squadra 2
               </label>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-1.5 md:gap-2">
                 <button
                   type="button"
                   onClick={() => step(setTeam2Score, team2Score, -1, 0, 30)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Minus size={18} />
                 </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={30}
-                  value={team2Score}
-                  onChange={(e) => setTeam2Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                  className="text-center text-2xl font-black tabular-nums"
-                />
+                <div className="flex-1 max-w-[72px] md:max-w-none">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={30}
+                    value={team2Score}
+                    onChange={(e) => setTeam2Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                    className="text-center text-2xl md:text-2xl font-black tabular-nums h-10 md:h-11 !px-1"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => step(setTeam2Score, team2Score, +1, 0, 30)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Plus size={18} />
                 </button>
@@ -342,46 +347,52 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
             <label className="mb-2 block text-sm font-semibold text-textPrimary">
               In che squadra hai giocato?
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 md:gap-3">
               <button
                 type="button"
                 onClick={() => setTeam("T1")}
-                className={`rounded-xl border px-3 py-3.5 text-sm font-bold transition-all ${
+                className={`rounded-xl border px-2 md:px-3 py-3 md:py-3.5 text-xs md:text-sm font-bold transition-all text-center min-h-[68px] md:min-h-0 flex flex-col items-center justify-center ${
                   team === "T1"
                     ? "border-greenElectric/50 bg-greenElectric/15 text-greenElectric ring-2 ring-greenElectric/40"
                     : "border-white/10 bg-bgSecondary text-textMuted hover:bg-white/5"
                 }`}
               >
-                <span className="block text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                <span className="block text-[9px] md:text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
                   La tua squadra
                 </span>
-                Squadra 1 · {team1Score} gol
+                Squadra 1
+                <span className="text-[10px] md:text-[11px] font-black mt-0.5 opacity-80">
+                  {team1Score} gol
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => setTeam("T2")}
-                className={`rounded-xl border px-3 py-3.5 text-sm font-bold transition-all ${
+                className={`rounded-xl border px-2 md:px-3 py-3 md:py-3.5 text-xs md:text-sm font-bold transition-all text-center min-h-[68px] md:min-h-0 flex flex-col items-center justify-center ${
                   team === "T2"
                     ? "border-greenElectric/50 bg-greenElectric/15 text-greenElectric ring-2 ring-greenElectric/40"
                     : "border-white/10 bg-bgSecondary text-textMuted hover:bg-white/5"
                 }`}
               >
-                <span className="block text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                <span className="block text-[9px] md:text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
                   La tua squadra
                 </span>
-                Squadra 2 · {team2Score} gol
+                Squadra 2
+                <span className="text-[10px] md:text-[11px] font-black mt-0.5 opacity-80">
+                  {team2Score} gol
+                </span>
               </button>
             </div>
-            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/5 bg-bgSecondary/60 px-4 py-3">
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 rounded-xl border border-white/5 bg-bgSecondary/60 px-3 md:px-4 py-2.5 md:py-3">
               <div className="flex items-center gap-2">
-                <Goal size={14} className="text-greenElectric" />
-                <span className="text-xs text-textMuted">
+                <Goal size={13} className="md:w-[14px] md:h-[14px] text-greenElectric shrink-0" />
+                <span className="text-[11px] md:text-xs text-textMuted">
                   Gol fatti: <span className="font-bold text-textPrimary">{goalsFor}</span>
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Shield size={14} className="text-danger/80" />
-                <span className="text-xs text-textMuted">
+                <Shield size={13} className="md:w-[14px] md:h-[14px] text-danger/80 shrink-0" />
+                <span className="text-[11px] md:text-xs text-textMuted">
                   Gol subiti: <span className="font-bold text-textPrimary">{goalsAgainst}</span>
                 </span>
               </div>
@@ -391,18 +402,18 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       </Card>
 
       <Card>
-        <CardContent className="p-5 space-y-4">
+        <CardContent className="p-4 md:p-5 space-y-4">
           <div>
             <label className="mb-2 block text-sm font-semibold text-textPrimary">
               Ruolo
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-1.5 md:gap-2">
               {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => setRole(r)}
-                  className={`rounded-xl border px-2 py-3 text-xs font-bold transition-all ${
+                  className={`rounded-xl border px-1 md:px-2 py-2.5 md:py-3 text-xs md:text-xs font-bold transition-all min-h-[46px] flex items-center justify-center ${
                     role === r
                       ? "border-greenElectric/50 bg-greenElectric/15 text-greenElectric ring-2 ring-greenElectric/40"
                       : "border-white/10 bg-bgSecondary text-textMuted hover:bg-white/5"
@@ -412,111 +423,111 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-center text-xs text-textMuted">
+            <p className="mt-1 text-center text-[11px] md:text-xs text-textMuted">
               {ROLE_LABELS[role]}
             </p>
           </div>
 
           {isGoalkeeper ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-xl border border-greenElectric/20 bg-greenElectric/5 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Shield size={16} className="text-greenElectric" />
-                  <div>
-                    <p className="text-xs font-bold text-greenElectric uppercase tracking-wider">
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-start md:items-center justify-between gap-2 rounded-xl border border-greenElectric/20 bg-greenElectric/5 px-3 md:px-4 py-2.5 md:py-3">
+                <div className="flex items-start gap-2 min-w-0">
+                  <Shield size={15} className="md:w-[16px] md:h-[16px] text-greenElectric shrink-0 mt-0.5 md:mt-0" />
+                  <div className="min-w-0">
+                    <p className="text-[11px] md:text-xs font-bold text-greenElectric uppercase tracking-wider">
                       Clean Sheet
                     </p>
-                    <p className="text-[11px] text-textMuted">
+                    <p className="text-[10px] md:text-[11px] text-textMuted mt-0.5">
                       {derivedCleanSheet
                         ? "Nessun gol subito ✓"
                         : goalsAgainst > 0
-                        ? "Non disponibile (gol subiti > 0)"
-                        : "0 gol subiti nella partita"}
+                        ? "Non disponibile"
+                        : "0 gol subiti"}
                     </p>
                   </div>
                 </div>
                 <Badge
                   variant={derivedCleanSheet ? "elettrico" : "grigio"}
-                  className="shrink-0"
+                  className="shrink-0 text-[10px]"
                 >
                   {derivedCleanSheet ? "ATTIVO" : "—"}
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary px-4 py-3">
-                  <div>
-                    <p className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
-                      Gol subiti
-                    </p>
-                    <p className="text-[11px] text-textMuted">
-                      Calcolato automaticamente dal punteggio
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-black tabular-nums text-textPrimary w-10 text-center">
-                      {goalsAgainst}
-                    </span>
-                  </div>
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary px-3 md:px-4 py-2.5 md:py-3">
+                <div className="min-w-0 pr-2">
+                  <p className="text-[11px] md:text-xs font-semibold text-textPrimary uppercase tracking-wider">
+                    Gol subiti
+                  </p>
+                  <p className="text-[10px] md:text-[11px] text-textMuted mt-0.5 truncate">
+                    Auto dal punteggio
+                  </p>
                 </div>
+                <span className="text-xl md:text-2xl font-black tabular-nums text-textPrimary w-9 md:w-10 text-center shrink-0">
+                  {goalsAgainst}
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 md:gap-4">
                 <div>
-                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
-                    <Target size={14} className="text-amber-400" />
-                    Rigori parati
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-[11px] md:text-sm font-semibold text-textPrimary">
+                    <Target size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                    <span className="truncate">Rigori parati</span>
                   </label>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-1.5 md:gap-2">
                     <button
                       type="button"
                       onClick={() => step(setPenaltiesSaved, penaltiesSaved, -1, 0, 20)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                      className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                     >
                       <Minus size={18} />
                     </button>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={20}
-                      value={penaltiesSaved}
-                      onChange={(e) => setPenaltiesSaved(Math.max(0, Math.min(20, parseInt(e.target.value) || 0)))}
-                      className="text-center text-xl font-bold tabular-nums"
-                    />
+                    <div className="flex-1 max-w-[72px] md:max-w-none">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={20}
+                        value={penaltiesSaved}
+                        onChange={(e) => setPenaltiesSaved(Math.max(0, Math.min(20, parseInt(e.target.value) || 0)))}
+                        className="text-center text-lg md:text-xl font-bold tabular-nums h-10 md:h-11 !px-1"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => step(setPenaltiesSaved, penaltiesSaved, +1, 0, 20)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                      className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                     >
                       <Plus size={18} />
                     </button>
                   </div>
                 </div>
                 <div>
-                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
-                    <Shield size={14} className="text-cyan-400" />
-                    Parate decisive
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-[11px] md:text-sm font-semibold text-textPrimary">
+                    <Shield size={13} className="md:w-[14px] md:h-[14px] text-cyan-400 shrink-0" />
+                    <span className="truncate">Parate decisive</span>
                   </label>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-1.5 md:gap-2">
                     <button
                       type="button"
                       onClick={() => step(setKeySaves, keySaves, -1, 0, 30)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                      className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                     >
                       <Minus size={18} />
                     </button>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={30}
-                      value={keySaves}
-                      onChange={(e) => setKeySaves(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                      className="text-center text-xl font-bold tabular-nums"
-                    />
+                    <div className="flex-1 max-w-[72px] md:max-w-none">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={30}
+                        value={keySaves}
+                        onChange={(e) => setKeySaves(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                        className="text-center text-lg md:text-xl font-bold tabular-nums h-10 md:h-11 !px-1"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => step(setKeySaves, keySaves, +1, 0, 30)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                      className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                     >
                       <Plus size={18} />
                     </button>
@@ -525,65 +536,69 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2 md:gap-4">
               <div>
-                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                <label className="mb-2 block text-center text-[11px] md:text-sm font-semibold text-textPrimary truncate">
                   Tuoi gol
                 </label>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1.5 md:gap-2">
                   <button
                     type="button"
                     onClick={() => step(setGoals, goals, -1, 0, Math.min(15, goalsFor))}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                   >
                     <Minus size={18} />
                   </button>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={Math.min(15, goalsFor)}
-                    value={goals}
-                    onChange={(e) => setGoals(Math.max(0, Math.min(15, Math.min(goalsFor, parseInt(e.target.value) || 0))))}
-                    className="text-center text-xl font-bold tabular-nums"
-                  />
+                  <div className="flex-1 max-w-[72px] md:max-w-none">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={Math.min(15, goalsFor)}
+                      value={goals}
+                      onChange={(e) => setGoals(Math.max(0, Math.min(15, Math.min(goalsFor, parseInt(e.target.value) || 0))))}
+                      className="text-center text-lg md:text-xl font-bold tabular-nums h-10 md:h-11 !px-1"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => step(setGoals, goals, +1, 0, Math.min(15, goalsFor))}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                   >
                     <Plus size={18} />
                   </button>
                 </div>
                 {goals > goalsFor && (
-                  <p className="mt-1 text-center text-[11px] text-danger font-semibold">
-                    Non puoi aver fatto più gol della tua squadra
+                  <p className="mt-1 text-center text-[10px] md:text-[11px] text-danger font-semibold leading-tight">
+                    Più gol della squadra
                   </p>
                 )}
               </div>
               <div>
-                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                <label className="mb-2 block text-center text-[11px] md:text-sm font-semibold text-textPrimary truncate">
                   Assist
                 </label>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1.5 md:gap-2">
                   <button
                     type="button"
                     onClick={() => step(setAssists, assists, -1, 0, 10)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                   >
                     <Minus size={18} />
                   </button>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={assists}
-                    onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
-                    className="text-center text-xl font-bold tabular-nums"
-                  />
+                  <div className="flex-1 max-w-[72px] md:max-w-none">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={assists}
+                      onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
+                      className="text-center text-lg md:text-xl font-bold tabular-nums h-10 md:h-11 !px-1"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => step(setAssists, assists, +1, 0, 10)}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    className="flex h-10 md:h-11 w-10 md:w-11 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                   >
                     <Plus size={18} />
                   </button>
@@ -595,12 +610,12 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       </Card>
 
       <Card>
-        <CardContent className="p-5 space-y-2">
+        <CardContent className="p-4 md:p-5 space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-semibold text-textPrimary">
               Note
             </label>
-            <span className={`text-xs ${notes.length > 230 ? "text-danger" : "text-textMuted"}`}>
+            <span className={`text-[11px] md:text-xs ${notes.length > 230 ? "text-danger" : "text-textMuted"}`}>
               {notes.length}/250
             </span>
           </div>
