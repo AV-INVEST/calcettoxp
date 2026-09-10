@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hasActivePro } from "@/lib/entitlements";
+import { filterVisibleAchievements } from "@/lib/achievements";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import EditProfileModalWrapper from "@/components/profile/EditProfileModalWrapper";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
@@ -92,14 +93,16 @@ export default async function ProfilePage() {
 
   const age = player.birthDate ? differenceInYears(new Date(), new Date(player.birthDate)) : null;
 
-  const allAchievements = await prisma.achievement.findMany({
-    include: {
-      playerAchievements: {
-        where: { playerProfileId: player.id },
+  const allAchievements = filterVisibleAchievements(
+    await prisma.achievement.findMany({
+      include: {
+        playerAchievements: {
+          where: { playerProfileId: player.id },
+        },
       },
-    },
-    orderBy: [{ tier: "asc" }, { requirementValue: "asc" }],
-  });
+      orderBy: [{ tier: "asc" }, { requirementValue: "asc" }],
+    })
+  );
 
   const unlockedCount = allAchievements.filter(
     (a) => a.playerAchievements[0]?.unlockedAt

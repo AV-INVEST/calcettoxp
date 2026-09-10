@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import MatchResultScreen from "./MatchResultScreen";
+import { type PlayerStatus } from "@/lib/xp-levels";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
 type MatchResult = "WIN" | "DRAW" | "LOSS";
@@ -44,10 +45,14 @@ type ApiSuccessResponse = {
   ok: true;
   match: MatchResultData;
   xpEarned: number;
+  oldXp: number;
+  newXp: number;
   careerIndexChange: number;
   leveledUp: boolean;
   oldLevel: number;
   newLevel: number;
+  oldStatus: PlayerStatus;
+  newStatus: PlayerStatus;
   oldOverall: number;
   newOverall: number;
   oldCI: number;
@@ -78,7 +83,6 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   const defaultDate = today.toISOString().slice(0, 16);
 
   const [playedAt, setPlayedAt] = useState<string>(defaultDate);
-  const [result, setResult] = useState<MatchResult | null>(null);
   const [goalsFor, setGoalsFor] = useState<number>(0);
   const [goalsAgainst, setGoalsAgainst] = useState<number>(0);
   const [role, setRole] = useState<Role>(defaultRole ?? "ATT");
@@ -86,6 +90,24 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   const [assists, setAssists] = useState<number>(0);
   const [cleanSheet, setCleanSheet] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
+
+  const derivedResult: MatchResult = useMemo(() => {
+    if (goalsFor > goalsAgainst) return "WIN";
+    if (goalsFor === goalsAgainst) return "DRAW";
+    return "LOSS";
+  }, [goalsFor, goalsAgainst]);
+
+  const derivedResultLabel: Record<MatchResult, string> = {
+    WIN: "VITTORIA",
+    DRAW: "PAREGGIO",
+    LOSS: "SCONFITTA",
+  };
+
+  const effectiveCleanSheet = useMemo(() => {
+    if (role !== "POR") return false;
+    if (goalsAgainst > 0) return false;
+    return cleanSheet;
+  }, [role, goalsAgainst, cleanSheet]);
 
   useEffect(() => {
     if (!defaultRole) {
@@ -106,7 +128,6 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     const t = new Date();
     t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
     setPlayedAt(t.toISOString().slice(0, 16));
-    setResult(null);
     setGoalsFor(0);
     setGoalsAgainst(0);
     setRole(defaultRole ?? "ATT");
@@ -126,7 +147,7 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     setter(Math.max(min, Math.min(max, value + delta)));
   };
 
-  const canSubmit = result !== null && !loading;
+  const canSubmit = !loading;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,13 +159,13 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     try {
       const payload = {
         playedAt: new Date(playedAt).toISOString(),
-        result,
+        result: derivedResult,
         goalsFor,
         goalsAgainst,
         role,
         goals,
         assists,
-        cleanSheet: role === "POR" ? cleanSheet : false,
+        cleanSheet: effectiveCleanSheet,
         notes: notes.trim() || null,
       };
 
@@ -175,12 +196,16 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       <MatchResultScreen
         match={resultData.match}
         xpEarned={resultData.xpEarned}
+        oldXp={resultData.oldXp}
+        newXp={resultData.newXp}
         oldCI={resultData.oldCI}
         newCI={resultData.newCI}
         oldOverall={resultData.oldOverall}
         newOverall={resultData.newOverall}
         oldLevel={resultData.oldLevel}
         newLevel={resultData.newLevel}
+        oldStatus={resultData.oldStatus}
+        newStatus={resultData.newStatus}
         unlockedAchievements={resultData.unlockedAchievements}
         onClose={() => router.push("/dashboard")}
         onReset={resetForm}
@@ -211,7 +236,7 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
               required
             />
             <p className="mt-1 text-xs text-textMuted">
-              Solo partite delle ultime 24 ore
+              Solo partite delle ultime 72 ore
             </p>
           </div>
         </CardContent>
@@ -219,25 +244,21 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
 
       <Card>
         <CardContent className="p-5 space-y-4">
-          <label className="block text-sm font-semibold text-textPrimary">
-            Risultato
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { v: "WIN" as const, label: "VITTORIA", cls: "bg-greenPrimary/20 border-greenPrimary/40 text-greenPrimary data-[sel=true]:bg-greenPrimary data-[sel=true]:text-bgPrimary data-[sel=true]:ring-2 data-[sel=true]:ring-greenPrimary/60" },
-              { v: "DRAW" as const, label: "PAREGGIO", cls: "bg-white/5 border-white/15 text-textMuted data-[sel=true]:bg-white/15 data-[sel=true]:text-textPrimary data-[sel=true]:ring-2 data-[sel=true]:ring-white/40" },
-              { v: "LOSS" as const, label: "SCONFITTA", cls: "bg-danger/15 border-danger/30 text-danger data-[sel=true]:bg-danger data-[sel=true]:text-white data-[sel=true]:ring-2 data-[sel=true]:ring-danger/50" },
-            ].map((b) => (
-              <button
-                key={b.v}
-                type="button"
-                data-sel={result === b.v}
-                onClick={() => setResult(b.v)}
-                className={`rounded-xl border px-2 py-4 text-sm font-bold transition-all ${b.cls}`}
-              >
-                {b.label}
-              </button>
-            ))}
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-textPrimary">
+              Punteggio
+            </label>
+            <Badge
+              variant={
+                derivedResult === "WIN"
+                  ? "verde"
+                  : derivedResult === "DRAW"
+                  ? "grigio"
+                  : "rosso"
+              }
+            >
+              {derivedResultLabel[derivedResult]}
+            </Badge>
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-2">
@@ -395,18 +416,27 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
             <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary p-4">
               <div>
                 <p className="text-sm font-semibold text-textPrimary">Clean Sheet</p>
-                <p className="text-xs text-textMuted">Nessun gol subito</p>
+                <p className="text-xs text-textMuted">
+                  {goalsAgainst > 0
+                    ? "Non disponibile (gol subiti > 0)"
+                    : "Nessun gol subito"}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setCleanSheet(!cleanSheet)}
+                disabled={goalsAgainst > 0}
                 className={`relative flex h-7 w-14 shrink-0 items-center rounded-full transition-colors ${
-                  cleanSheet ? "bg-greenPrimary" : "bg-white/15"
+                  goalsAgainst > 0
+                    ? "bg-white/10 opacity-60 cursor-not-allowed"
+                    : effectiveCleanSheet
+                    ? "bg-greenPrimary"
+                    : "bg-white/15"
                 }`}
               >
                 <span
                   className={`absolute h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                    cleanSheet ? "translate-x-7" : "translate-x-0.5"
+                    effectiveCleanSheet ? "translate-x-7" : "translate-x-0.5"
                   }`}
                 />
               </button>

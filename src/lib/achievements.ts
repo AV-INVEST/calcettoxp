@@ -1,6 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import type { PlayerProfile, Match, PlayerAchievement, Achievement } from '@prisma/client';
 
+export const MAX_ACHIEVABLE_LEVEL = 50;
+
+export function isAchievementVisible(a: Pick<Achievement, 'requirementType' | 'requirementValue'>): boolean {
+  if (a.requirementType === 'VALUE_LEVEL' && a.requirementValue > MAX_ACHIEVABLE_LEVEL) {
+    return false;
+  }
+  return true;
+}
+
+export function filterVisibleAchievements<T extends Pick<Achievement, 'requirementType' | 'requirementValue'>>(
+  items: T[]
+): T[] {
+  return items.filter(isAchievementVisible);
+}
+
 export type AchievementResult = {
   achievementId: string;
   key: string;

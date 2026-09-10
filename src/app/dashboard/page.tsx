@@ -6,8 +6,22 @@ import { prisma } from "@/lib/prisma";
 import { calculateCardAttributes, type PlayerSummary } from "@/lib/card-attributes";
 import { hasActivePro } from "@/lib/entitlements";
 import { getSeasonKeyInfo } from "@/lib/seasons";
+import {
+  getLevelProgress,
+  getStatusFromLevel,
+  type PlayerStatus,
+} from "@/lib/xp-levels";
+import {
+  computeActiveStreaks,
+  countMatchesThisWeek,
+  getBestCareerIndex,
+  type ActiveStreaks,
+} from "@/lib/retention";
+import { isAchievementVisible } from "@/lib/achievements";
 import PlayerCard from "@/components/player/PlayerCard";
-import CareerIndexChart, { type CareerIndexDataPoint } from "@/components/charts/CareerIndexChart";
+import CareerIndexChart, {
+  type CareerIndexDataPoint,
+} from "@/components/charts/CareerIndexChart";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -16,6 +30,7 @@ import CurrentSeasonCard from "@/components/dashboard/CurrentSeasonCard";
 import MultiplayerComingSoonCard from "@/components/dashboard/MultiplayerComingSoonCard";
 import NextGoalModule from "@/components/dashboard/NextGoalModule";
 import DashboardLogoutButton from "@/components/dashboard/DashboardLogoutButton";
+import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 import {
   TrendingUp,
   TrendingDown,
@@ -27,18 +42,35 @@ import {
   Award,
   ChevronRight,
   ArrowLeft,
+  PlusCircle,
+  Flame,
+  Crown,
+  BarChart3,
+  History,
+  Sparkles,
+  Palette,
+  Lock,
+  Star,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { format } from "date-fns";
-import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
 type MatchResult = "WIN" | "DRAW" | "LOSS";
 
 export const metadata: Metadata = {
   title: "Dashboard | CalcettoXP",
-  description: "La tua carriera CalcettoXP: progressi, statistiche e prossimi obiettivi.",
+  description:
+    "La tua carriera CalcettoXP: progressi, statistiche e prossimi obiettivi.",
   robots: { index: false, follow: false },
+};
+
+const STATUS_LABEL: Record<PlayerStatus, string> = {
+  NOVIZIO: "Novizio",
+  EMERGENTE: "Emergente",
+  AFFERMATO: "Affermato",
+  VETERANO: "Veterano",
+  LEGGENDA: "Leggenda",
 };
 
 export default async function DashboardPage() {
@@ -68,26 +100,48 @@ export default async function DashboardPage() {
   const subscription = playerProfile.user.subscription ?? null;
   const isPro = hasActivePro(subscription);
 
-  const [recentMatches, ciHistory, playerAchievements] = await Promise.all([
-    prisma.match.findMany({
-      where: { playerId: playerProfile.id },
-      orderBy: { playedAt: "desc" },
-      take: 5,
-    }),
-    prisma.careerIndexHistory.findMany({
-      where: { playerProfileId: playerProfile.id },
-      orderBy: { createdAt: "asc" },
-      take: 20,
-    }),
-    prisma.playerAchievement.findMany({
-      where: { playerProfileId: playerProfile.id },
-      include: { achievement: true },
-      orderBy: [{ unlockedAt: "desc" }, { progress: "desc" }],
-    }),
+  const now = new Date();
+
+  const recentMatchesForStreaksQuery = prisma.match.findMany({
+    where: { playerId: playerProfile.id },
+    orderBy: { playedAt: "desc" },
+    take: 50,
+    select: {
+      id: true,
+      result: true,
+      playedAt: true,
+      goalsFor: true,
+      goalsAgainst: true,
+      role: true,
+      goals: true,
+      assists: true,
+      careerIndexChange: true,
+    },
+  });
+
+  const ciHistoryQuery = prisma.careerIndexHistory.findMany({
+    where: { playerProfileId: playerProfile.id },
+    orderBy: { createdAt: "asc" },
+    take: isPro ? undefined : 20,
+  });
+
+  const playerAchievementsQuery = prisma.playerAchievement.findMany({
+    where: { playerProfileId: playerProfile.id },
+    include: { achievement: true },
+    orderBy: [{ unlockedAt: "desc" }, { progress: "desc" }],
+  });
+
+  const [recentMatchesAll, ciHistory, playerAchievements] = await Promise.all([
+    recentMatchesForStreaksQuery,
+    ciHistoryQuery,
+    playerAchievementsQuery,
   ]);
 
+  const recentMatches = recentMatchesAll.slice(0, 5);
+
   const seasonKeyInfo = getSeasonKeyInfo();
-  const currentSeasonKey = playerProfile.currentSeasonKey ?? seasonKeyInfo.seasonKey;
+  const currentSeasonKey =
+    playerProfile.currentSeasonKey ?? seasonKeyInfo.seasonKey;
 
   let currentSeason = await prisma.playerSeason.findUnique({
     where: {
@@ -132,7 +186,7 @@ export default async function DashboardPage() {
     xp: playerProfile.xp,
     careerIndex: playerProfile.careerIndex,
     role: playerProfile.primaryRole,
-    recentMatches: recentMatches.map((m) => ({
+    recentMatches: recentMatchesAll.slice(0, 10).map((m) => ({
       careerIndexChange: m.careerIndexChange,
       result: m.result,
       goals: m.goals,
@@ -143,7 +197,8 @@ export default async function DashboardPage() {
 
   const attributes = calculateCardAttributes(summary);
 
-  const lastCiChange = ciHistory.length > 0 ? ciHistory[ciHistory.length - 1].changeValue : 0;
+  const lastCiChange =
+    ciHistory.length > 0 ? ciHistory[ciHistory.length - 1].changeValue : 0;
 
   const ciChartData: CareerIndexDataPoint[] = ciHistory.map((h) => ({
     date: h.createdAt,
@@ -161,14 +216,15 @@ export default async function DashboardPage() {
     });
   }
 
-  const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const recent30d = ciHistory.filter((h) => h.createdAt >= thirtyDaysAgo);
   let trend30d = 0;
   if (recent30d.length >= 2) {
-    trend30d = recent30d[recent30d.length - 1].valueAfter - recent30d[0].valueBefore;
+    trend30d =
+      recent30d[recent30d.length - 1].valueAfter - recent30d[0].valueBefore;
   } else if (ciHistory.length >= 2) {
-    trend30d = ciHistory[ciHistory.length - 1].valueAfter - ciHistory[0].valueBefore;
+    trend30d =
+      ciHistory[ciHistory.length - 1].valueAfter - ciHistory[0].valueBefore;
   }
   const trend30dPositive = trend30d >= 0;
 
@@ -178,6 +234,7 @@ export default async function DashboardPage() {
       : 0;
 
   const inProgressAchievements = playerAchievements
+    .filter((pa) => isAchievementVisible(pa.achievement))
     .filter((pa) => !pa.unlockedAt && (pa.progressTarget ?? 0) > 0)
     .map((pa) => ({
       name: pa.achievement.name,
@@ -203,9 +260,31 @@ export default async function DashboardPage() {
     LOSS: { variant: "rosso", icon: Trophy },
   };
 
+  const levelProgress = getLevelProgress(playerProfile.xp);
+  const playerStatus = getStatusFromLevel(playerProfile.level);
+
+  const streaks: ActiveStreaks = computeActiveStreaks(recentMatchesAll);
+  const matchesThisWeek = countMatchesThisWeek(recentMatchesAll, now);
+  const bestCI = getBestCareerIndex(playerProfile.careerIndex, ciHistory);
+  const isPersonalBest = playerProfile.careerIndex >= bestCI && playerProfile.matchesPlayed > 0;
+
+  const activeStreakLabel =
+    streaks.winStreak >= 2
+      ? `${streaks.winStreak} vittorie`
+      : streaks.unbeatenStreak >= 2
+      ? `${streaks.unbeatenStreak} imbattuto`
+      : streaks.lossStreak >= 2
+      ? `${streaks.lossStreak} sconfitte`
+      : "Costruisci la striscia";
+
+  const activeStreakPositive =
+    streaks.winStreak >= 2 || streaks.unbeatenStreak >= 2;
+
+  const isMaxLevel = levelProgress.currentLevel >= 50;
+
   return (
     <main className="min-h-screen bg-bgPrimary text-textPrimary pb-32 md:pb-10">
-      <div className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-6 md:space-y-8">
+      <div className="max-w-4xl mx-auto px-4 py-5 md:py-8 space-y-5 md:space-y-7">
         {/* 1) Header */}
         <header>
           <div className="flex items-start gap-3">
@@ -219,174 +298,347 @@ export default async function DashboardPage() {
             </Link>
             <div className="space-y-1 min-w-0 flex-1">
               <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate">
-                Ciao, <span className="text-greenElectric">{playerProfile.nickname}</span>.
+                Ciao,{" "}
+                <span className="text-greenElectric">
+                  {playerProfile.nickname}
+                </span>
+                .
               </h1>
               <small className="text-sm text-textMuted font-medium block">
-                Pronto per la prossima partita?
+                {STATUS_LABEL[playerStatus]} · Pronto per la prossima partita?
               </small>
             </div>
             <DashboardLogoutButton />
           </div>
         </header>
 
-        {/* 2) Main PlayerCard */}
+        {/* 2) MAIN PLAYER CARD protagonista */}
         <section className="flex justify-center">
-          <PlayerCard
-            nickname={playerProfile.nickname}
-            role={playerProfile.primaryRole as Role}
-            overall={playerProfile.overall}
-            level={playerProfile.level}
-            careerIndex={playerProfile.careerIndex}
-            careerIndexChange={lastCiChange || undefined}
-            attributes={attributes}
-            premiumBadge={isPro}
-            size="lg"
-            highlighted
-          />
+          <div className="w-full max-w-md">
+            <PlayerCard
+              nickname={playerProfile.nickname}
+              role={playerProfile.primaryRole as Role}
+              overall={playerProfile.overall}
+              level={playerProfile.level}
+              careerIndex={playerProfile.careerIndex}
+              careerIndexChange={lastCiChange || undefined}
+              attributes={attributes}
+              premiumBadge={isPro}
+              size="lg"
+              highlighted
+            />
+          </div>
         </section>
 
-        {/* 3) Career Index card */}
+        {/* 3) KEY METRICS: OVR · Career Index · Level */}
         <section>
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-greenPrimary/15 border border-greenPrimary/30 flex items-center justify-center">
-                    <Zap size={20} className="text-greenPrimary" />
+          <Card className="overflow-hidden">
+            <CardContent className="p-4 md:p-6">
+              <div className="grid grid-cols-3 gap-3 md:gap-6">
+                <div className="text-center">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
+                    OVR
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">Career Index</CardTitle>
-                    <p className="text-xs text-textMuted mt-0.5">
-                      Ultime {ciChartData.length} rilevazioni
-                    </p>
+                  <div
+                    className="text-4xl md:text-5xl font-black tabular-nums bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(124,255,107,0.18)]"
+                    style={{ letterSpacing: "-0.03em" }}
+                  >
+                    {playerProfile.overall}
                   </div>
                 </div>
-                <div className="flex items-end gap-4 flex-wrap">
-                  <div>
-                    <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1">
-                      Attuale
-                    </div>
-                    <div
-                      className="text-3xl font-black tabular-nums"
-                      style={{ color: "#7CFF6B" }}
-                    >
-                      {playerProfile.careerIndex}
-                    </div>
+                <div className="text-center border-x border-white/5">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
+                    Career Index
                   </div>
-                  <div>
-                    <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1">
-                      Ultima variazione
-                    </div>
-                    <div
-                      className={`flex items-center gap-1 text-lg font-bold tabular-nums ${
-                        lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
-                      }`}
-                    >
-                      {lastCiChange >= 0 ? (
-                        <TrendingUp size={16} strokeWidth={2.5} />
-                      ) : (
-                        <TrendingDown size={16} strokeWidth={2.5} />
-                      )}
-                      <span>
-                        {lastCiChange >= 0 ? "+" : ""}
-                        {lastCiChange}
-                      </span>
-                    </div>
+                  <div
+                    className="text-3xl md:text-4xl font-black tabular-nums"
+                    style={{ color: "#7CFF6B" }}
+                  >
+                    {playerProfile.careerIndex}
                   </div>
-                  <div>
-                    <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1">
-                      Trend 30g
-                    </div>
-                    <div
-                      className={`flex items-center gap-1 text-lg font-bold tabular-nums ${
-                        trend30dPositive ? "text-greenPrimary" : "text-danger"
-                      }`}
-                    >
-                      {trend30dPositive ? (
-                        <TrendingUp size={16} strokeWidth={2.5} />
-                      ) : (
-                        <TrendingDown size={16} strokeWidth={2.5} />
-                      )}
-                      <span>
-                        {trend30dPositive ? "+" : ""}
-                        {trend30d}
-                      </span>
-                    </div>
+                  <div
+                    className={`mt-1 flex items-center justify-center gap-1 text-xs font-bold tabular-nums ${
+                      lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
+                    }`}
+                  >
+                    {lastCiChange >= 0 ? (
+                      <TrendingUp size={13} strokeWidth={2.5} />
+                    ) : (
+                      <TrendingDown size={13} strokeWidth={2.5} />
+                    )}
+                    <span>
+                      {lastCiChange >= 0 ? "+" : ""}
+                      {lastCiChange}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
+                    Livello
+                  </div>
+                  <div className="text-3xl md:text-4xl font-black tabular-nums text-textPrimary">
+                    LV{" "}
+                    <span className="text-blue-400">
+                      {levelProgress.currentLevel}
+                    </span>
                   </div>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <CareerIndexChart data={ciChartData} height={240} />
             </CardContent>
           </Card>
         </section>
 
-        {/* 4) Quick Stats grid */}
+        {/* 4) XP BAR CUMULATIVA + PROGRESSO LIVELLO */}
         <section>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1.5">
-                  Partite
-                </div>
-                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums">
-                  {playerProfile.matchesPlayed}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider mb-1.5">
-                  Vittorie
-                </div>
-                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums">
-                  {playerProfile.wins}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider mb-1.5">
-                  Gol
-                </div>
-                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums">
-                  {playerProfile.goals}
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5">
-                  Assist
-                </div>
-                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums">
-                  {playerProfile.assists}
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="col-span-2 md:col-span-2">
-              <CardContent className="p-4 md:p-5">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">
-                    Win Rate
+          <Card className="border-white/10">
+            <CardContent className="p-4 md:p-6 space-y-3">
+              <div className="flex items-end justify-between gap-3 flex-wrap">
+                <div>
+                  <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-[0.18em] mb-1">
+                    {isMaxLevel ? "Massimo" : "Progresso livello"}
                   </div>
-                  <div className="text-sm font-bold text-textPrimary tabular-nums">
-                    {winRate}%
+                  <div className="text-xl md:text-2xl font-black tabular-nums">
+                    <span className="text-blue-400">
+                      LV {levelProgress.currentLevel}
+                    </span>
+                    {!isMaxLevel && (
+                      <span className="text-textMuted text-base md:text-lg mx-2 font-bold">
+                        →
+                      </span>
+                    )}
+                    {!isMaxLevel && (
+                      <span className="text-textMuted font-bold">
+                        LV {levelProgress.currentLevel + 1}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/5">
+                <div className="text-right">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1">
+                    XP
+                  </div>
+                  <div className="text-base md:text-lg font-bold tabular-nums">
+                    {levelProgress.xpInCurrentLevel.toLocaleString("it-IT")}
+                    {!isMaxLevel && (
+                      <>
+                        <span className="text-textMuted font-semibold mx-0.5">
+                          /
+                        </span>
+                        <span className="text-textMuted font-semibold">
+                          {(
+                            levelProgress.nextThreshold -
+                            levelProgress.currentThreshold
+                          ).toLocaleString("it-IT")}
+                        </span>
+                      </>
+                    )}
+                  </div>
                   <div
-                    className="h-full rounded-full transition-all duration-700 ease-out bg-gradient-to-r from-greenPrimary to-greenElectric"
-                    style={{ width: `${winRate}%` }}
-                  />
+                    className={`mt-1 text-xs font-black tabular-nums ${
+                      isMaxLevel
+                        ? "text-yellow-400"
+                        : levelProgress.progressPct >= 75
+                        ? "text-greenPrimary"
+                        : "text-greenElectric"
+                    }`}
+                  >
+                    {isMaxLevel
+                      ? "LIVELLO MASSIMO"
+                      : `${levelProgress.progressPct.toFixed(0)}%`}
+                  </div>
                 </div>
+              </div>
+
+              <div className="relative h-4 md:h-5 w-full overflow-hidden rounded-full bg-white/5 border border-white/10">
+                <div
+                  className="h-full rounded-full transition-[width] duration-700 ease-out bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-400 shadow-[0_0_20px_rgba(56,189,248,0.35)]"
+                  style={{ width: `${levelProgress.progressPct}%` }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-full mix-blend-overlay opacity-60"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 55%, rgba(0,0,0,0.15) 100%)",
+                  }}
+                />
+              </div>
+
+              {!isMaxLevel ? (
+                <div className="flex items-center justify-between pt-0.5">
+                  <p className="text-[11px] md:text-xs text-textMuted font-semibold">
+                    {levelProgress.xpToNextLevel.toLocaleString(
+                      "it-IT",
+                    )}{" "}
+                    XP al prossimo livello
+                  </p>
+                  <p className="text-[11px] md:text-xs text-textMuted font-medium tabular-nums">
+                    Totale: {playerProfile.xp.toLocaleString("it-IT")} XP
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between pt-0.5">
+                  <p className="text-[11px] md:text-xs font-black text-yellow-400">
+                    ✦ LEGGENDA ✦ Congratulazioni, hai raggiunto il livello massimo!
+                  </p>
+                  <p className="text-[11px] md:text-xs text-textMuted font-medium tabular-nums">
+                    {playerProfile.xp.toLocaleString("it-IT")} XP
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* 5) CTA PRIMARIA ENORME: REGISTRA PARTITA */}
+        <section>
+          <Link
+            href="/matches/new"
+            className="group relative block w-full overflow-hidden rounded-2xl border-2 border-greenPrimary/60 bg-gradient-to-br from-greenPrimary via-greenElectric to-emerald-400 p-[1px] shadow-[0_0_40px_rgba(124,255,107,0.22)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(124,255,107,0.4)] active:scale-[0.995]"
+          >
+            <div className="flex items-center justify-center gap-3 rounded-[14px] bg-gradient-to-br from-greenPrimary/95 via-greenElectric/95 to-emerald-400/95 px-5 py-4 md:py-5">
+              <PlusCircle
+                className="h-7 w-7 md:h-8 md:w-8 text-bgPrimary transition-transform duration-300 group-hover:rotate-90"
+                strokeWidth={2.4}
+              />
+              <div className="flex flex-col items-center">
+                <span className="text-xl md:text-2xl font-black tracking-[0.08em] text-bgPrimary uppercase drop-shadow-sm">
+                  Registra partita
+                </span>
+                <span className="mt-0.5 text-[11px] md:text-xs font-bold text-emerald-950/90 uppercase tracking-wider">
+                  Circa 20 secondi · Single Player
+                </span>
+              </div>
+            </div>
+            <div
+              className="pointer-events-none absolute inset-0 rounded-2xl opacity-60 mix-blend-overlay"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,0.12) 100%)",
+              }}
+            />
+          </Link>
+        </section>
+
+        {/* 6) 4 METRICHE COMPATTE: Streak · Settimana · Stagione · Record */}
+        <section>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <Card>
+              <CardContent className="p-3 md:p-4 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Flame
+                    size={14}
+                    className={
+                      activeStreakPositive ? "text-orange-400" : "text-textMuted"
+                    }
+                  />
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                    Streak
+                  </span>
+                </div>
+                <div
+                  className={`text-lg md:text-xl font-black tabular-nums ${
+                    activeStreakPositive
+                      ? streaks.winStreak >= 2
+                        ? "text-greenPrimary"
+                        : "text-yellow-400"
+                      : streaks.lossStreak >= 2
+                      ? "text-danger"
+                      : "text-textPrimary"
+                  }`}
+                >
+                  {streaks.winStreak >= 2
+                    ? `${streaks.winStreak}W`
+                    : streaks.unbeatenStreak >= 2
+                    ? `${streaks.unbeatenStreak}U`
+                    : streaks.lossStreak >= 2
+                    ? `${streaks.lossStreak}L`
+                    : "—"}
+                </div>
+                <p className="text-[11px] text-textMuted font-medium truncate">
+                  {activeStreakLabel}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-3 md:p-4 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={14} className="text-blue-400" />
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                    Settimana
+                  </span>
+                </div>
+                <div className="text-lg md:text-xl font-black tabular-nums text-blue-400">
+                  {matchesThisWeek}
+                </div>
+                <p className="text-[11px] text-textMuted font-medium">
+                  {matchesThisWeek === 1
+                    ? "partita questa settimana"
+                    : "partite questa settimana"}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-3 md:p-4 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Trophy size={14} className="text-yellow-400" />
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                    Stagione
+                  </span>
+                </div>
+                <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary">
+                  {currentSeason.matches}
+                </div>
+                <p className="text-[11px] text-textMuted font-medium truncate">
+                  {currentSeason.name}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-3 md:p-4 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <Crown
+                    size={14}
+                    className={
+                      isPersonalBest ? "text-yellow-400" : "text-textMuted"
+                    }
+                  />
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                    Miglior CI
+                  </span>
+                </div>
+                <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400">
+                  {bestCI}
+                </div>
+                <p className="text-[11px] text-textMuted font-medium">
+                  {isPersonalBest
+                    ? "✨ Record personale ora!"
+                    : `Record: +${Math.max(0, bestCI - playerProfile.careerIndex)} da recuperare`}
+                </p>
               </CardContent>
             </Card>
           </div>
         </section>
 
-        {/* 5) Recent Matches lista */}
+        {/* 7) PROSSIMO TRAGUARDO */}
+        <section>
+          <NextGoalModule
+            input={{
+              matchesPlayed: summary.matchesPlayed,
+              wins: summary.wins,
+              goals: summary.goals,
+              assists: summary.assists,
+              level: summary.level,
+              careerIndex: summary.careerIndex,
+              isPro,
+            }}
+            isPro={isPro}
+          />
+        </section>
+
+        {/* 8) ULTIME 5 PARTITE */}
         <section>
           <Card>
             <CardHeader className="pb-3">
@@ -396,19 +648,25 @@ export default async function DashboardPage() {
                     <Trophy size={20} className="text-greenPrimary" />
                   </div>
                   <div>
-                    <CardTitle className="text-lg">Partite recenti</CardTitle>
+                    <CardTitle className="text-lg">
+                      Ultime partite
+                    </CardTitle>
                     <p className="text-xs text-textMuted mt-0.5">
-                      Ultime {recentMatches.length} partite
+                      {playerProfile.matchesPlayed === 0
+                        ? "Inizia la tua carriera"
+                        : `Cronologia ultime ${recentMatches.length} · ${playerProfile.matchesPlayed} totali`}
                     </p>
                   </div>
                 </div>
-                <Link
-                  href="/matches"
-                  className="flex items-center gap-1 text-xs font-semibold text-greenElectric hover:text-greenPrimary transition-colors"
-                >
-                  Vedi tutte
-                  <ChevronRight size={14} />
-                </Link>
+                {playerProfile.matchesPlayed > 0 && (
+                  <Link
+                    href="/matches"
+                    className="flex items-center gap-1 text-xs font-semibold text-greenElectric hover:text-greenPrimary transition-colors"
+                  >
+                    Vedi tutte
+                    <ChevronRight size={14} />
+                  </Link>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -424,7 +682,8 @@ export default async function DashboardPage() {
                 </div>
               ) : (
                 recentMatches.map((match) => {
-                  const style = resultStyles[match.result as MatchResult];
+                  const style =
+                    resultStyles[match.result as MatchResult];
                   const ResIcon = style.icon;
                   const ciPos = match.careerIndexChange >= 0;
                   return (
@@ -433,9 +692,7 @@ export default async function DashboardPage() {
                       href={`/matches/${match.id}`}
                       className="block group"
                     >
-                      <div
-                        className="flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-4 bg-white/5 border border-transparent hover:border-greenPrimary/20 hover:bg-white/[0.07] transition-all duration-200"
-                      >
+                      <div className="flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-4 bg-white/5 border border-transparent hover:border-greenPrimary/20 hover:bg-white/[0.07] transition-all duration-200">
                         <div className="flex-shrink-0 w-14">
                           <Badge
                             variant={style.variant}
@@ -449,7 +706,10 @@ export default async function DashboardPage() {
                             {match.result}
                           </Badge>
                           <div className="text-[10px] text-textMuted text-center mt-1.5 font-medium">
-                            {format(new Date(match.playedAt), "dd/MM")}
+                            {format(
+                              new Date(match.playedAt),
+                              "dd/MM",
+                            )}
                           </div>
                         </div>
 
@@ -522,13 +782,136 @@ export default async function DashboardPage() {
           </Card>
         </section>
 
-        {/* 6) Next Achievement progress */}
+        {/* 9) CAREER INDEX CHART */}
+        <section>
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-greenPrimary/15 border border-greenPrimary/30 flex items-center justify-center">
+                    <Zap size={20} className="text-greenPrimary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">
+                      Career Index
+                    </CardTitle>
+                    <p className="text-xs text-textMuted mt-0.5">
+                      Ultime {ciChartData.length} rilevazioni
+                      {!isPro && ciChartData.length >= 20 && (
+                        <>
+                          {" · "}
+                          <span className="inline-flex items-center gap-1 text-textMuted">
+                            <Lock size={11} />
+                            Storico completo PRO
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-end gap-4 flex-wrap">
+                  <div>
+                    <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1">
+                      Trend 30g
+                    </div>
+                    <div
+                      className={`flex items-center gap-1 text-lg font-bold tabular-nums ${
+                        trend30dPositive
+                          ? "text-greenPrimary"
+                          : "text-danger"
+                      }`}
+                    >
+                      {trend30dPositive ? (
+                        <TrendingUp size={16} strokeWidth={2.5} />
+                      ) : (
+                        <TrendingDown size={16} strokeWidth={2.5} />
+                      )}
+                      <span>
+                        {trend30dPositive ? "+" : ""}
+                        {trend30d}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CareerIndexChart data={ciChartData} height={240} />
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* 10) STATS 3x2 */}
+        <section>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+            <Card>
+              <CardContent className="p-4 md:p-5">
+                <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1.5">
+                  Partite
+                </div>
+                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums">
+                  {playerProfile.matchesPlayed}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 md:p-5">
+                <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider mb-1.5">
+                  Vittorie
+                </div>
+                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums">
+                  {playerProfile.wins}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 md:p-5">
+                <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider mb-1.5">
+                  Gol
+                </div>
+                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums">
+                  {playerProfile.goals}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4 md:p-5">
+                <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5">
+                  Assist
+                </div>
+                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums">
+                  {playerProfile.assists}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="col-span-2 md:col-span-2">
+              <CardContent className="p-4 md:p-5">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">
+                    Win Rate
+                  </div>
+                  <div className="text-sm font-bold text-textPrimary tabular-nums">
+                    {winRate}%
+                  </div>
+                </div>
+                <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out bg-gradient-to-r from-greenPrimary to-greenElectric"
+                    style={{ width: `${winRate}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* 11) NEXT ACHIEVEMENT PROGRESS */}
         <section>
           <div className="mb-3">
             <div className="flex items-center gap-2.5">
               <Award size={18} className="text-greenElectric" />
               <h2 className="text-sm font-bold text-textMuted uppercase tracking-wider">
-                Prossimo obiettivo
+                Prossimo achievement
               </h2>
             </div>
           </div>
@@ -549,7 +932,7 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* 7) Current Season card */}
+        {/* 12) CURRENT SEASON */}
         <section>
           <CurrentSeasonCard
             season={{
@@ -567,30 +950,124 @@ export default async function DashboardPage() {
           />
         </section>
 
-        {/* 7bis) Next Goal */}
-        <section>
-          <NextGoalModule
-            input={{
-              matchesPlayed: summary.matchesPlayed,
-              wins: summary.wins,
-              goals: summary.goals,
-              assists: summary.assists,
-              level: summary.level,
-              careerIndex: summary.careerIndex,
-              isPro: isPro,
-            }}
-            isPro={isPro}
-          />
-        </section>
+        {/* 13) FREE vs PRO TEASERS (4 eleganti, NON invasivi) */}
+        {!isPro && (
+          <section className="space-y-3">
+            <div className="flex items-end justify-between px-0.5">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-violet-400" />
+                <h2 className="text-sm font-bold text-textMuted uppercase tracking-wider">
+                  Scopri PRO
+                </h2>
+                <span className="text-[10px] font-black uppercase tracking-widest text-violet-400 bg-violet-400/10 border border-violet-400/20 rounded-full px-2 py-0.5">
+                  €3,90/mese
+                </span>
+              </div>
+              <p className="text-[11px] text-textMuted font-medium hidden sm:block">
+                Profondità · Personalizzazione · Zero pay-to-win
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card className="relative overflow-hidden border-violet-500/15">
+                <div className="absolute top-2 right-2 text-textMuted">
+                  <Lock size={12} />
+                </div>
+                <CardContent className="p-3 md:p-4 space-y-2">
+                  <div className="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <Palette size={16} className="text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-textPrimary">
+                      Temi Premium
+                    </p>
+                    <p className="text-[11px] text-textMuted mt-1 leading-snug">
+                      Night · Elite · Neon
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* 8) Multiplayer Card bloccata */}
+              <Card className="relative overflow-hidden border-violet-500/15">
+                <div className="absolute top-2 right-2 text-textMuted">
+                  <Lock size={12} />
+                </div>
+                <CardContent className="p-3 md:p-4 space-y-2">
+                  <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                    <BarChart3 size={16} className="text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-textPrimary">
+                      Analisi forma
+                    </p>
+                    <p className="text-[11px] text-textMuted mt-1 leading-snug">
+                      7 / 30 / 90 giorni
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-violet-500/15">
+                <div className="absolute top-2 right-2 text-textMuted">
+                  <Lock size={12} />
+                </div>
+                <CardContent className="p-3 md:p-4 space-y-2">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <History size={16} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-textPrimary">
+                      Storico completo
+                    </p>
+                    <p className="text-[11px] text-textMuted mt-1 leading-snug">
+                      CI illimitato · Tutte le stagioni
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden border-violet-500/15">
+                <div className="absolute top-2 right-2 text-textMuted">
+                  <Lock size={12} />
+                </div>
+                <CardContent className="p-3 md:p-4 space-y-2">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <Star size={16} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-textPrimary">
+                      Record avanzati
+                    </p>
+                    <p className="text-[11px] text-textMuted mt-1 leading-snug">
+                      Streaks · Per ruolo · Insights
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="pt-1">
+              <Link
+                href="/pricing"
+                className="group inline-flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-violet-300 transition-all hover:bg-violet-500/15 hover:text-violet-200 hover:border-violet-400/40 active:scale-[0.99]"
+              >
+                <Sparkles size={15} />
+                <span>Scopri PRO</span>
+                <ChevronRight
+                  size={16}
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {/* 14) MULTIPLAYER COMING SOON */}
         <section>
           <MultiplayerComingSoonCard />
         </section>
       </div>
 
       <InstallPWAButton />
-      {/* 9) MobileBottomNav */}
       <MobileBottomNav />
     </main>
   );

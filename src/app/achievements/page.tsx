@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hasActivePro } from "@/lib/entitlements";
+import { filterVisibleAchievements } from "@/lib/achievements";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -134,14 +135,16 @@ export default async function AchievementsPage() {
   });
   const isPro = hasActivePro(subscription);
 
-  const allAchievements = await prisma.achievement.findMany({
-    include: {
-      playerAchievements: {
-        where: { playerProfileId: player.id },
+  const allAchievements = filterVisibleAchievements(
+    await prisma.achievement.findMany({
+      include: {
+        playerAchievements: {
+          where: { playerProfileId: player.id },
+        },
       },
-    },
-    orderBy: [{ tier: "asc" }, { requirementValue: "asc" }],
-  });
+      orderBy: [{ tier: "asc" }, { requirementValue: "asc" }],
+    })
+  );
 
   const unlockedCount = allAchievements.filter(
     (a) => a.playerAchievements[0]?.unlockedAt

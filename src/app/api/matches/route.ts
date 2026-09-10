@@ -2,24 +2,30 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
-import { Role, MatchResult } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { calculateCareerIndexChange } from "@/lib/career-index";
-import { calculateXpEarned, levelFromXp } from "@/lib/xp-levels";
+import {
+  calculateXpEarned,
+  levelFromXp,
+  getStatusFromLevel,
+} from "@/lib/xp-levels";
 import { careerIndexToOverall } from "@/lib/ovr";
 import { getSeasonKeyInfo } from "@/lib/seasons";
 import { checkAchievementsAfterMatch } from "@/lib/achievements";
 
-const matchCreateSchema = z.object({
-  playedAt: z.string().datetime(),
-  result: z.nativeEnum(MatchResult),
-  goalsFor: z.number().int().min(0).max(30),
-  goalsAgainst: z.number().int().min(0).max(30),
-  role: z.nativeEnum(Role),
-  goals: z.number().int().min(0).max(15),
-  assists: z.number().int().min(0).max(10),
-  cleanSheet: z.boolean().optional(),
-  notes: z.string().max(250).optional().nullable(),
-}).strip();
+const matchCreateSchema = z
+  .object({
+    playedAt: z.string().datetime(),
+    result: z.string().optional(),
+    goalsFor: z.number().int().min(0).max(30),
+    goalsAgainst: z.number().int().min(0).max(30),
+    role: z.nativeEnum(Role),
+    goals: z.number().int().min(0).max(15),
+    assists: z.number().int().min(0).max(10),
+    cleanSheet: z.boolean().optional(),
+    notes: z.string().max(250).optional().nullable(),
+  })
+  .strip();
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -35,27 +41,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = matchCreateSchema.parse(body);
 
-    if (parsed.result === 'WIN' && parsed.goalsFor <= parsed.goalsAgainst) {
-      return NextResponse.json(
-        { ok: false, error: 'Vittoria richiede goalsFor > goalsAgainst' },
-        { status: 400 }
-      );
-    }
-    if (parsed.result === 'DRAW' && parsed.goalsFor !== parsed.goalsAgainst) {
-      return NextResponse.json(
-        { ok: false, error: 'Pareggio richiede goalsFor === goalsAgainst' },
-        { status: 400 }
-      );
-    }
-    if (parsed.result === 'LOSS' && parsed.goalsFor >= parsed.goalsAgainst) {
-      return NextResponse.json(
-        { ok: false, error: 'Sconfitta richiede goalsFor < goalsAgainst' },
-        { status: 400 }
-      );
-    }
+    const derivedResult =
+      parsed.goalsFor > parsed.goalsAgainst
+        ? "WIN"
+        : parsed.goalsFor === parsed.goalsAgainst
+        ? "DRAW"
+        : "LOSS";
+
     if (parsed.goals > parsed.goalsFor) {
       return NextResponse.json(
-        { ok: false, error: 'Gol giocatore non possono superare goalsFor' },
+        {
+          ok: false,
+          error:
+            "I gol segnati dal giocatore non possono superare i gol totali della squadra",
+        },
         { status: 400 }
       );
     }
@@ -63,17 +62,21 @@ export async function POST(req: Request) {
     const playedAtDate = new Date(parsed.playedAt);
     const nowUtc = new Date();
 
-    if (playedAtDate.getTime() > nowUtc.getTime()) {
+    if (playedAtDate.getTime() > nowUtc.getTime() + 60_000) {
       return NextResponse.json(
         { ok: false, error: "La data della partita non può essere nel futuro" },
         { status: 400 }
       );
     }
 
-    const twentyFourHoursAgo = new Date(nowUtc.getTime() - 24 * 60 * 60 * 1000);
-    if (playedAtDate.getTime() < twentyFourHoursAgo.getTime()) {
+    const seventyTwoHoursAgo = new Date(nowUtc.getTime() - 72 * 60 * 60 * 1000);
+    if (playedAtDate.getTime() < seventyTwoHoursAgo.getTime()) {
       return NextResponse.json(
-        { ok: false, error: "Puoi registrare solo partite delle ultime 24 ore" },
+        {
+          ok: false,
+          error:
+            "Puoi registrare solo partite delle ultime 72 ore. Per partite più vecchie contatta l'assistenza.",
+        },
         { status: 400 }
       );
     }
@@ -87,7 +90,11 @@ export async function POST(req: Request) {
 
     if (!player) {
       return NextResponse.json(
-        { ok: false, error: "Profilo giocatore non trovato. Completa prima l'onboarding." },
+        {
+          ok: false,
+          error:
+            "Profilo giocatore non trovato. Completa prima l'onboarding.",
+        },
         { status: 400 }
       );
     }
@@ -107,32 +114,80 @@ export async function POST(req: Request) {
       },
     });
 
-    if (matchesSameDay >= 3) {
+    if (matchesSameDay >= 2) {
       return NextResponse.json(
-        { ok: false, error: "Hai già registrato 3 partite oggi. Riprova domani." },
+        {
+          ok: false,
+          error:
+            "Hai già registrato 2 partite oggi. Puoi registrare massimo 2 partite per giorno.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const twoHoursBefore = new Date(playedAtDate.getTime() - 2 * 60 * 60 * 1000);
+    const twoHoursAfter = new Date(playedAtDate.getTime() + 2 * 60 * 60 * 1000);
+    const matchNearby = await prisma.match.findFirst({
+      where: {
+        playerId: player.id,
+        playedAt: {
+          gt: twoHoursBefore,
+          lt: twoHoursAfter,
+        },
+      },
+      orderBy: { playedAt: "asc" },
+      select: { playedAt: true },
+    });
+
+    if (matchNearby) {
+      const diffMs = Math.abs(
+        playedAtDate.getTime() - new Date(matchNearby.playedAt).getTime(),
+      );
+      const diffMinutes = Math.round(diffMs / 60_000);
+      const minutesToWait = 120 - diffMinutes;
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Devono passare almeno 2 ore tra due partite registrate. Attendi altri ${Math.max(
+            1,
+            minutesToWait,
+          )} minuti o scegli un orario diverso.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const duplicateCount = await prisma.match.count({
+      where: {
+        playerId: player.id,
+        playedAt: playedAtDate,
+        role: parsed.role,
+        goalsFor: parsed.goalsFor,
+        goalsAgainst: parsed.goalsAgainst,
+      },
+    });
+
+    if (duplicateCount > 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Sembra che questa partita sia già stata registrata (stesso orario, ruolo e punteggio). Controlla tra le tue partite.",
+        },
         { status: 400 }
       );
     }
 
     let cleanSheet = parsed.cleanSheet ?? false;
     if (parsed.role !== Role.POR) {
-      if (cleanSheet) {
-        return NextResponse.json(
-          { ok: false, error: 'cleanSheet disponibile solo per ruolo POR' },
-          { status: 400 }
-        );
-      }
       cleanSheet = false;
     }
     if (cleanSheet && parsed.goalsAgainst !== 0) {
-      return NextResponse.json(
-        { ok: false, error: 'cleanSheet richiede goalsAgainst === 0' },
-        { status: 400 }
-      );
+      cleanSheet = false;
     }
 
     const ciChange = calculateCareerIndexChange({
-      result: parsed.result,
+      result: derivedResult,
       role: parsed.role,
       goals: parsed.goals,
       assists: parsed.assists,
@@ -143,17 +198,20 @@ export async function POST(req: Request) {
     const newCI = Math.max(400, oldCI + ciChange);
 
     const xpEarned = calculateXpEarned({
-      result: parsed.result,
+      result: derivedResult,
       role: parsed.role,
       goals: parsed.goals,
       assists: parsed.assists,
       cleanSheet,
     });
 
+    const oldXp = player.xp;
     const oldLevel = player.level;
     const newTotalXp = player.xp + xpEarned;
     const newLevel = levelFromXp(newTotalXp);
     const leveledUp = newLevel > oldLevel;
+    const oldStatus = getStatusFromLevel(oldLevel);
+    const newStatus = getStatusFromLevel(newLevel);
 
     const oldOverall = player.overall;
     const newOverall = careerIndexToOverall(newCI);
@@ -165,7 +223,7 @@ export async function POST(req: Request) {
         data: {
           playerId: player.id,
           playedAt: playedAtDate,
-          result: parsed.result,
+          result: derivedResult,
           goalsFor: parsed.goalsFor,
           goalsAgainst: parsed.goalsAgainst,
           role: parsed.role,
@@ -202,9 +260,9 @@ export async function POST(req: Request) {
           xp: newTotalXp,
           level: newLevel,
           matchesPlayed: { increment: 1 },
-          wins: parsed.result === "WIN" ? { increment: 1 } : undefined,
-          draws: parsed.result === "DRAW" ? { increment: 1 } : undefined,
-          losses: parsed.result === "LOSS" ? { increment: 1 } : undefined,
+          wins: derivedResult === "WIN" ? { increment: 1 } : undefined,
+          draws: derivedResult === "DRAW" ? { increment: 1 } : undefined,
+          losses: derivedResult === "LOSS" ? { increment: 1 } : undefined,
           goals: { increment: parsed.goals },
           assists: { increment: parsed.assists },
           cleanSheets: cleanSheet ? { increment: 1 } : undefined,
@@ -233,9 +291,9 @@ export async function POST(req: Request) {
             startDate: seasonInfo.startDate,
             endDate: seasonInfo.endDate,
             matches: 1,
-            wins: parsed.result === "WIN" ? 1 : 0,
-            draws: parsed.result === "DRAW" ? 1 : 0,
-            losses: parsed.result === "LOSS" ? 1 : 0,
+            wins: derivedResult === "WIN" ? 1 : 0,
+            draws: derivedResult === "DRAW" ? 1 : 0,
+            losses: derivedResult === "LOSS" ? 1 : 0,
             goals: parsed.goals,
             assists: parsed.assists,
             startCareerIndex: oldCI,
@@ -255,9 +313,9 @@ export async function POST(req: Request) {
           },
           data: {
             matches: { increment: 1 },
-            wins: parsed.result === "WIN" ? { increment: 1 } : undefined,
-            draws: parsed.result === "DRAW" ? { increment: 1 } : undefined,
-            losses: parsed.result === "LOSS" ? { increment: 1 } : undefined,
+            wins: derivedResult === "WIN" ? { increment: 1 } : undefined,
+            draws: derivedResult === "DRAW" ? { increment: 1 } : undefined,
+            losses: derivedResult === "LOSS" ? { increment: 1 } : undefined,
             goals: { increment: parsed.goals },
             assists: { increment: parsed.assists },
             endCareerIndex: newCI,
@@ -335,10 +393,14 @@ export async function POST(req: Request) {
       ok: true,
       match: txResult.match,
       xpEarned,
+      oldXp,
+      newXp: newTotalXp,
       careerIndexChange: ciChange,
       leveledUp,
       oldLevel,
       newLevel,
+      oldStatus,
+      newStatus,
       oldOverall,
       newOverall,
       oldCI,

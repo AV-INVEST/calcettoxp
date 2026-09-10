@@ -3,6 +3,7 @@
 import { TrendingUp, TrendingDown, Shield, Crown, Zap, Target, Award, Flame } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { CardTheme, CARD_THEMES } from "@/lib/username-config";
+import { getStatusFromLevel, type PlayerStatus } from "@/lib/xp-levels";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
 
@@ -70,6 +71,68 @@ const THEME_CONFIG: Record<
     glowFilter: "drop-shadow(0 0 10px rgba(167, 139, 250, 0.25))",
   },
 };
+
+const STATUS_STYLE: Record<
+  PlayerStatus,
+  {
+    borderLeftWidthPx: number;
+    glowMultiplier: number;
+    cornerOpacity: number;
+    nicknameUnderline: boolean;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+  }
+> = {
+  NOVIZIO: {
+    borderLeftWidthPx: 2,
+    glowMultiplier: 0.6,
+    cornerOpacity: 0.5,
+    nicknameUnderline: false,
+    badgeBg: "rgba(148, 163, 184, 0.15)",
+    badgeText: "#94A3B8",
+    badgeBorder: "rgba(148, 163, 184, 0.3)",
+  },
+  EMERGENTE: {
+    borderLeftWidthPx: 3,
+    glowMultiplier: 0.8,
+    cornerOpacity: 0.65,
+    nicknameUnderline: false,
+    badgeBg: "rgba(34, 197, 94, 0.15)",
+    badgeText: "#4ADE80",
+    badgeBorder: "rgba(34, 197, 94, 0.35)",
+  },
+  AFFERMATO: {
+    borderLeftWidthPx: 3,
+    glowMultiplier: 1.0,
+    cornerOpacity: 0.8,
+    nicknameUnderline: true,
+    badgeBg: "rgba(56, 189, 248, 0.15)",
+    badgeText: "#38BDF8",
+    badgeBorder: "rgba(56, 189, 248, 0.4)",
+  },
+  VETERANO: {
+    borderLeftWidthPx: 4,
+    glowMultiplier: 1.2,
+    cornerOpacity: 0.9,
+    nicknameUnderline: true,
+    badgeBg: "rgba(234, 179, 8, 0.18)",
+    badgeText: "#FACC15",
+    badgeBorder: "rgba(234, 179, 8, 0.45)",
+  },
+  LEGGENDA: {
+    borderLeftWidthPx: 5,
+    glowMultiplier: 1.5,
+    cornerOpacity: 1.0,
+    nicknameUnderline: true,
+    badgeBg:
+      "linear-gradient(90deg, rgba(234, 179, 8, 0.25), rgba(250, 204, 21, 0.3), rgba(234, 179, 8, 0.25))",
+    badgeText: "#FDE047",
+    badgeBorder: "rgba(250, 204, 21, 0.6)",
+  },
+};
+
+const PREMIUM_THEMES: readonly CardTheme[] = ["NIGHT", "ELITE", "NEON"] as const;
 
 interface AttributeProps {
   label: string;
@@ -220,11 +283,32 @@ export default function PlayerCard({
   size = "md",
   theme = "CLASSIC",
 }: PlayerCardProps) {
-  const safeTheme = (CARD_THEMES as readonly string[]).includes(theme) ? theme : "CLASSIC";
+  const status = getStatusFromLevel(level);
+  const statusStyle = STATUS_STYLE[status];
+  const isPremiumThemeRequested = PREMIUM_THEMES.includes(theme as CardTheme);
+  const canUsePremiumTheme = premiumBadge && isPremiumThemeRequested;
+  const effectiveTheme: CardTheme = isPremiumThemeRequested
+    ? canUsePremiumTheme
+      ? theme
+      : "CLASSIC"
+    : (CARD_THEMES as readonly string[]).includes(theme)
+    ? theme
+    : "CLASSIC";
+
   const cfg = sizeConfig[size];
   const roleStyle = roleColors[role];
   const hasPositiveChange = (careerIndexChange ?? 0) >= 0;
-  const t = THEME_CONFIG[safeTheme as CardTheme];
+  const t = THEME_CONFIG[effectiveTheme as CardTheme];
+  const glowBoost = statusStyle.glowMultiplier;
+  const cornerOpacity = statusStyle.cornerOpacity;
+
+  const boostedBoxShadow = highlighted
+    ? `0 0 0 2px ${t.accentSoft}, 0 ${Math.round(12 * glowBoost)}px ${Math.round(
+        32 * glowBoost,
+      )}px -8px ${t.accent}${Math.round(10 * glowBoost).toString().padStart(2, "0")}, 0 0 0 1px rgba(255, 255, 255, 0.04) inset`
+    : `0 ${Math.round(12 * glowBoost)}px ${Math.round(32 * glowBoost)}px -8px ${
+        t.accent
+      }${Math.round(10 * glowBoost).toString().padStart(2, "0")}, 0 0 0 1px rgba(255, 255, 255, 0.04) inset`;
 
   return (
     <div
@@ -234,11 +318,9 @@ export default function PlayerCard({
       `}
       style={{
         background: t.cardBg,
-        borderLeft: `3px solid ${t.accent}`,
-        boxShadow: highlighted
-          ? `0 0 0 2px ${t.accentSoft}, ${t.boxShadow}`
-          : t.boxShadow,
-        filter: t.glowFilter || undefined,
+        borderLeft: `${statusStyle.borderLeftWidthPx}px solid ${t.accent}`,
+        boxShadow: boostedBoxShadow,
+        filter: t.glowFilter ? `drop-shadow(0 0 ${Math.round(10 * glowBoost)}px rgba(167, 139, 250, ${0.2 * glowBoost}))` : undefined,
       }}
     >
       {/* Corner decorations top-left */}
@@ -248,6 +330,7 @@ export default function PlayerCard({
           borderTop: `2px solid ${t.cornerColor}`,
           borderLeft: `2px solid ${t.cornerColor}`,
           borderTopLeftRadius: "1rem",
+          opacity: cornerOpacity,
         }}
       />
       <div
@@ -256,7 +339,7 @@ export default function PlayerCard({
           borderTop: `1.5px solid ${t.cornerColor}`,
           borderLeft: `1.5px solid ${t.cornerColor}`,
           borderTopLeftRadius: "0.5rem",
-          opacity: 0.6,
+          opacity: 0.6 * cornerOpacity,
         }}
       />
 
@@ -267,6 +350,7 @@ export default function PlayerCard({
           borderTop: `2px solid ${t.cornerColor}`,
           borderRight: `2px solid ${t.cornerColor}`,
           borderTopRightRadius: "1rem",
+          opacity: cornerOpacity,
         }}
       />
       <div
@@ -275,7 +359,7 @@ export default function PlayerCard({
           borderTop: `1.5px solid ${t.cornerColor}`,
           borderRight: `1.5px solid ${t.cornerColor}`,
           borderTopRightRadius: "0.5rem",
-          opacity: 0.6,
+          opacity: 0.6 * cornerOpacity,
         }}
       />
 
@@ -286,6 +370,7 @@ export default function PlayerCard({
           borderBottom: `2px solid ${t.cornerColor}`,
           borderLeft: `2px solid ${t.cornerColor}`,
           borderBottomLeftRadius: "1rem",
+          opacity: cornerOpacity,
         }}
       />
       <div
@@ -294,7 +379,7 @@ export default function PlayerCard({
           borderBottom: `1.5px solid ${t.cornerColor}`,
           borderLeft: `1.5px solid ${t.cornerColor}`,
           borderBottomLeftRadius: "0.5rem",
-          opacity: 0.6,
+          opacity: 0.6 * cornerOpacity,
         }}
       />
 
@@ -305,6 +390,7 @@ export default function PlayerCard({
           borderBottom: `2px solid ${t.cornerColor}`,
           borderRight: `2px solid ${t.cornerColor}`,
           borderBottomRightRadius: "1rem",
+          opacity: cornerOpacity,
         }}
       />
       <div
@@ -313,7 +399,7 @@ export default function PlayerCard({
           borderBottom: `1.5px solid ${t.cornerColor}`,
           borderRight: `1.5px solid ${t.cornerColor}`,
           borderBottomRightRadius: "0.5rem",
-          opacity: 0.6,
+          opacity: 0.6 * cornerOpacity,
         }}
       />
 
@@ -363,7 +449,7 @@ export default function PlayerCard({
           </div>
         </div>
 
-        {/* Role + Premium */}
+        {/* Role + Premium + Status */}
         <div className="flex flex-col items-end gap-2">
           <div
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-black text-xs tracking-wider`}
@@ -374,6 +460,16 @@ export default function PlayerCard({
             }}
           >
             {role}
+          </div>
+          <div
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+            style={{
+              background: statusStyle.badgeBg,
+              border: `1px solid ${statusStyle.badgeBorder}`,
+              color: statusStyle.badgeText,
+            }}
+          >
+            {status}
           </div>
           {premiumBadge && (
             <div
@@ -403,14 +499,26 @@ export default function PlayerCard({
         >
           {nickname}
         </h2>
-        <div
-          className="mt-2 mx-auto rounded-full"
-          style={{
-            height: "1px",
-            width: "60%",
-            background: `linear-gradient(90deg, transparent 0%, ${t.accentSoft}55 50%, transparent 100%)`,
-          }}
-        />
+        {statusStyle.nicknameUnderline && (
+          <div
+            className="mt-2 mx-auto rounded-full"
+            style={{
+              height: "1px",
+              width: "60%",
+              background: `linear-gradient(90deg, transparent 0%, ${t.accentSoft}55 50%, transparent 100%)`,
+            }}
+          />
+        )}
+        {!statusStyle.nicknameUnderline && (
+          <div
+            className="mt-2 mx-auto rounded-full opacity-60"
+            style={{
+              height: "1px",
+              width: "60%",
+              background: `linear-gradient(90deg, transparent 0%, ${t.accentSoft}33 50%, transparent 100%)`,
+            }}
+          />
+        )}
       </div>
 
       {/* Career Index */}

@@ -58,8 +58,7 @@ const ALL_MILESTONES: MilestoneGoal[] = [
   { id: 'lv5', label: 'Livello 5', target: 5, category: 'level', tier: 'FREE' },
   { id: 'lv10', label: 'Livello 10', target: 10, category: 'level', tier: 'FREE' },
   { id: 'lv25', label: 'Livello 25', target: 25, category: 'level', tier: 'FREE' },
-  { id: 'lv50', label: 'Livello 50', target: 50, category: 'level', tier: 'PRO' },
-  { id: 'lv75', label: 'Livello 75', target: 75, category: 'level', tier: 'PRO' },
+  { id: 'lv50', label: 'Livello 50', target: 50, category: 'level', tier: 'FREE' },
 
   { id: 'ci900', label: 'Career Index 900', target: 900, category: 'careerIndex', tier: 'FREE' },
   { id: 'ci1000', label: 'Career Index 1000', target: 1000, category: 'careerIndex', tier: 'FREE' },

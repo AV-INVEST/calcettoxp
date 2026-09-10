@@ -43,7 +43,7 @@ export default async function NewMatchPage() {
               Registra partita
             </h1>
             <p className="truncate text-xs text-textMuted">
-              {player.nickname} · Massimo 3 partite al giorno
+              {player.nickname} · Massimo 2 partite al giorno
             </p>
           </div>
         </div>

@@ -204,14 +204,6 @@ async function main() {
       requirementValue: 250,
       tier: AchievementTier.PRO,
     },
-    {
-      key: 'LEVEL_75',
-      name: 'Maestro',
-      description: 'Raggiungi il livello 75 (PRO)',
-      requirementType: AchievementRequirementType.VALUE_LEVEL,
-      requirementValue: 75,
-      tier: AchievementTier.PRO,
-    },
   ];
 
   for (const achievement of achievements) {

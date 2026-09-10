@@ -97,16 +97,9 @@ export default function AppHeader() {
               <Button
                 variant="secondary"
                 size="md"
-                className="!gap-2"
+                className="!gap-0"
                 onClick={() => {}}
               >
-                <Image
-                  src={CxpLogo}
-                  alt=""
-                  width={16}
-                  height={16}
-                  style={{ width: "16px", height: "16px", display: "block", objectFit: "cover", borderRadius: "4px" }}
-                />
                 <span>ACCEDI</span>
               </Button>
             </Link>
