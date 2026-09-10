@@ -192,7 +192,24 @@ export default async function ProfilePage() {
           {isPro && (
             <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-amber-400/10 to-transparent pointer-events-none" aria-hidden />
           )}
-          <CardContent className="p-5 md:p-8 relative">
+          <CardContent className="px-5 pt-7 pb-5 md:p-8 relative">
+            <div className="md:hidden absolute top-3 right-3 z-20 [&>button]:!h-9 [&>button]:!w-9 [&>button]:!p-0 [&>button]:!min-w-0 [&>button]:!justify-center [&>button]:!aspect-square">
+              <EditProfileModalWrapper
+                initial={{
+                  username: player.username,
+                  nickname: player.nickname,
+                  country: player.country,
+                  city: player.city,
+                  preferredFoot: player.preferredFoot,
+                  primaryRole: player.primaryRole,
+                  secondaryRole: player.secondaryRole,
+                  birthDate: player.birthDate,
+                  lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
+                  lastUsernameChangeAt: player.lastUsernameChangeAt,
+                  isPro,
+                }}
+              />
+            </div>
             <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
               <div className="relative shrink-0 mx-auto md:mx-0">
                 <div className={`absolute -inset-1 rounded-full blur-[1px] ${
@@ -313,7 +330,7 @@ export default async function ProfilePage() {
               </div>
 
               {/* ========== MOBILE ONLY (<md) ========== */}
-              <div className="md:hidden w-full space-y-3">
+              <div className="md:hidden w-full">
                 <div className="grid grid-cols-3 gap-2 bg-bgSecondary/60 rounded-2xl px-4 py-4 border border-white/5 w-full">
                   <div className="flex flex-col items-center justify-center text-center min-w-0">
                     <div className="flex items-center gap-1 mb-1">
@@ -341,25 +358,6 @@ export default async function ProfilePage() {
                     <div className="text-xl font-black tabular-nums text-greenPrimary leading-tight">
                       {player.careerIndex}
                     </div>
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <div className="[&>button]:!h-9 [&>button]:!w-9 [&>button]:!p-0 [&>button]:!min-w-0 [&>button]:!justify-center [&>button]:!aspect-square">
-                    <EditProfileModalWrapper
-                      initial={{
-                        username: player.username,
-                        nickname: player.nickname,
-                        country: player.country,
-                        city: player.city,
-                        preferredFoot: player.preferredFoot,
-                        primaryRole: player.primaryRole,
-                        secondaryRole: player.secondaryRole,
-                        birthDate: player.birthDate,
-                        lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
-                        lastUsernameChangeAt: player.lastUsernameChangeAt,
-                        isPro,
-                      }}
-                    />
                   </div>
                 </div>
               </div>

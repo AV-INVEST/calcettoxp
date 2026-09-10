@@ -100,6 +100,16 @@ export default function EditProfileModal({
   const roleDisabled = !!roleCooldownInfo;
   const usernameDisabled = !initial.isPro || !!usernameCooldownInfo;
 
+  const rolesDuplicate =
+    !!secondaryRole && primaryRole === (secondaryRole as Role);
+
+  const primaryRoleOptions = ROLE_OPTIONS.filter(
+    (o) => !secondaryRole || o.value !== secondaryRole
+  );
+  const secondaryRoleOptions = ROLE_OPTIONS.filter(
+    (o) => o.value !== primaryRole
+  );
+
   useEffect(() => {
     if (open) {
       setUsername(initial.username ?? "");
@@ -120,6 +130,10 @@ export default function EditProfileModal({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (rolesDuplicate) {
+      setError("Ruolo primario e secondario non possono essere uguali");
+      return;
+    }
     setLoading(true);
     try {
       const body: any = {};
@@ -188,7 +202,7 @@ export default function EditProfileModal({
               type="submit"
               form="edit-profile-form"
               aria-label="Salva modifiche"
-              disabled={loading}
+              disabled={loading || rolesDuplicate}
               className="w-10 h-10 rounded-full bg-greenElectric/15 hover:bg-greenElectric/25 flex items-center justify-center text-greenElectric hover:text-greenPrimary transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-greenElectric/25"
             >
               {loading ? (
@@ -312,7 +326,7 @@ export default function EditProfileModal({
               onChange={(e) => setPrimaryRole(e.target.value as Role)}
               disabled={roleDisabled}
             >
-              {ROLE_OPTIONS.map((o) => (
+              {primaryRoleOptions.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
                 </option>
@@ -323,21 +337,36 @@ export default function EditProfileModal({
                 Puoi cambiare ruolo tra {roleCooldownInfo.daysLeft} giorni
               </p>
             )}
+            {secondaryRole && (
+              <p className="text-[11px] text-textMuted mt-1">
+                Ruoli diversi tra loro per una scheda giocatore più precisa.
+              </p>
+            )}
           </div>
 
-          <Field label="Ruolo secondario (opzionale)">
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-semibold">
+                Ruolo secondario (opzionale)
+              </label>
+            </div>
             <Select
               value={secondaryRole}
               onChange={(e) => setSecondaryRole(e.target.value as Role | "")}
             >
               <option value="">Nessuno</option>
-              {ROLE_OPTIONS.map((o) => (
+              {secondaryRoleOptions.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
                 </option>
               ))}
             </Select>
-          </Field>
+            {rolesDuplicate && (
+              <p className="text-[11px] text-danger mt-1 font-semibold">
+                Ruolo secondario uguale al primario: cambia uno dei due per salvare.
+              </p>
+            )}
+          </div>
 
           {error && (
             <Card className="border-danger/30 bg-danger/10">
@@ -357,7 +386,7 @@ export default function EditProfileModal({
             >
               Annulla
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="flex-1" disabled={loading || rolesDuplicate}>
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
