@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
-import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
+import CxpLogo from "@/../assets/LOGOCXP.jpg";
 
 const ROLE_LABELS: Record<string, string> = {
   POR: "Portiere",
@@ -425,7 +425,7 @@ function LogoHeader({
       <div style={styles.logoBadge}>
         <Image
           src={CxpLogo}
-          alt="Logo CalcettoXP"
+          alt="CalcettoXP"
           width={40}
           height={40}
           style={{

@@ -1,69 +1,44 @@
-import type { MetadataRoute } from 'next';
-import prisma from '@/lib/prisma';
-import { getAppBaseUrl } from '@/lib/app-url';
+import type { MetadataRoute } from "next";
 
-const APP_URL = getAppBaseUrl();
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
-  const staticRoutes: MetadataRoute.Sitemap = [
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = "https://calcettoxp.com";
+  const lastMod = new Date();
+  return [
     {
-      url: `${APP_URL}/`,
-      lastModified: now,
-      changeFrequency: 'weekly',
+      url: `${baseUrl}/`,
+      lastModified: lastMod,
+      changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${APP_URL}/pricing`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
+      url: `${baseUrl}/pricing`,
+      lastModified: lastMod,
+      changeFrequency: "weekly",
+      priority: 0.9,
     },
     {
-      url: `${APP_URL}/privacy`,
-      lastModified: new Date('2026-09-09'),
-      changeFrequency: 'yearly',
+      url: `${baseUrl}/privacy`,
+      lastModified: lastMod,
+      changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${APP_URL}/termini`,
-      lastModified: new Date('2026-09-09'),
-      changeFrequency: 'yearly',
+      url: `${baseUrl}/termini`,
+      lastModified: lastMod,
+      changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${APP_URL}/cookie-policy`,
-      lastModified: new Date('2026-09-09'),
-      changeFrequency: 'yearly',
+      url: `${baseUrl}/cookie-policy`,
+      lastModified: lastMod,
+      changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${APP_URL}/disclaimer`,
-      lastModified: new Date('2026-09-09'),
-      changeFrequency: 'yearly',
+      url: `${baseUrl}/disclaimer`,
+      lastModified: lastMod,
+      changeFrequency: "yearly",
       priority: 0.3,
     },
   ];
-
-  let publicProfiles: MetadataRoute.Sitemap = [];
-  try {
-    const profiles = await prisma.playerProfile.findMany({
-      where: { isPublic: true },
-      select: { username: true, updatedAt: true },
-      take: 10_000,
-    });
-    publicProfiles = profiles
-      .filter((p) => p.username && p.username.length >= 3)
-      .map((p) => ({
-        url: `${APP_URL}/p/${encodeURIComponent(p.username)}`,
-        lastModified: p.updatedAt || now,
-        changeFrequency: 'daily',
-        priority: 0.6,
-      }));
-  } catch {
-    publicProfiles = [];
-  }
-
-  return [...staticRoutes, ...publicProfiles];
 }

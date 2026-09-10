@@ -1,29 +1,26 @@
-import type { MetadataRoute } from 'next';
-import { getAppBaseUrl } from '@/lib/app-url';
-
-const APP_URL = getAppBaseUrl();
+import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = "https://calcettoxp.com";
   return {
     rules: [
       {
-        userAgent: '*',
-        allow: '/',
+        userAgent: "*",
+        allow: "/",
         disallow: [
-          '/api/',
-          '/signin',
-          '/onboarding',
-          '/dashboard',
-          '/matches',
-          '/stats',
-          '/profile',
-          '/achievements',
-          '/settings',
-          '/api/auth/*',
+          "/dashboard",
+          "/profile",
+          "/onboarding",
+          "/matches",
+          "/stats",
+          "/achievements",
+          "/settings",
+          "/signin",
+          "/api",
         ],
       },
     ],
-    sitemap: `${APP_URL}/sitemap.xml`,
-    host: APP_URL,
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }

@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
 import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
-import CxpLogo from '@/../assets/CXP-LOGO-2.jpg';
+import CxpLogo from '@/../assets/LOGOCXP.jpg';
 
 const APP_URL = getAppBaseUrl();
 
@@ -246,7 +246,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             <span className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shrink-0">
               <Image
                 src={CxpLogo}
-                alt=""
+                alt="CalcettoXP"
                 width={26}
                 height={26}
                 style={{ width: "26px", height: "26px", display: "block", objectFit: "cover", borderRadius: "5px" }}

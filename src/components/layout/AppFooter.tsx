@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
+import CxpLogo from "@/../assets/LOGOCXP.jpg";
 
 const LEGAL_LINKS = [
   { href: "/privacy", label: "Privacy" },
@@ -24,7 +24,7 @@ export default function AppFooter() {
             <div className="w-7 h-7 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-md shadow-greenElectric/10">
               <Image
                 src={CxpLogo}
-                alt="Logo CalcettoXP"
+                alt="CalcettoXP"
                 width={22}
                 height={22}
                 style={{ width: "22px", height: "22px", display: "block", objectFit: "cover", borderRadius: "5px" }}

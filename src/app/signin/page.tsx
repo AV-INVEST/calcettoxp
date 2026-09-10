@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
-import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
+import CxpLogo from "@/../assets/LOGOCXP.jpg";
 
 export const metadata: Metadata = {
   title: "Accedi | CalcettoXP",
@@ -28,7 +28,7 @@ export default function SignInPage() {
                   <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-lg shadow-greenElectric/10 transition-transform duration-200 group-hover:scale-[1.03]">
                     <Image
                       src={CxpLogo}
-                      alt="Logo CalcettoXP"
+                      alt="CalcettoXP"
                       width={36}
                       height={36}
                       style={{ width: "36px", height: "36px", display: "block", objectFit: "cover", borderRadius: "8px" }}

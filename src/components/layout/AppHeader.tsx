@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
+import CxpLogo from "@/../assets/LOGOCXP.jpg";
 
 const HIDDEN_PATHS = ["/signin", "/onboarding"];
 
@@ -45,7 +45,7 @@ export default function AppHeader() {
           <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-md shadow-greenElectric/10 transition-transform duration-200 group-hover:scale-[1.03]">
             <Image
               src={CxpLogo}
-              alt="Logo CalcettoXP"
+              alt="CalcettoXP"
               width={28}
               height={28}
               style={{ width: "28px", height: "28px", display: "block", objectFit: "cover" }}

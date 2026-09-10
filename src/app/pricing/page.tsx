@@ -184,9 +184,9 @@ export default async function PricingPage() {
           </Card>
 
           {/* PRO ANNUALE */}
-          <Card className="p-7 md:p-8 flex flex-col relative overflow-hidden border-greenPrimary/20">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <div className="px-4 py-1.5 rounded-full bg-yellow-500/90 shadow-lg shadow-yellow-500/20">
+          <Card className="p-7 md:p-8 flex flex-col relative border-greenPrimary/20">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+              <div className="px-4 py-1.5 rounded-full bg-yellow-500/95 shadow-xl shadow-yellow-500/25">
                 <span className="text-bgPrimary text-xs font-black tracking-wider flex items-center gap-1">
                   <Flame size={10} strokeWidth={3} /> RISPARMIA ~36%
                 </span>
