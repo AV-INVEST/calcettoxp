@@ -328,7 +328,7 @@ export default async function StatsPage() {
               <div>
                 <CardTitle className="text-lg">Andamento Career Index</CardTitle>
                 <p className="text-textMuted text-sm mt-1">
-                  {isPro ? "Storico completo" : "Ultimi 20 punti · Pass a PRO per lo storico completo"}
+                  {isPro ? "Storico completo" : "Ultimi 20 punti · Passa a PRO per lo storico completo"}
                 </p>
               </div>
               {!isPro && (

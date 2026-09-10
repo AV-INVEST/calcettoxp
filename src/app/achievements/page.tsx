@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hasActivePro } from "@/lib/entitlements";
@@ -23,6 +24,7 @@ import {
   Medal,
   Goal,
   Footprints,
+  ArrowLeft,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AchievementRequirementType } from "@prisma/client";
@@ -407,6 +409,16 @@ export default async function AchievementsPage() {
               </Card>
             );
           })}
+        </div>
+
+        <div className="pt-6">
+          <Link
+            href="/dashboard"
+            className="group inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-bgSecondary/60 border border-white/5 hover:border-greenElectric/25 hover:bg-greenElectric/5 transition-all text-textMuted hover:text-textPrimary font-semibold"
+          >
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+            Torna alla dashboard
+          </Link>
         </div>
       </div>
 

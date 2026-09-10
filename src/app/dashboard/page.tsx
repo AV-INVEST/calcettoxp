@@ -19,6 +19,7 @@ import {
 } from "@/lib/retention";
 import { isAchievementVisible } from "@/lib/achievements";
 import PlayerCard from "@/components/player/PlayerCard";
+import DashboardCardStage from "@/components/dashboard/DashboardCardStage";
 import CareerIndexChart, {
   type CareerIndexDataPoint,
 } from "@/components/charts/CareerIndexChart";
@@ -56,6 +57,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { format } from "date-fns";
+import type { CardTheme } from "@/lib/username-config";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
 type MatchResult = "WIN" | "DRAW" | "LOSS";
@@ -101,6 +103,14 @@ export default async function DashboardPage() {
 
   const subscription = playerProfile.user.subscription ?? null;
   const isPro = hasActivePro(subscription);
+
+  const cardTheme = (playerProfile.cardTheme as CardTheme) ?? "CLASSIC";
+  const allowedThemes: readonly CardTheme[] = ["CLASSIC", "NIGHT", "ELITE", "NEON"];
+  const freeThemes: readonly CardTheme[] = ["CLASSIC"];
+  const effectiveCardTheme: CardTheme = allowedThemes.includes(cardTheme) &&
+    (freeThemes.includes(cardTheme) || isPro)
+      ? cardTheme
+      : "CLASSIC";
 
   const now = new Date();
 
@@ -316,7 +326,7 @@ export default async function DashboardPage() {
         {/* 2) MAIN PLAYER CARD protagonista */}
         <section className="flex justify-center">
           <div className="w-full max-w-md">
-            <PlayerCard
+            <DashboardCardStage
               nickname={playerProfile.nickname}
               role={playerProfile.primaryRole as Role}
               overall={playerProfile.overall}
@@ -324,10 +334,9 @@ export default async function DashboardPage() {
               careerIndex={playerProfile.careerIndex}
               careerIndexChange={lastCiChange || undefined}
               attributes={attributes}
-              premiumBadge={isPro}
-              size="lg"
-              highlighted
               avatarImage={session.user?.image ?? null}
+              isPro={isPro}
+              effectiveCardTheme={effectiveCardTheme}
             />
           </div>
         </section>
@@ -1117,8 +1126,26 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* 14) MULTIPLAYER COMING SOON */}
-        <section>
+        {/* 14) MULTIPLAYER COMING SOON — separatore greca elegante */}
+        <section className="pt-5 md:pt-8">
+          <div
+            aria-hidden
+            className="pointer-events-none mb-5 md:mb-7 mx-auto w-full max-w-md"
+            style={{
+              height: 22,
+              background:
+                "linear-gradient(180deg, transparent 0%, rgba(124,255,107,0.05) 45%, rgba(124,255,107,0.10) 50%, rgba(124,255,107,0.05) 55%, transparent 100%)",
+              maskImage:
+                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 22' preserveAspectRatio='none'><path d='M0,11 L15,11 L20,5 L30,17 L40,5 L50,17 L60,5 L70,17 L80,5 L90,17 L100,5 L110,17 L120,5 L130,17 L140,5 L150,17 L160,5 L170,17 L180,5 L190,17 L200,5 L210,17 L220,5 L225,11 L240,11' fill='none' stroke='%237CFF6B' stroke-width='1.4' stroke-linecap='square' stroke-linejoin='miter'/></svg>\")",
+              WebkitMaskImage:
+                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 22' preserveAspectRatio='none'><path d='M0,11 L15,11 L20,5 L30,17 L40,5 L50,17 L60,5 L70,17 L80,5 L90,17 L100,5 L110,17 L120,5 L130,17 L140,5 L150,17 L160,5 L170,17 L180,5 L190,17 L200,5 L210,17 L220,5 L225,11 L240,11' fill='none' stroke='%237CFF6B' stroke-width='1.4' stroke-linecap='square' stroke-linejoin='miter'/></svg>\")",
+              maskRepeat: "repeat-x",
+              WebkitMaskRepeat: "repeat-x",
+              maskSize: "240px 22px",
+              WebkitMaskSize: "240px 22px",
+              opacity: 0.55,
+            }}
+          />
           <MultiplayerComingSoonCard />
         </section>
       </div>

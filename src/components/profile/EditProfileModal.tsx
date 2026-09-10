@@ -219,15 +219,15 @@ export default function EditProfileModal({
             />
             {!initial.isPro ? (
               <p className="text-[11px] text-textMuted mt-1">
-                Pass a PRO per personalizzare il tuo username con cooldown 30 giorni.
+                Con PRO puoi personalizzare il tuo username.
               </p>
             ) : usernameCooldownInfo ? (
               <p className="text-[11px] text-danger mt-1">
-                Puoi cambiare username tra {usernameCooldownInfo.daysLeft} giorni.
+                Potrai modificare nuovamente lo username dal {format(usernameCooldownInfo.nextDate, "dd/MM/yyyy")}.
               </p>
             ) : (
               <p className="text-[11px] text-textMuted mt-1">
-                3-20 caratteri minuscoli, lettere, numeri o underscore. Una volta ogni 30 giorni.
+                3-20 caratteri minuscoli, lettere, numeri o underscore.
               </p>
             )}
           </div>

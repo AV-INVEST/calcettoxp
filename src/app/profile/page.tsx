@@ -7,12 +7,10 @@ import { filterVisibleAchievements } from "@/lib/achievements";
 import { calculateCardAttributes } from "@/lib/card-attributes";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import EditProfileModalWrapper from "@/components/profile/EditProfileModalWrapper";
-import PlayerCard from "@/components/player/PlayerCard";
 import { AlreadyProPortalButton } from "@/components/pricing/StripeButtons";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
-import { Button } from "@/components/ui/Button";
 import {
   User as UserIcon,
   Crown,
@@ -28,16 +26,13 @@ import {
   ChevronRight,
   Star,
   ArrowLeft,
-  Sparkles,
   CreditCard,
   CheckCircle2,
   Lock,
-  ArrowRight,
 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import Link from "next/link";
 import { Role, PreferredFoot } from "@prisma/client";
-import type { CardTheme } from "@/lib/username-config";
 
 const ROLE_LABELS: Record<Role, string> = {
   POR: "Portiere",
@@ -124,15 +119,6 @@ export default async function ProfilePage() {
   });
 
   const isPro = hasActivePro(subscription);
-
-  const effectiveCardTheme: CardTheme = (() => {
-    const saved = (player.cardTheme ?? "CLASSIC") as CardTheme;
-    const allowedThemes: readonly CardTheme[] = ["CLASSIC", "NIGHT", "ELITE", "NEON"];
-    const freeThemes: readonly CardTheme[] = ["CLASSIC"];
-    if (!allowedThemes.includes(saved)) return "CLASSIC";
-    if (freeThemes.includes(saved) || isPro) return saved;
-    return "CLASSIC";
-  })();
 
   const winRate =
     player.matchesPlayed > 0
@@ -400,142 +386,6 @@ export default async function ProfilePage() {
           />
         </div>
 
-        {!isPro && (
-          <Card className="relative overflow-hidden border-amber-400/15">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 via-transparent to-amber-600/5 pointer-events-none" aria-hidden />
-            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-amber-400/10 to-transparent pointer-events-none blur-3xl" aria-hidden />
-            <CardHeader className="pb-3 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-400/10 border border-amber-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(250,204,21,0.08)]">
-                    <Sparkles size={20} className="text-amber-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl md:text-2xl bg-gradient-to-r from-amber-200 via-amber-300 to-amber-500 bg-clip-text text-transparent tracking-tight">
-                      Scopri la tua Card PRO
-                    </CardTitle>
-                    <p className="text-textMuted text-sm mt-0.5">
-                      La tua carriera. Un look completamente nuovo.
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="elettrico" className="hidden md:inline-flex shrink-0 border-amber-400/30">
-                  <Crown size={11} className="mr-1" /> Riservato PRO
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-end">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="grigio" className="text-[10px] tracking-wide uppercase">
-                      La tua card · FREE
-                    </Badge>
-                    <span className="text-[10px] text-textMuted/70 uppercase tracking-wide">Tema CLASSIC</span>
-                  </div>
-                  <div className="mx-auto md:mx-0 w-fit">
-                    <PlayerCard
-                      nickname={player.nickname}
-                      role={player.primaryRole}
-                      overall={player.overall}
-                      level={player.level}
-                      careerIndex={player.careerIndex}
-                      attributes={cardAttrs}
-                      size="sm"
-                      highlighted={false}
-                      premiumBadge={false}
-                      theme="CLASSIC"
-                      avatarImage={user?.image ?? null}
-                    />
-                  </div>
-                  <div className="flex items-center justify-center gap-1.5 text-textMuted/70 text-[11px]">
-                    <CheckCircle2 size={12} className="text-greenElectric/60" /> I tuoi dati reali · Stesso OVR, CI, LV
-                  </div>
-                </div>
-
-                <div className="relative space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="elettrico" className="text-[10px] border-amber-400/30">
-                      <Crown size={10} className="mr-1" /> Anteprima PRO
-                    </Badge>
-                    <span className="text-[10px] text-amber-300/80 uppercase tracking-wide font-semibold">Tema ELITE</span>
-                  </div>
-                  <div className="relative mx-auto md:mx-0 w-fit">
-                    <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-amber-400/25 via-amber-300/10 to-transparent blur-md opacity-70 pointer-events-none" aria-hidden />
-                    <div className="relative">
-                      <PlayerCard
-                        nickname={player.nickname}
-                        role={player.primaryRole}
-                        overall={player.overall}
-                        level={player.level}
-                        careerIndex={player.careerIndex}
-                        attributes={cardAttrs}
-                        size="sm"
-                        highlighted
-                        premiumBadge={true}
-                        theme="ELITE"
-                        avatarImage={user?.image ?? null}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5 text-[11px] text-textMuted md:text-xs pt-2">
-                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> 4 temi esclusivi (NIGHT · ELITE · NEON)</div>
-                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> Analytics avanzate e storico completo</div>
-                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> Cambio username ogni 30 giorni</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-white/5 pt-6">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-base font-black text-textPrimary">Pass a PRO</span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="elettrico" className="text-[10px] border-amber-400/30">{PLAN_LABEL.monthly.price}</Badge>
-                      <Badge variant="outline" className="text-[10px] text-amber-300/90 border-amber-400/20">o {PLAN_LABEL.yearly.price}</Badge>
-                    </div>
-                  </div>
-                  <p className="text-xs text-textMuted">
-                    Zero pay-to-win. Solo estetica e analytics.
-                  </p>
-                </div>
-                <Link
-                  href="/pricing"
-                  className="shrink-0 group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-3 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.2)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.35)] active:scale-[0.99]"
-                >
-                  <Crown size={15} />
-                  Scopri PRO
-                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {isPro && (
-          <Card className="border-amber-400/15 overflow-hidden relative">
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-amber-400/10 via-transparent to-transparent pointer-events-none" aria-hidden />
-            <CardHeader className="pb-3 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-400/10 border border-amber-400/30 flex items-center justify-center">
-                    <Crown size={18} className="text-amber-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Personalizzazione PRO attiva</CardTitle>
-                    <p className="text-textMuted text-sm mt-0.5">
-                      Tema selezionato: <span className="text-amber-300 font-semibold">{effectiveCardTheme}</span>
-                    </p>
-                  </div>
-                </div>
-                <Link href="/settings" className="text-amber-300/90 text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all">
-                  Cambia tema <ChevronRight size={16} />
-                </Link>
-              </div>
-            </CardHeader>
-          </Card>
-        )}
-
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -602,7 +452,7 @@ export default async function ProfilePage() {
                 <p className="text-textMuted text-sm mt-1">
                   {isPro
                     ? `Mostra ${visibleSeasons.length} ${visibleSeasons.length === 1 ? "stagione" : "stagioni"}`
-                    : "Solo stagione corrente · Pass a PRO per lo storico completo"}
+                    : "Solo stagione corrente · Passa a PRO per lo storico completo"}
                 </p>
               </div>
               {!isPro && (
@@ -666,7 +516,7 @@ export default async function ProfilePage() {
                   <div className="rounded-2xl border-2 border-dashed border-white/10 hover:border-greenElectric/40 p-4 text-center transition-colors cursor-pointer group">
                     <p className="text-textMuted text-sm">
                       <span className="text-greenElectric font-semibold group-hover:underline">
-                        Pass a PRO
+                        Passa a PRO
                       </span>{" "}
                       per vedere altre {player.seasons.length - 1} stagioni
                     </p>
