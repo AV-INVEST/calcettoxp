@@ -16,32 +16,51 @@ export async function POST(req: Request) {
   const session = await auth();
 
   if (!session?.user?.userId) {
+    console.error('[CHECKOUT] 401 missing_userId', JSON.stringify({
+      stage: 'auth_check',
+      sessionPresent: !!session,
+      userPresent: !!session?.user,
+    }));
     return NextResponse.json(
       { ok: false, error: 'Non autorizzato' },
       { status: 401 }
     );
   }
 
+  const userId = session.user.userId;
   let requestedPlan: 'monthly' | 'yearly' | undefined;
 
   try {
     const body = await req.json();
+    console.info('[CHECKOUT] request_in', JSON.stringify({
+      stage: 'parse_body',
+      plan: (body as { plan?: unknown })?.plan === 'monthly' ? 'monthly'
+        : (body as { plan?: unknown })?.plan === 'yearly' ? 'yearly'
+        : (body as { plan?: unknown })?.plan == null ? 'null' : 'other',
+      planType: typeof (body as { plan?: unknown })?.plan,
+    }));
     const parsed = planSchema.parse(body);
     requestedPlan = parsed.plan;
 
+    const priceEnvMonthly = process.env.STRIPE_PRICE_PRO_MONTHLY;
+    const priceEnvYearly = process.env.STRIPE_PRICE_PRO_YEARLY;
     const priceId =
-      requestedPlan === 'monthly'
-        ? process.env.STRIPE_PRICE_PRO_MONTHLY
-        : process.env.STRIPE_PRICE_PRO_YEARLY;
+      requestedPlan === 'monthly' ? priceEnvMonthly : priceEnvYearly;
 
     if (!priceId) {
+      console.error('[CHECKOUT] 400 CHECKOUT_MISSING_PRICE', JSON.stringify({
+        stage: 'validate_price_env',
+        plan: requestedPlan,
+        monthlyDefined: typeof priceEnvMonthly === 'string' && priceEnvMonthly.length > 0,
+        yearlyDefined: typeof priceEnvYearly === 'string' && priceEnvYearly.length > 0,
+        monthlyPrefix: typeof priceEnvMonthly === 'string' && priceEnvMonthly.length > 0 ? priceEnvMonthly.slice(0, 6) + '…' : 'N/A',
+        yearlyPrefix: typeof priceEnvYearly === 'string' && priceEnvYearly.length > 0 ? priceEnvYearly.slice(0, 6) + '…' : 'N/A',
+      }));
       return NextResponse.json(
-        { ok: false, error: 'Prezzo non valido o configurazione mancante' },
+        { ok: false, error: 'Prezzo non valido o configurazione mancante', debugCode: 'CHECKOUT_MISSING_PRICE' },
         { status: 400 }
       );
     }
-
-    const userId = session.user.userId;
 
     const [user, playerProfile, existingSubscription] = await Promise.all([
       prisma.user.findUnique({
@@ -64,8 +83,12 @@ export async function POST(req: Request) {
     ]);
 
     if (!user) {
+      console.error('[CHECKOUT] 400 CHECKOUT_USER_NOT_FOUND', JSON.stringify({
+        stage: 'load_user',
+        userIdPrefix: userId.slice(0, 8) + '…',
+      }));
       return NextResponse.json(
-        { ok: false, error: 'Utente non trovato' },
+        { ok: false, error: 'Utente non trovato', debugCode: 'CHECKOUT_USER_NOT_FOUND' },
         { status: 400 }
       );
     }
@@ -139,8 +162,16 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('[CHECKOUT] 400 CHECKOUT_INVALID_PLAN', JSON.stringify({
+        stage: 'validate_plan_zod',
+        issues: error.issues.map(({ code, path, message }) => ({
+          code,
+          path: path.join('.'),
+          message,
+        })),
+      }));
       return NextResponse.json(
-        { ok: false, error: 'Piano non valido', issues: error.issues },
+        { ok: false, error: 'Piano non valido', debugCode: 'CHECKOUT_INVALID_PLAN', issues: error.issues },
         { status: 400 }
       );
     }
