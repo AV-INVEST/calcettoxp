@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import Image from "next/image";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
 
 export const metadata: Metadata = {
   title: "Accedi | CalcettoXP",
@@ -24,8 +25,15 @@ export default function SignInPage() {
                   title="Home"
                   className="group inline-flex items-center gap-2.5 -mx-2 -my-2 px-2 py-2 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenElectric/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bgSecondary"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/20 transition-transform duration-200 group-hover:scale-[1.03]">
-                    <Zap className="w-5.5 h-5.5 text-bgPrimary" strokeWidth={3} />
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-lg shadow-greenElectric/10 transition-transform duration-200 group-hover:scale-[1.03]">
+                    <Image
+                      src={CxpLogo}
+                      alt="Logo CalcettoXP"
+                      width={36}
+                      height={36}
+                      style={{ width: "36px", height: "36px", display: "block", objectFit: "cover", borderRadius: "8px" }}
+                      priority
+                    />
                   </div>
                   <span className="font-bold text-greenElectric text-3xl tracking-tight transition-all duration-200 group-hover:text-greenElectric/90">
                     CalcettoXP

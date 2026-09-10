@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
-import { Zap, LogOut, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
 
 const HIDDEN_PATHS = ["/signin", "/onboarding"];
 
@@ -40,8 +42,15 @@ export default function AppHeader() {
           title="Home"
           className="group inline-flex items-center gap-2 -ml-2 pl-2 pr-3 py-2 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenElectric/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bgPrimary"
         >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-md shadow-greenElectric/20 transition-transform duration-200 group-hover:scale-[1.03]">
-            <Zap className="w-4.5 h-4.5 text-bgPrimary" strokeWidth={3} />
+          <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-md shadow-greenElectric/10 transition-transform duration-200 group-hover:scale-[1.03]">
+            <Image
+              src={CxpLogo}
+              alt="Logo CalcettoXP"
+              width={28}
+              height={28}
+              style={{ width: "28px", height: "28px", display: "block", objectFit: "cover" }}
+              priority
+            />
           </div>
           <span className="font-black text-greenElectric text-xl tracking-tight transition-all duration-200 group-hover:text-greenElectric/90">
             CalcettoXP
@@ -91,7 +100,13 @@ export default function AppHeader() {
                 className="!gap-2"
                 onClick={() => {}}
               >
-                <Zap size={16} strokeWidth={2.6} />
+                <Image
+                  src={CxpLogo}
+                  alt=""
+                  width={16}
+                  height={16}
+                  style={{ width: "16px", height: "16px", display: "block", objectFit: "cover", borderRadius: "4px" }}
+                />
                 <span>ACCEDI</span>
               </Button>
             </Link>

@@ -5,12 +5,14 @@ import { calculateCardAttributes } from '@/lib/card-attributes';
 import PlayerCard from '@/components/player/PlayerCard';
 import CareerIndexChart from '@/components/charts/CareerIndexChart';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Home, Trophy, TrendingUp, Target, Users, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
 import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
+import CxpLogo from '@/../assets/CXP-LOGO-2.jpg';
 
 const APP_URL = getAppBaseUrl();
 
@@ -241,6 +243,15 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       <header className="sticky top-0 z-30 bg-bgPrimary/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <Link href="/" className="inline-flex items-center gap-2 group" aria-label="Torna alla home CalcettoXP">
+            <span className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shrink-0">
+              <Image
+                src={CxpLogo}
+                alt=""
+                width={26}
+                height={26}
+                style={{ width: "26px", height: "26px", display: "block", objectFit: "cover", borderRadius: "5px" }}
+              />
+            </span>
             <span className="text-greenElectric text-2xl font-black tracking-tight">CalcettoXP</span>
           </Link>
           <Link href="/" aria-label="Home">

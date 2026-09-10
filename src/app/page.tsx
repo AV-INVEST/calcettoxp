@@ -1300,7 +1300,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <ProCheckoutButton plan="monthly" className="w-full !min-h-[54px] !rounded-xl !text-sm">
-                <><Crown size={15} className="mr-0.5 shrink-0" strokeWidth={2.2}/> SBLOCCA PRO <ArrowRight size={14} className="ml-0.5 shrink-0" strokeWidth={2.2}/></>
+                <><Crown size={15} className="mr-0.5 shrink-0" strokeWidth={2.2}/> SBLOCCA ORA <ArrowRight size={14} className="ml-0.5 shrink-0" strokeWidth={2.2}/></>
               </ProCheckoutButton>
             </div>
             <div className="relative rounded-2xl bg-gradient-to-br from-yellow-500/8 via-bgCard to-bgCard border border-yellow-500/40 p-4 flex flex-col shine-effect shadow-xl shadow-yellow-500/10">
@@ -1384,7 +1384,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <ProCheckoutButton plan="monthly">
-                <><Crown size={17} className="mr-1" strokeWidth={2.2}/> SBLOCCA PRO ORA <ArrowRight size={16} className="ml-1" strokeWidth={2.2}/></>
+                <><Crown size={17} className="mr-1" strokeWidth={2.2}/> SBLOCCA ORA <ArrowRight size={16} className="ml-1" strokeWidth={2.2}/></>
               </ProCheckoutButton>
             </div>
             <div className="relative rounded-3xl bg-bgCard border border-yellow-500/30 p-9 flex flex-col hover:border-yellow-500/50 transition-all duration-300 shine-effect shadow-xl shadow-yellow-500/5">

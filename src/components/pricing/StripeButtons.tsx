@@ -101,7 +101,7 @@ export function ProCheckoutButton({
         {children ?? (
           <>
             <Crown size={16} className="mr-1" />
-            SBLOCCA PRO
+            SBLOCCA ORA
           </>
         )}
       </Button>
@@ -219,7 +219,7 @@ export function YearlyCheckoutButton({
         ) : (
           <Crown size={16} className="mr-1.5" />
         )}
-        SBLOCCA PRO ANNUALE
+        SBLOCCA ORA
       </button>
       {error && <p className="text-danger text-xs mt-2 text-center">{error}</p>}
     </div>

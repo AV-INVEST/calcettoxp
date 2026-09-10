@@ -1,7 +1,8 @@
 "use client";
 
-import { Zap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
 
 const LEGAL_LINKS = [
   { href: "/privacy", label: "Privacy" },
@@ -20,8 +21,14 @@ export default function AppFooter() {
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="flex flex-col items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-md shadow-greenElectric/15">
-              <Zap className="w-4 h-4 text-bgPrimary" strokeWidth={3} />
+            <div className="w-7 h-7 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shadow-md shadow-greenElectric/10">
+              <Image
+                src={CxpLogo}
+                alt="Logo CalcettoXP"
+                width={22}
+                height={22}
+                style={{ width: "22px", height: "22px", display: "block", objectFit: "cover", borderRadius: "5px" }}
+              />
             </div>
             <span className="font-bold text-greenElectric text-lg tracking-tight">
               CalcettoXP

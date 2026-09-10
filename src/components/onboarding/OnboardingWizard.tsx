@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
+import CxpLogo from "@/../assets/CXP-LOGO-2.jpg";
 
 const ROLE_LABELS: Record<string, string> = {
   POR: "Portiere",
@@ -420,7 +422,22 @@ function LogoHeader({
 }) {
   return (
     <div style={styles.logoHeader}>
-      <div style={styles.logoBadge}>⚽</div>
+      <div style={styles.logoBadge}>
+        <Image
+          src={CxpLogo}
+          alt="Logo CalcettoXP"
+          width={40}
+          height={40}
+          style={{
+            width: "40px",
+            height: "40px",
+            display: "block",
+            borderRadius: "10px",
+            objectFit: "cover",
+          }}
+          priority
+        />
+      </div>
       <h1 style={styles.logoTitle}>CALCETTOXP</h1>
       <p style={styles.logoSubtitle}>Inizia l&apos;avventura da giocatore</p>
       {userImage && (
@@ -664,7 +681,14 @@ function StepFoot({
               backgroundColor: value === o.v ? "rgba(34,197,94,0.10)" : "#111827",
             }}
           >
-            <div style={styles.optionIcon}>{o.icon}</div>
+            <div
+              style={{
+                ...styles.optionIcon,
+                transform: o.v === "RIGHT" ? "scaleX(-1)" : "none",
+              }}
+            >
+              {o.icon}
+            </div>
             <div style={styles.optionLabel}>{o.label}</div>
           </button>
         ))}

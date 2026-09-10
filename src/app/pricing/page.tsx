@@ -171,7 +171,7 @@ export default async function PricingPage() {
             {!isPro ? (
               <ProCheckoutButton plan="monthly">
                 <Crown size={16} className="mr-1" />
-                SBLOCCA PRO MENSILE
+                SBLOCCA ORA
               </ProCheckoutButton>
             ) : (
                 <Badge variant="elettrico" className="w-full justify-center py-2.5 rounded-xl text-xs">
