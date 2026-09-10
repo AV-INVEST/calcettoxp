@@ -344,7 +344,7 @@ export default async function DashboardPage() {
         {/* 2.5) CONDIVIDI LA MIA CARD (mobile centratura premium, layout desktop invariato) */}
         <section className="w-full max-w-full">
           <Card className="border-white/5 bg-bgCard/60 w-full max-w-full">
-            <CardContent className="p-4 md:p-5 w-full max-w-full">
+            <CardContent className="px-5 py-4 md:p-5 w-full max-w-full">
               {playerProfile.isPublic ? (
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full text-center sm:text-left">
                   <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
@@ -404,8 +404,8 @@ export default async function DashboardPage() {
           <Card className="overflow-hidden w-full max-w-full">
             <CardContent className="p-4 md:p-6 w-full max-w-full">
               <div className="grid grid-cols-3 gap-2 md:gap-6 w-full max-w-full">
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-1 md:py-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1 md:mb-1.5 truncate w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-2 md:py-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
                     OVR
                   </div>
                   <div
@@ -415,8 +415,8 @@ export default async function DashboardPage() {
                     {playerProfile.overall}
                   </div>
                 </div>
-                <div className="text-center border-x border-white/5 min-w-0 flex flex-col justify-center items-center py-1 md:py-0 px-1 md:px-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1 md:mb-1.5 truncate w-full">
+                <div className="text-center border-x border-white/5 min-w-0 flex flex-col justify-center items-center py-2 md:py-0 px-1 md:px-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
                     <span className="md:hidden">CI</span>
                     <span className="hidden md:inline">Career Index</span>
                   </div>
@@ -427,7 +427,7 @@ export default async function DashboardPage() {
                     {playerProfile.careerIndex}
                   </div>
                   <div
-                    className={`mt-1 flex items-center justify-center gap-1 text-[10px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
+                    className={`mt-1.5 md:mt-2 flex items-center justify-center gap-1 text-[10px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
                       lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
                     }`}
                   >
@@ -442,8 +442,8 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-1 md:py-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1 md:mb-1.5 truncate w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-2 md:py-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
                     <span className="md:hidden">LV</span>
                     <span className="hidden md:inline">Livello</span>
                   </div>

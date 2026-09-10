@@ -412,7 +412,7 @@ export default async function StatsPage() {
           <Card className="mb-6 border-2 border-amber-500/30 relative overflow-hidden bg-gradient-to-br from-amber-500/[0.04] via-transparent to-amber-400/[0.03]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-            <CardContent className="p-5 md:p-8 relative">
+            <CardContent className="px-6 py-5 md:p-8 relative">
               <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
                 <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-xl shadow-amber-500/25 border border-amber-300/30">
                   <Crown size={26} className="md:w-[30px] md:h-[30px] text-amber-950" />
