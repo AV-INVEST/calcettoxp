@@ -344,11 +344,11 @@ export default async function DashboardPage() {
         {/* 2.5) CONDIVIDI LA MIA CARD (mobile centratura premium, layout desktop invariato) */}
         <section className="w-full max-w-full">
           <Card className="border-white/5 bg-bgCard/60 w-full max-w-full">
-            <CardContent className="px-5 py-4 md:p-5 w-full max-w-full">
+            <CardContent className="px-6 py-5 md:p-5 w-full max-w-full">
               {playerProfile.isPublic ? (
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full text-center sm:text-left">
                   <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
-                    <div className="w-11 h-11 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/15 border border-greenElectric/25 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(124,255,107,0.12)]">
+                    <div className="w-12 h-12 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/15 border border-greenElectric/25 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(124,255,107,0.12)]">
                       <Share2 size={20} className="text-greenElectric" />
                     </div>
                     <div className="min-w-0 w-full sm:w-auto text-center sm:text-left">
@@ -404,8 +404,8 @@ export default async function DashboardPage() {
           <Card className="overflow-hidden w-full max-w-full">
             <CardContent className="p-4 md:p-6 w-full max-w-full">
               <div className="grid grid-cols-3 gap-2 md:gap-6 w-full max-w-full">
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-2 md:py-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
                     OVR
                   </div>
                   <div
@@ -415,8 +415,8 @@ export default async function DashboardPage() {
                     {playerProfile.overall}
                   </div>
                 </div>
-                <div className="text-center border-x border-white/5 min-w-0 flex flex-col justify-center items-center py-2 md:py-0 px-1 md:px-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
                     <span className="md:hidden">CI</span>
                     <span className="hidden md:inline">Career Index</span>
                   </div>
@@ -427,7 +427,7 @@ export default async function DashboardPage() {
                     {playerProfile.careerIndex}
                   </div>
                   <div
-                    className={`mt-1.5 md:mt-2 flex items-center justify-center gap-1 text-[10px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
+                    className={`mt-2 md:mt-2 flex items-center justify-center gap-1 text-[10px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
                       lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
                     }`}
                   >
@@ -442,8 +442,8 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-2 md:py-0">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 md:mb-2 truncate w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
                     <span className="md:hidden">LV</span>
                     <span className="hidden md:inline">Livello</span>
                   </div>
@@ -593,7 +593,7 @@ export default async function DashboardPage() {
         <section className="w-full max-w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4 w-full max-w-full">
             <Card className="flex flex-col w-full">
-              <CardContent className="p-3.5 md:p-4 py-4 md:py-4 space-y-1.5 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start">
+              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
                 <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
                   <Flame
                     size={14}
@@ -606,7 +606,7 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <div
-                  className={`text-lg md:text-xl font-black tabular-nums mt-0.5 ${
+                  className={`text-lg md:text-xl font-black tabular-nums ${
                     activeStreakPositive
                       ? streaks.winStreak >= 2
                         ? "text-greenPrimary"
@@ -624,24 +624,24 @@ export default async function DashboardPage() {
                     ? `${streaks.lossStreak}L`
                     : "—"}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate mt-auto leading-snug">
+                <p className="text-[11px] text-textMuted font-medium truncate leading-snug">
                   {activeStreakLabel}
                 </p>
               </CardContent>
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="p-3.5 md:p-4 py-4 md:py-4 space-y-1.5 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start">
+              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
                 <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
                   <Calendar size={14} className="text-blue-400" />
                   <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Settimana
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-blue-400 mt-0.5">
+                <div className="text-lg md:text-xl font-black tabular-nums text-blue-400">
                   {matchesThisWeek}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium mt-auto leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug">
                   {matchesThisWeek === 1
                     ? "partita questa settimana"
                     : "partite questa settimana"}
@@ -650,24 +650,24 @@ export default async function DashboardPage() {
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="p-3.5 md:p-4 py-4 md:py-4 space-y-1.5 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start">
+              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
                 <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
                   <Trophy size={14} className="text-yellow-400" />
                   <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Stagione
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary mt-0.5">
+                <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary">
                   {currentSeason.matches}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate mt-auto leading-snug">
+                <p className="text-[11px] text-textMuted font-medium truncate leading-snug">
                   {currentSeason.name}
                 </p>
               </CardContent>
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="p-3.5 md:p-4 py-4 md:py-4 space-y-1.5 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start">
+              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
                 <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
                   <Crown
                     size={14}
@@ -679,10 +679,10 @@ export default async function DashboardPage() {
                     Miglior CI
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400 mt-0.5">
+                <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400">
                   {bestCI}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium mt-auto leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug">
                   {isPersonalBest
                     ? "Record personale ora!"
                     : `Record: +${Math.max(0, bestCI - playerProfile.careerIndex)} da recuperare`}
@@ -915,50 +915,65 @@ export default async function DashboardPage() {
         <section className="w-full max-w-full">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-4 w-full max-w-full">
             <Card className="flex flex-col w-full">
-              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
-                <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1.5 truncate">
-                  Partite
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
+                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+                  <History size={11} className="text-textMuted shrink-0 md:hidden" />
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider truncate">
+                    Partite
+                  </div>
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums mt-auto">
+                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums">
                   {playerProfile.matchesPlayed}
                 </div>
               </CardContent>
             </Card>
             <Card className="flex flex-col w-full">
-              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
-                <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider mb-1.5 truncate">
-                  Vittorie
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
+                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+                  <Trophy size={11} className="text-greenPrimary shrink-0 md:hidden" />
+                  <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider truncate">
+                    Vittorie
+                  </div>
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums mt-auto">
+                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums">
                   {playerProfile.wins}
                 </div>
               </CardContent>
             </Card>
             <Card className="flex flex-col w-full">
-              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
-                <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider mb-1.5 truncate">
-                  Gol
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
+                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+                  <Target size={11} className="text-yellow-400 shrink-0 md:hidden" />
+                  <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider truncate">
+                    Gol
+                  </div>
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums mt-auto">
+                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums">
                   {playerProfile.goals}
                 </div>
               </CardContent>
             </Card>
             <Card className="flex flex-col w-full">
-              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
-                <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5 truncate">
-                  Assist
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
+                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+                  <Zap size={11} className="text-blue-400 shrink-0 md:hidden" />
+                  <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider truncate">
+                    Assist
+                  </div>
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums mt-auto">
+                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums">
                   {playerProfile.assists}
                 </div>
               </CardContent>
             </Card>
             <Card className="col-span-2 md:col-span-2 w-full max-w-full">
-              <CardContent className="p-4 md:p-5 w-full max-w-full">
+              <CardContent className="px-4 py-4 md:p-5 w-full max-w-full flex flex-col justify-center min-h-[88px] md:min-h-0">
                 <div className="flex items-center justify-between mb-2.5 gap-2 w-full">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider min-w-0 truncate">
-                    Win Rate
+                  <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0">
+                    <Sparkles size={11} className="text-textMuted shrink-0" />
+                    <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider min-w-0 truncate">
+                      Win Rate
+                    </div>
                   </div>
                   <div className="text-sm font-bold text-textPrimary tabular-nums shrink-0">
                     {winRate}%
@@ -1042,11 +1057,11 @@ export default async function DashboardPage() {
                 <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
-                    <Palette size={16} className="text-amber-400" />
+                <CardContent className="px-3 py-4 md:p-4 space-y-2.5 md:space-y-2 flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center min-h-[132px] md:min-h-0">
+                  <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
+                    <Palette size={18} className="md:w-4 md:h-4 text-amber-400" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <p className="text-sm font-black text-textPrimary leading-tight">
                       Temi Premium
                     </p>
@@ -1054,6 +1069,7 @@ export default async function DashboardPage() {
                       Night · Elite · Neon
                     </p>
                   </div>
+                  <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mt-auto hidden md:block" aria-hidden />
                 </CardContent>
               </Card>
 
@@ -1061,11 +1077,11 @@ export default async function DashboardPage() {
                 <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
-                    <BarChart3 size={16} className="text-amber-400" />
+                <CardContent className="px-3 py-4 md:p-4 space-y-2.5 md:space-y-2 flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center min-h-[132px] md:min-h-0">
+                  <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
+                    <BarChart3 size={18} className="md:w-4 md:h-4 text-amber-400" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <p className="text-sm font-black text-textPrimary leading-tight">
                       Analytics avanzate
                     </p>
@@ -1073,6 +1089,7 @@ export default async function DashboardPage() {
                       7 / 30 / 90 giorni
                     </p>
                   </div>
+                  <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mt-auto hidden md:block" aria-hidden />
                 </CardContent>
               </Card>
 
@@ -1080,11 +1097,11 @@ export default async function DashboardPage() {
                 <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
-                    <History size={16} className="text-amber-400" />
+                <CardContent className="px-3 py-4 md:p-4 space-y-2.5 md:space-y-2 flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center min-h-[132px] md:min-h-0">
+                  <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
+                    <History size={18} className="md:w-4 md:h-4 text-amber-400" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <p className="text-sm font-black text-textPrimary leading-tight">
                       Storico completo
                     </p>
@@ -1092,6 +1109,7 @@ export default async function DashboardPage() {
                       CI illimitato · Tutte le stagioni
                     </p>
                   </div>
+                  <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mt-auto hidden md:block" aria-hidden />
                 </CardContent>
               </Card>
 
@@ -1099,11 +1117,11 @@ export default async function DashboardPage() {
                 <div className="absolute top-2 right-2 text-amber-400/70 z-10">
                   <Lock size={12} />
                 </div>
-                <CardContent className="p-3 md:p-4 space-y-2 flex-1 flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
-                    <Star size={16} className="text-amber-400" />
+                <CardContent className="px-3 py-4 md:p-4 space-y-2.5 md:space-y-2 flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center min-h-[132px] md:min-h-0">
+                  <div className="w-10 h-10 md:w-9 md:h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center shrink-0">
+                    <Star size={18} className="md:w-4 md:h-4 text-amber-400" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <p className="text-sm font-black text-textPrimary leading-tight">
                       Record avanzati
                     </p>
@@ -1111,6 +1129,7 @@ export default async function DashboardPage() {
                       Streaks · Per ruolo · Traguardi extra
                     </p>
                   </div>
+                  <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-transparent via-amber-400/30 to-transparent mt-auto hidden md:block" aria-hidden />
                 </CardContent>
               </Card>
             </div>

@@ -14,20 +14,20 @@ export default function MultiplayerComingSoonCard() {
           }}
         />
       </div>
-      <CardContent className="p-4 md:p-6 relative w-full max-w-full">
+      <CardContent className="px-5 py-5 md:p-6 relative w-full max-w-full">
         {/* Header: su mobile [icona + titolo] con badge a destra sulla stessa riga */}
-        <div className="mb-3 md:mb-4 w-full max-w-full">
+        <div className="mb-4 md:mb-4 w-full max-w-full">
           <div className="flex items-start justify-between gap-2 md:gap-3 w-full max-w-full">
             <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
               <div className="relative shrink-0">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                   <Users size={20} className="md:w-[24px] md:h-[24px] text-textMuted" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 rounded-full bg-bgCard border border-white/10 flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-[18px] h-[18px] md:w-5 md:h-5 rounded-full bg-bgCard border border-white/10 flex items-center justify-center">
                   <Lock size={10} className="md:w-[11px] md:h-[11px] text-textMuted" />
                 </div>
               </div>
-              <div className="min-w-0 pt-0.5 flex-1">
+              <div className="min-w-0 pt-1 flex-1">
                 <h3 className="text-base md:text-lg font-bold text-textPrimary truncate">
                   Multiplayer
                 </h3>
@@ -35,7 +35,7 @@ export default function MultiplayerComingSoonCard() {
             </div>
             <Badge
               variant="elettrico"
-              className="shrink-0 px-2.5 md:px-3 py-1 md:py-1.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest"
+              className="shrink-0 px-3 py-1.5 md:px-3 md:py-1.5 text-[9px] md:text-[10px] font-black uppercase tracking-widest"
             >
               <span className="flex items-center gap-1 md:gap-1.5">
                 <Sparkles size={10} className="md:w-[11px] md:h-[11px]" />
@@ -44,15 +44,15 @@ export default function MultiplayerComingSoonCard() {
             </Badge>
           </div>
           {/* Descrizione a tutta larghezza sotto l'header (mobile), accanto su desktop */}
-          <p className="text-sm text-textMuted mt-3 md:mt-2 md:ml-[52px] md:pl-0 leading-relaxed w-full min-w-0">
+          <p className="text-sm text-textMuted mt-3.5 md:mt-2 md:ml-[52px] md:pl-0 leading-relaxed w-full min-w-0">
             Sfida altri giocatori, partecipa a partite verificate e scala il
             ranking della tua città.
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4 w-full max-w-full">
-          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0 w-full min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2 shrink-0">
+        <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3.5 md:mb-4 w-full max-w-full">
+          <div className="rounded-xl bg-white/5 px-3 py-3.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[96px] md:min-h-0 w-full min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-2 md:mb-2 shrink-0">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider truncate w-full">
@@ -62,8 +62,8 @@ export default function MultiplayerComingSoonCard() {
               --
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0 w-full min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2 shrink-0">
+          <div className="rounded-xl bg-white/5 px-3 py-3.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[96px] md:min-h-0 w-full min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-2 md:mb-2 shrink-0">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider truncate w-full">
@@ -73,8 +73,8 @@ export default function MultiplayerComingSoonCard() {
               --
             </div>
           </div>
-          <div className="rounded-xl bg-white/5 p-2.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[88px] md:min-h-0 w-full min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-1.5 md:mb-2 shrink-0">
+          <div className="rounded-xl bg-white/5 px-3 py-3.5 md:p-3 text-center border border-white/5 flex flex-col items-center justify-center min-h-[96px] md:min-h-0 w-full min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-2 md:mb-2 shrink-0">
               <Lock size={14} className="text-textMuted" />
             </div>
             <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider truncate w-full">
@@ -87,7 +87,7 @@ export default function MultiplayerComingSoonCard() {
         </div>
 
         <div
-          className="flex items-center justify-center gap-2 rounded-xl py-2.5 w-full max-w-full mx-auto"
+          className="flex items-center justify-center gap-2 rounded-xl py-3 w-full max-w-full mx-auto"
           style={{
             background:
               "linear-gradient(90deg, rgba(124, 255, 107, 0.08) 0%, rgba(34, 197, 94, 0.08) 100%)",

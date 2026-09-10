@@ -414,44 +414,46 @@ export default async function StatsPage() {
             <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
             <CardContent className="px-6 py-5 md:p-8 relative">
               <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-xl shadow-amber-500/25 border border-amber-300/30">
-                  <Crown size={26} className="md:w-[30px] md:h-[30px] text-amber-950" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
-                      <Crown size={12} className="mr-1 text-amber-300" /> PRO
-                    </Badge>
-                    <h3 className="text-lg md:text-xl font-black text-text-primary">
-                      Passa a PRO per statistiche avanzate
-                    </h3>
+                <div className="flex flex-row-reverse md:flex-row md:items-start items-center gap-4 w-full">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-xl shadow-amber-500/25 border border-amber-300/30 md:mr-0 ml-0 md:ml-0">
+                    <Crown size={26} className="md:w-[30px] md:h-[30px] text-amber-950" />
                   </div>
-                  <ul className="text-textMuted text-xs md:text-sm mt-2 md:mt-3 space-y-1 md:space-y-1.5 grid md:grid-cols-2 gap-1">
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Analisi 7/30/90 giorni</span>
-                    </li>
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Statistiche per ruolo</span>
-                    </li>
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Record personali</span>
-                    </li>
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Migliori streak</span>
-                    </li>
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Andamento stagioni</span>
-                    </li>
-                    <li className="flex items-center gap-2 min-w-0">
-                      <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
-                      <span className="truncate">Confronto stagioni</span>
-                    </li>
-                  </ul>
+                  <div className="flex-1 min-w-0 md:order-2 order-1 w-full">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
+                        <Crown size={12} className="mr-1 text-amber-300" /> PRO
+                      </Badge>
+                      <h3 className="text-lg md:text-xl font-black text-text-primary">
+                        Passa a PRO per statistiche avanzate
+                      </h3>
+                    </div>
+                    <ul className="text-textMuted text-xs md:text-sm mt-2 md:mt-3 space-y-1 md:space-y-1.5 grid md:grid-cols-2 gap-1">
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Analisi 7/30/90 giorni</span>
+                      </li>
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Statistiche per ruolo</span>
+                      </li>
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Record personali</span>
+                      </li>
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Migliori streak</span>
+                      </li>
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Andamento stagioni</span>
+                      </li>
+                      <li className="flex items-center gap-2 min-w-0">
+                        <CheckCircle size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                        <span className="truncate">Confronto stagioni</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
                 <div className="flex md:ml-4 md:shrink-0 justify-center md:justify-end w-full md:w-auto">
                   <Link href="/pricing" className="w-full md:w-auto">

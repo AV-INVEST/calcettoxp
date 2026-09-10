@@ -22,7 +22,7 @@ export function getSeasonKeyInfo(date?: Date): {
 
   const startDate = new Date(startYear, 7, 16);
   const endDate = new Date(endYear, 5, 15);
-  const seasonKey = `${startYear}/${endYear.toString().slice(-2)}`;
+  const seasonKey = `${startYear.toString().slice(-2)}/${endYear.toString().slice(-2)}`;
   const name = `Stagione ${seasonKey}`;
 
   return {

@@ -10,11 +10,33 @@ interface NavItem {
   label: string;
 }
 
+function SoccerBallIcon({ size = 22, strokeWidth = 2 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3 L14.5 7.5 L19.5 8.5 L16 12.5 L17 17.5 L12 15 L7 17.5 L8 12.5 L4.5 8.5 L9.5 7.5 Z" />
+      <path d="M12 3 L9.5 7.5 L4.5 8.5" opacity="0" />
+      <path d="M14.5 7.5 L16 12.5 M9.5 7.5 L8 12.5 M19.5 8.5 L16 12.5 M4.5 8.5 L8 12.5 M16 12.5 L17 17.5 M8 12.5 L7 17.5" />
+    </svg>
+  );
+}
+
 const navItems: NavItem[] = [
-  { href: "/achievements", icon: <Trophy size={22} strokeWidth={2} />, label: "Trofei" },
-  { href: "/matches", icon: <span className="text-[22px] leading-none select-none" aria-hidden>⚽</span>, label: "Partite" },
-  { href: "/stats", icon: <BarChart2 size={22} strokeWidth={2} />, label: "Statistiche" },
   { href: "/profile", icon: <User size={22} strokeWidth={2} />, label: "Profilo" },
+  { href: "/matches", icon: <SoccerBallIcon size={22} strokeWidth={2} />, label: "Partite" },
+  { href: "/achievements", icon: <Trophy size={22} strokeWidth={2} />, label: "Trofei" },
+  { href: "/stats", icon: <BarChart2 size={22} strokeWidth={2} />, label: "Statistiche" },
 ];
 
 export default function MobileBottomNav() {
