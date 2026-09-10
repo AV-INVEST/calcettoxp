@@ -6,8 +6,7 @@ import { calculateCardAttributes } from '@/lib/card-attributes';
 import PlayerCard from '@/components/player/PlayerCard';
 import CareerIndexChart from '@/components/charts/CareerIndexChart';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Home, Trophy, TrendingUp, Target, Users, Zap, Sparkles, ArrowRight, Crown } from 'lucide-react';
+import { Trophy, TrendingUp, Target, Users, Zap, Sparkles, ArrowRight, Crown, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
@@ -15,7 +14,6 @@ import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
 import { hasActivePro } from '@/lib/entitlements';
 import { CARD_THEMES, type CardTheme } from '@/lib/username-config';
-import CxpLogo from '@/../assets/LOGOCXP.jpg';
 
 const APP_URL = getAppBaseUrl();
 
@@ -221,7 +219,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             prefetch
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-greenPrimary text-bgPrimary font-bold hover:bg-greenElectric transition"
           >
-            <Home className="w-4 h-4" aria-hidden />
+            <ArrowLeft className="w-4 h-4" aria-hidden />
             TORNA ALLA HOME
           </Link>
         </div>
@@ -267,30 +265,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     <div className="min-h-[100dvh] w-full bg-bgPrimary pb-24 relative">
       <div className="absolute inset-0 pitch-wrapper opacity-20 pointer-events-none" aria-hidden />
 
-      <header className="sticky top-0 z-30 bg-bgPrimary/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-          <Link href="/" className="inline-flex items-center gap-2 group" aria-label="Torna alla home CalcettoXP">
-            <span className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-greenElectric/15 to-greenPrimary/10 border border-greenElectric/20 flex items-center justify-center shrink-0">
-              <Image
-                src={CxpLogo}
-                alt="CalcettoXP"
-                width={26}
-                height={26}
-                style={{ width: "26px", height: "26px", display: "block", objectFit: "cover", borderRadius: "5px" }}
-              />
-            </span>
-            <span className="text-greenElectric text-2xl font-black tracking-tight">CalcettoXP</span>
-          </Link>
-          <Link href="/" aria-label="Home">
-            <span className="inline-flex items-center gap-2 text-textMuted text-sm hover:text-textPrimary transition">
-              <Home className="w-4 h-4" aria-hidden />
-              Home
-            </span>
-          </Link>
-        </div>
-      </header>
-
-      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-16 space-y-8">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-6 md:pt-8 pb-16 space-y-8">
         {!viewerSession?.user?.userId && (
           <section>
             <div className="relative overflow-hidden rounded-2xl border border-greenElectric/20 bg-gradient-to-br from-greenPrimary/10 via-greenElectric/5 to-transparent p-[1px] shadow-[0_0_40px_rgba(124,255,107,0.08)]">
@@ -504,7 +479,15 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           </section>
         )}
 
-        <footer className="pt-8 text-center text-xs text-textMuted">
+        <footer className="pt-8 flex flex-col items-center gap-3 text-xs text-textMuted">
+          <Link
+            href="/"
+            prefetch
+            className="inline-flex items-center gap-1.5 text-[11px] text-textMuted hover:text-greenElectric transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" aria-hidden />
+            <span>← Home</span>
+          </Link>
           <p>
             <Link href="/" className="hover:text-greenElectric transition">
               CalcettoXP
