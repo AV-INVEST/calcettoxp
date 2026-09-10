@@ -309,40 +309,48 @@ export default async function ProfilePage() {
               </div>
 
               <div className="md:ml-auto flex md:flex-col gap-2 md:gap-3 items-stretch md:items-end w-full md:w-auto">
-                {/* Mobile: 3 colonne equal width, Desktop: flex row come prima */}
-                <div className="grid grid-cols-3 md:flex md:items-center gap-1 md:gap-3 lg:gap-4 bg-bgSecondary/60 rounded-2xl p-2 md:p-3 lg:px-5 lg:py-4 border border-white/5 w-full md:w-auto">
-                  <MobileStatPill label="LV" value={player.level} icon={<Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-400" />} />
+                {/* Mobile: 3 colonne equal width FULL-WIDTH, Desktop: flex row come prima */}
+                <div className="grid grid-cols-3 md:flex md:items-center gap-1.5 md:gap-3 lg:gap-4 bg-bgSecondary/60 rounded-2xl p-2 md:p-3 lg:px-5 lg:py-4 border border-white/5 w-full md:w-auto">
+                  <div className="min-w-0">
+                    <MobileStatPill label="LV" value={player.level} icon={<Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-400" />} />
+                  </div>
                   <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
-                  <MobileStatPill
-                    label="OVR"
-                    value={player.overall}
-                    icon={<Award size={12} className="md:w-[14px] md:h-[14px] text-greenElectric" />}
-                    accent
-                  />
+                  <div className="min-w-0">
+                    <MobileStatPill
+                      label="OVR"
+                      value={player.overall}
+                      icon={<Award size={12} className="md:w-[14px] md:h-[14px] text-greenElectric" />}
+                      accent
+                    />
+                  </div>
                   <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
-                  <MobileStatPill
-                    label="CI"
-                    value={player.careerIndex}
-                    icon={<TrendingUp size={12} className="md:w-[14px] md:h-[14px] text-greenPrimary" />}
-                    accent
-                  />
+                  <div className="min-w-0">
+                    <MobileStatPill
+                      label="CI"
+                      value={player.careerIndex}
+                      icon={<TrendingUp size={12} className="md:w-[14px] md:h-[14px] text-greenPrimary" />}
+                      accent
+                    />
+                  </div>
                 </div>
-                <div className="flex justify-center md:justify-end">
-                  <EditProfileModalWrapper
-                    initial={{
-                      username: player.username,
-                      nickname: player.nickname,
-                      country: player.country,
-                      city: player.city,
-                      preferredFoot: player.preferredFoot,
-                      primaryRole: player.primaryRole,
-                      secondaryRole: player.secondaryRole,
-                      birthDate: player.birthDate,
-                      lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
-                      lastUsernameChangeAt: player.lastUsernameChangeAt,
-                      isPro,
-                    }}
-                  />
+                <div className="w-full md:w-auto flex justify-center md:justify-end">
+                  <div className="w-full md:w-auto max-w-sm md:max-w-none">
+                    <EditProfileModalWrapper
+                      initial={{
+                        username: player.username,
+                        nickname: player.nickname,
+                        country: player.country,
+                        city: player.city,
+                        preferredFoot: player.preferredFoot,
+                        primaryRole: player.primaryRole,
+                        secondaryRole: player.secondaryRole,
+                        birthDate: player.birthDate,
+                        lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
+                        lastUsernameChangeAt: player.lastUsernameChangeAt,
+                        isPro,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -663,15 +671,15 @@ function MobileStatPill({
   accent?: boolean;
 }) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:gap-2 items-center min-w-0">
-      <div className="flex items-center gap-1 md:gap-1.5 bg-bgPrimary rounded-lg px-1.5 md:px-2 py-1 border border-white/5 shrink-0">
+    <div className="flex flex-col md:flex-row md:items-center md:gap-2 items-center min-w-0 w-full">
+      <div className="flex items-center gap-1 md:gap-1.5 bg-bgPrimary rounded-lg px-1.5 md:px-2 py-1 border border-white/5 shrink-0 max-w-full">
         {icon}
-        <span className="text-[9px] md:text-[10px] font-black text-textMuted uppercase tracking-wider">
+        <span className="text-[9px] md:text-[10px] font-black text-textMuted uppercase tracking-wider truncate">
           {label}
         </span>
       </div>
       <div
-        className={`text-lg md:text-xl font-black tabular-nums truncate w-full text-center md:text-left md:w-auto ${
+        className={`text-sm sm:text-base md:text-xl font-black tabular-nums whitespace-nowrap min-w-0 w-full text-center md:text-left md:w-auto ${
           accent ? "text-greenElectric" : "text-textPrimary"
         }`}
       >

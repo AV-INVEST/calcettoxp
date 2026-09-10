@@ -341,95 +341,100 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* 2.5) CONDIVIDI LA MIA CARD */}
-        <section>
-          <Card className="border-white/5 bg-bgCard/60">
-            <CardContent className="p-4 md:p-5">
+        {/* 2.5) CONDIVIDI LA MIA CARD (mobile centratura, layout desktop invariato) */}
+        <section className="w-full max-w-full">
+          <Card className="border-white/5 bg-bgCard/60 w-full max-w-full">
+            <CardContent className="p-4 md:p-5 w-full max-w-full">
               {playerProfile.isPublic ? (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full items-center text-center sm:text-left">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-greenPrimary/20 to-greenElectric/10 border border-greenElectric/20 flex items-center justify-center shrink-0">
                       <Share2 size={18} className="text-greenElectric" />
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider">
+                    <div className="min-w-0 text-left">
+                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider truncate">
                         Condividi la mia card
                       </p>
-                      <p className="text-[11px] text-textMuted">
+                      <p className="text-[11px] text-textMuted truncate">
                         Mostra la tua carriera ai tuoi amici
                       </p>
                     </div>
                   </div>
-                  <ShareCardButton
-                    username={playerProfile.username}
-                    label="CONDIVIDI"
-                    variant="primary"
-                    size="md"
-                  />
+                  <div className="w-full sm:w-auto flex justify-center sm:justify-end">
+                    <ShareCardButton
+                      username={playerProfile.username}
+                      label="CONDIVIDI"
+                      variant="primary"
+                      size="md"
+                    />
+                  </div>
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full items-center text-center sm:text-left">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
                       <Lock size={18} className="text-textMuted" />
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider">
+                    <div className="min-w-0 text-left">
+                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider truncate">
                         Condividi la mia card
                       </p>
-                      <p className="text-[11px] text-textMuted">
+                      <p className="text-[11px] text-textMuted truncate">
                         Rendi pubblico il profilo per condividere la tua card
                       </p>
                     </div>
                   </div>
-                  <Link
-                    href="/settings"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-textPrimary hover:bg-white/10 hover:border-white/25 transition active:scale-[0.99]"
-                  >
-                    <Settings size={15} />
-                    <span>Impostazioni</span>
-                  </Link>
+                  <div className="w-full sm:w-auto flex justify-center sm:justify-end">
+                    <Link
+                      href="/settings"
+                      className="w-full sm:w-auto max-w-xs sm:max-w-none inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-textPrimary hover:bg-white/10 hover:border-white/25 transition active:scale-[0.99]"
+                    >
+                      <Settings size={15} />
+                      <span>Impostazioni</span>
+                    </Link>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
         </section>
 
-        {/* 3) KEY METRICS: OVR · Career Index · Level */}
-        <section>
-          <Card className="overflow-hidden">
-            <CardContent className="p-4 md:p-6">
-              <div className="grid grid-cols-3 gap-3 md:gap-6">
-                <div className="text-center">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
+        {/* 3) KEY METRICS: OVR · CI · Level (mobile abbreviato CI, desktop completo) */}
+        <section className="w-full max-w-full">
+          <Card className="overflow-hidden w-full max-w-full">
+            <CardContent className="p-4 md:p-6 w-full max-w-full">
+              <div className="grid grid-cols-3 gap-2 md:gap-6 w-full max-w-full">
+                <div className="text-center min-w-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 truncate">
                     OVR
                   </div>
                   <div
-                    className="text-4xl md:text-5xl font-black tabular-nums bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(124,255,107,0.18)]"
+                    className="text-2xl sm:text-3xl md:text-5xl font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(124,255,107,0.18)]"
                     style={{ letterSpacing: "-0.03em" }}
                   >
                     {playerProfile.overall}
                   </div>
                 </div>
-                <div className="text-center border-x border-white/5">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
-                    Career Index
+                <div className="text-center border-x border-white/5 min-w-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 truncate">
+                    <span className="md:hidden">CI</span>
+                    <span className="hidden md:inline">Career Index</span>
                   </div>
                   <div
-                    className="text-3xl md:text-4xl font-black tabular-nums"
+                    className="text-xl sm:text-2xl md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 w-full"
                     style={{ color: "#7CFF6B" }}
                   >
                     {playerProfile.careerIndex}
                   </div>
                   <div
-                    className={`mt-1 flex items-center justify-center gap-1 text-xs font-bold tabular-nums ${
+                    className={`mt-1 flex items-center justify-center gap-1 text-[11px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
                       lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
                     }`}
                   >
                     {lastCiChange >= 0 ? (
-                      <TrendingUp size={13} strokeWidth={2.5} />
+                      <TrendingUp size={12} strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" />
                     ) : (
-                      <TrendingDown size={13} strokeWidth={2.5} />
+                      <TrendingDown size={12} strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" />
                     )}
                     <span>
                       {lastCiChange >= 0 ? "+" : ""}
@@ -437,12 +442,12 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5">
-                    Livello
+                <div className="text-center min-w-0">
+                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-1.5 truncate">
+                    <span className="md:hidden">LV</span>
+                    <span className="hidden md:inline">Livello</span>
                   </div>
-                  <div className="text-3xl md:text-4xl font-black tabular-nums text-textPrimary">
-                    LV{" "}
+                  <div className="text-xl sm:text-2xl md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full">
                     <span className="text-blue-400">
                       {levelProgress.currentLevel}
                     </span>
@@ -584,19 +589,19 @@ export default async function DashboardPage() {
           </Link>
         </section>
 
-        {/* 6) 4 METRICHE COMPATTE: Streak · Settimana · Stagione · Record */}
-        <section>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <Card>
-              <CardContent className="p-3 md:p-4 space-y-1">
-                <div className="flex items-center gap-1.5">
+        {/* 6) 4 METRICHE COMPATTE: Streak · Settimana · Stagione · Record (2x2 mobile, 4-col desktop, stessa altezza) */}
+        <section className="w-full max-w-full">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4 w-full max-w-full">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-3 md:p-4 space-y-1 flex flex-1 flex-col w-full">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <Flame
                     size={14}
                     className={
                       activeStreakPositive ? "text-orange-400" : "text-textMuted"
                     }
                   />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Streak
                   </span>
                 </div>
@@ -619,24 +624,24 @@ export default async function DashboardPage() {
                     ? `${streaks.lossStreak}L`
                     : "—"}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate">
+                <p className="text-[11px] text-textMuted font-medium truncate mt-auto">
                   {activeStreakLabel}
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-3 md:p-4 space-y-1">
-                <div className="flex items-center gap-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-3 md:p-4 space-y-1 flex flex-1 flex-col w-full">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={14} className="text-blue-400" />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Settimana
                   </span>
                 </div>
                 <div className="text-lg md:text-xl font-black tabular-nums text-blue-400">
                   {matchesThisWeek}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium">
+                <p className="text-[11px] text-textMuted font-medium mt-auto">
                   {matchesThisWeek === 1
                     ? "partita questa settimana"
                     : "partite questa settimana"}
@@ -644,40 +649,40 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-3 md:p-4 space-y-1">
-                <div className="flex items-center gap-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-3 md:p-4 space-y-1 flex flex-1 flex-col w-full">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <Trophy size={14} className="text-yellow-400" />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Stagione
                   </span>
                 </div>
                 <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary">
                   {currentSeason.matches}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate">
+                <p className="text-[11px] text-textMuted font-medium truncate mt-auto">
                   {currentSeason.name}
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-3 md:p-4 space-y-1">
-                <div className="flex items-center gap-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-3 md:p-4 space-y-1 flex flex-1 flex-col w-full">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <Crown
                     size={14}
                     className={
                       isPersonalBest ? "text-yellow-400" : "text-textMuted"
                     }
                   />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em]">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
                     Miglior CI
                   </span>
                 </div>
                 <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400">
                   {bestCI}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium">
+                <p className="text-[11px] text-textMuted font-medium mt-auto">
                   {isPersonalBest
                     ? "✨ Record personale ora!"
                     : `Record: +${Math.max(0, bestCI - playerProfile.careerIndex)} da recuperare`}
@@ -906,56 +911,56 @@ export default async function DashboardPage() {
           </Card>
         </section>
 
-        {/* 10) STATS 3x2 */}
-        <section>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1.5">
+        {/* 10) STATS 2x2 mobile + Win Rate full-width (2-col mobile, 3-col desktop, stessa altezza) */}
+        <section className="w-full max-w-full">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-4 w-full max-w-full">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
+                <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider mb-1.5 truncate">
                   Partite
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums">
+                <div className="text-2xl md:text-3xl font-black text-textPrimary tabular-nums mt-auto">
                   {playerProfile.matchesPlayed}
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider mb-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
+                <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider mb-1.5 truncate">
                   Vittorie
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums">
+                <div className="text-2xl md:text-3xl font-black text-greenPrimary tabular-nums mt-auto">
                   {playerProfile.wins}
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider mb-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
+                <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider mb-1.5 truncate">
                   Gol
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums">
+                <div className="text-2xl md:text-3xl font-black text-yellow-400 tabular-nums mt-auto">
                   {playerProfile.goals}
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4 md:p-5">
-                <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5">
+            <Card className="flex flex-col w-full">
+              <CardContent className="p-4 md:p-5 flex flex-1 flex-col w-full">
+                <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5 truncate">
                   Assist
                 </div>
-                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums">
+                <div className="text-2xl md:text-3xl font-black text-blue-400 tabular-nums mt-auto">
                   {playerProfile.assists}
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-2 md:col-span-2">
-              <CardContent className="p-4 md:p-5">
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider">
+            <Card className="col-span-2 md:col-span-2 w-full max-w-full">
+              <CardContent className="p-4 md:p-5 w-full max-w-full">
+                <div className="flex items-center justify-between mb-2.5 gap-2 w-full">
+                  <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider min-w-0 truncate">
                     Win Rate
                   </div>
-                  <div className="text-sm font-bold text-textPrimary tabular-nums">
+                  <div className="text-sm font-bold text-textPrimary tabular-nums shrink-0">
                     {winRate}%
                   </div>
                 </div>
@@ -1110,16 +1115,16 @@ export default async function DashboardPage() {
               </Card>
             </div>
 
-            <div className="pt-1">
+            <div className="pt-1 w-full flex justify-center sm:justify-start">
               <Link
                 href="/pricing"
-                className="group inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.08)] transition-all hover:from-amber-500/20 hover:via-amber-400/15 hover:to-amber-500/20 hover:text-amber-200 hover:border-amber-400/60 hover:shadow-[0_0_35px_rgba(251,191,36,0.15)] active:scale-[0.99]"
+                className="group w-full sm:w-auto inline-flex items-center justify-center sm:justify-start gap-2 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-black uppercase tracking-wider text-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.08)] transition-all hover:from-amber-500/20 hover:via-amber-400/15 hover:to-amber-500/20 hover:text-amber-200 hover:border-amber-400/60 hover:shadow-[0_0_35px_rgba(251,191,36,0.15)] active:scale-[0.99]"
               >
-                <Crown size={15} />
+                <Crown size={15} className="shrink-0" />
                 <span>Scopri PRO</span>
                 <ChevronRight
                   size={16}
-                  className="transition-transform group-hover:translate-x-0.5"
+                  className="transition-transform group-hover:translate-x-0.5 shrink-0"
                 />
               </Link>
             </div>

@@ -53,55 +53,55 @@ export function PersonalRecordsCard({ input, isPro = false }: Props) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full max-w-full">
         {records.length === 0 ? (
           <p className="text-textMuted text-sm">
             Nessun record disponibile. Registra qualche partita per iniziare a collezionare
             traguardi!
           </p>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-3 w-full max-w-full">
             {records.map((r) => {
               const Icon = ICONS[r.icon];
               const locked = r.tier === 'PRO' && !isPro;
               return (
                 <div
                   key={r.id}
-                  className={`rounded-2xl p-4 border bg-bgSecondary/40 transition ${
+                  className={`w-full max-w-full rounded-2xl p-3 md:p-4 border bg-bgSecondary/40 transition ${
                     locked
                       ? 'border-white/5 opacity-80'
                       : 'border-white/10 shadow-sm hover:border-greenPrimary/30'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2 md:gap-3 w-full max-w-full">
+                    <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1 w-full">
                       <div
-                        className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center ${
+                        className={`w-9 h-9 md:w-10 md:h-10 shrink-0 rounded-xl flex items-center justify-center ${
                           locked
                             ? 'bg-white/5 border border-white/5 text-textMuted'
                             : 'bg-greenPrimary/10 border border-greenPrimary/20 text-greenElectric'
                         }`}
                       >
                         {locked ? (
-                          <Lock className="w-4 h-4" aria-hidden />
+                          <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden />
                         ) : (
-                          <Icon className="w-5 h-5" aria-hidden />
+                          <Icon className="w-[18px] h-[18px] md:w-5 md:h-5" aria-hidden />
                         )}
                       </div>
-                      <div className="min-w-0 flex-1 space-y-0.5">
-                        <p className="text-xs font-semibold text-textMuted truncate">{r.label}</p>
-                        <p className="text-xl font-black text-textPrimary tabular-nums truncate">
+                      <div className="min-w-0 flex-1 space-y-0.5 w-full">
+                        <p className="text-[11px] md:text-xs font-semibold text-textMuted truncate w-full">{r.label}</p>
+                        <p className="text-lg md:text-xl font-black text-textPrimary tabular-nums truncate w-full">
                           {r.value}
                         </p>
                         {r.sublabel && (
-                          <p className="text-[11px] text-textMuted truncate">{r.sublabel}</p>
+                          <p className="text-[10px] md:text-[11px] text-textMuted truncate w-full">{r.sublabel}</p>
                         )}
                       </div>
                     </div>
-                    <Badge variant={TIER_LABEL[r.tier].variant} size="xs" className="shrink-0">
+                    <Badge variant={TIER_LABEL[r.tier].variant} size="xs" className="shrink-0 text-[9px] md:text-[10px]">
                       {r.tier === 'PRO' ? (
                         <span className="inline-flex items-center gap-1">
-                          <Crown className="w-3 h-3" aria-hidden /> PRO
+                          <Crown className="w-2.5 h-2.5 md:w-3 md:h-3" aria-hidden /> PRO
                         </span>
                       ) : (
                         TIER_LABEL[r.tier].label
