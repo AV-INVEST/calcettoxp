@@ -682,7 +682,7 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-greenElectric opacity-50"/>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-greenElectric"/>
                 </span>
-                <span className="text-greenElectric text-[10px] md:text-xs font-black tracking-[0.18em]">STAGIONE 2026 · ATTIVA</span>
+                <span className="text-greenElectric text-[10px] md:text-xs font-black tracking-[0.18em]">STAGIONE 26/27 · ATTIVA</span>
               </div>
               <h1 className="text-3xl md:text-6xl lg:text-7xl font-black leading-[1.05] md:leading-[1.02] text-textPrimary tracking-tight">
                 Ogni partita. <span className="text-gradient-green">La tua carriera.</span>

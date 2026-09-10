@@ -341,18 +341,18 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* 2.5) CONDIVIDI LA MIA CARD (mobile centratura premium, layout desktop invariato) */}
+        {/* 2.5) CONDIVIDI LA MIA CARD (mobile compatto premium, layout desktop invariato) */}
         <section className="w-full max-w-full">
           <Card className="border-white/5 bg-bgCard/60 w-full max-w-full">
-            <CardContent className="px-6 py-5 md:p-5 w-full max-w-full">
+            <CardContent className="px-5 py-3.5 md:px-6 md:py-5 w-full max-w-full">
               {playerProfile.isPublic ? (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full text-center sm:text-left">
-                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
-                    <div className="w-12 h-12 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/15 border border-greenElectric/25 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(124,255,107,0.12)]">
-                      <Share2 size={20} className="text-greenElectric" />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4 w-full text-center sm:text-left">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2.5 md:gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
+                    <div className="w-10 h-10 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/15 border border-greenElectric/25 flex items-center justify-center shrink-0 shadow-[0_0_18px_rgba(124,255,107,0.12)]">
+                      <Share2 size={18} className="text-greenElectric" />
                     </div>
                     <div className="min-w-0 w-full sm:w-auto text-center sm:text-left">
-                      <p className="text-sm md:text-sm font-black text-textPrimary uppercase tracking-wider truncate">
+                      <p className="text-[13px] md:text-sm font-black text-textPrimary uppercase tracking-wider truncate">
                         Condividi la mia card
                       </p>
                       <p className="text-[11px] md:text-[11px] text-textMuted truncate mt-0.5">
@@ -360,7 +360,7 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-1 sm:mt-0">
+                  <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-0.5 sm:mt-0">
                     <ShareCardButton
                       username={playerProfile.username}
                       label="CONDIVIDI"
@@ -370,13 +370,13 @@ export default async function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full text-center sm:text-left">
-                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
-                    <div className="w-11 h-11 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                      <Lock size={20} className="text-textMuted" />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4 w-full text-center sm:text-left">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2.5 md:gap-3 w-full sm:w-auto justify-center sm:justify-start min-w-0">
+                    <div className="w-10 h-10 md:w-10 md:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                      <Lock size={18} className="text-textMuted" />
                     </div>
                     <div className="min-w-0 w-full sm:w-auto text-center sm:text-left">
-                      <p className="text-sm md:text-sm font-black text-textPrimary uppercase tracking-wider truncate">
+                      <p className="text-[13px] md:text-sm font-black text-textPrimary uppercase tracking-wider truncate">
                         Condividi la mia card
                       </p>
                       <p className="text-[11px] md:text-[11px] text-textMuted truncate mt-0.5">
@@ -384,12 +384,12 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-1 sm:mt-0">
+                  <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-0.5 sm:mt-0">
                     <Link
                       href="/settings"
-                      className="w-full sm:w-auto max-w-xs sm:max-w-none inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-textPrimary hover:bg-white/10 hover:border-white/25 transition active:scale-[0.99]"
+                      className="w-full sm:w-auto max-w-xs sm:max-w-none inline-flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2.5 h-10 md:h-11 text-[12px] md:text-sm font-black uppercase tracking-wider text-textPrimary hover:bg-white/10 hover:border-white/25 transition active:scale-[0.99]"
                     >
-                      <Settings size={15} />
+                      <Settings size={14} />
                       <span>Impostazioni</span>
                     </Link>
                   </div>
@@ -399,42 +399,92 @@ export default async function DashboardPage() {
           </Card>
         </section>
 
-        {/* 3) KEY METRICS: OVR · CI · Level (mobile abbreviato CI, desktop completo) */}
+        {/* 3) KEY METRICS: OVR · CI · LV (mobile singolo box compatto con divider, desktop invariato) */}
         <section className="w-full max-w-full">
           <Card className="overflow-hidden w-full max-w-full">
-            <CardContent className="p-4 md:p-6 w-full max-w-full">
-              <div className="grid grid-cols-3 gap-2 md:gap-6 w-full max-w-full">
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
+            <CardContent className="px-3 py-3 md:p-6 w-full max-w-full">
+              <div className="hidden md:block">
+                <div className="grid grid-cols-3 gap-6 w-full max-w-full">
+                  <div className="text-center min-w-0 flex flex-col justify-center items-center md:py-0">
+                    <div className="text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 truncate w-full">
+                      OVR
+                    </div>
+                    <div
+                      className="md:text-5xl font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(124,255,107,0.18)] leading-tight"
+                      style={{ letterSpacing: "-0.03em" }}
+                    >
+                      {playerProfile.overall}
+                    </div>
+                  </div>
+                  <div className="text-center min-w-0 flex flex-col justify-center items-center md:py-0">
+                    <div className="text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 truncate w-full">
+                      Career Index
+                    </div>
+                    <div
+                      className="md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 w-full leading-tight"
+                      style={{ color: "#7CFF6B" }}
+                    >
+                      {playerProfile.careerIndex}
+                    </div>
+                    <div
+                      className={`md:mt-2 flex items-center justify-center gap-1 md:text-xs font-bold tabular-nums whitespace-nowrap ${
+                        lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
+                      }`}
+                    >
+                      {lastCiChange >= 0 ? (
+                        <TrendingUp strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" size={13} />
+                      ) : (
+                        <TrendingDown strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" size={13} />
+                      )}
+                      <span>
+                        {lastCiChange >= 0 ? "+" : ""}
+                        {lastCiChange}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-center min-w-0 flex flex-col justify-center items-center md:py-0">
+                    <div className="text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 truncate w-full">
+                      Livello
+                    </div>
+                    <div className="md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full leading-tight">
+                      <span className="text-blue-400">
+                        {levelProgress.currentLevel}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="md:hidden grid grid-cols-3 w-full max-w-full relative rounded-2xl bg-white/[0.025] border border-white/5">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10">
+                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
                     OVR
                   </div>
                   <div
-                    className="text-xl sm:text-2xl md:text-5xl font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(124,255,107,0.18)] leading-tight"
+                    className="text-[26px] font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_16px_rgba(124,255,107,0.18)] leading-none"
                     style={{ letterSpacing: "-0.03em" }}
                   >
                     {playerProfile.overall}
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
-                    <span className="md:hidden">CI</span>
-                    <span className="hidden md:inline">Career Index</span>
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10 border-l border-r border-white/10">
+                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
+                    CI
                   </div>
                   <div
-                    className="text-lg sm:text-xl md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 w-full leading-tight"
+                    className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 w-full leading-none"
                     style={{ color: "#7CFF6B" }}
                   >
                     {playerProfile.careerIndex}
                   </div>
                   <div
-                    className={`mt-2 md:mt-2 flex items-center justify-center gap-1 text-[10px] md:text-xs font-bold tabular-nums whitespace-nowrap ${
+                    className={`mt-1.5 flex items-center justify-center gap-0.5 text-[10px] font-black tabular-nums whitespace-nowrap ${
                       lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
                     }`}
                   >
                     {lastCiChange >= 0 ? (
-                      <TrendingUp size={11} strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" />
+                      <TrendingUp size={10} strokeWidth={2.5} className="shrink-0" />
                     ) : (
-                      <TrendingDown size={11} strokeWidth={2.5} className="md:w-[13px] md:h-[13px] shrink-0" />
+                      <TrendingDown size={10} strokeWidth={2.5} className="shrink-0" />
                     )}
                     <span>
                       {lastCiChange >= 0 ? "+" : ""}
@@ -442,12 +492,11 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3 md:py-0 rounded-2xl md:rounded-none bg-white/[0.025] md:bg-transparent border border-white/5 md:border-0 px-2">
-                  <div className="text-[10px] md:text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 md:mb-2 truncate w-full">
-                    <span className="md:hidden">LV</span>
-                    <span className="hidden md:inline">Livello</span>
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10">
+                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
+                    LV
                   </div>
-                  <div className="text-lg sm:text-xl md:text-4xl font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full leading-tight">
+                  <div className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full leading-none">
                     <span className="text-blue-400">
                       {levelProgress.currentLevel}
                     </span>

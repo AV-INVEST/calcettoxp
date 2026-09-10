@@ -86,23 +86,23 @@ export function ShareCardButton({
         <span>{label}</span>
       </Button>
       <Button
-        variant="ghost"
+        variant="secondary"
         size={size}
         onClick={handleCopy}
         aria-label="Copia link profilo pubblico"
-        className="inline-flex items-center gap-2"
+        className="inline-flex items-center gap-1.5 md:gap-2 h-10 md:h-11 px-3.5 md:px-5 rounded-full border border-white/15"
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 text-greenElectric" aria-hidden />
-            <span className="md:inline hidden text-greenElectric">Copiato!</span>
-            <span className="md:hidden inline text-greenElectric">OK</span>
+            <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-greenElectric" aria-hidden />
+            <span className="md:inline hidden text-greenElectric text-sm">Copiato!</span>
+            <span className="md:hidden inline text-greenElectric text-[12px] font-black">OK</span>
           </>
         ) : (
           <>
-            <Copy className="w-4 h-4" aria-hidden />
-            <span className="md:inline hidden">Copia link</span>
-            <span className="md:hidden inline">Copia</span>
+            <Copy className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden />
+            <span className="md:inline hidden text-sm">Copia link</span>
+            <span className="md:hidden inline text-[12px] font-black tracking-wide">Copia</span>
           </>
         )}
       </Button>
