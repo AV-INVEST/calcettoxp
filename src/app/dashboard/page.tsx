@@ -1022,14 +1022,14 @@ export default async function DashboardPage() {
               <div className="flex items-center gap-2">
                 <Crown size={16} className="text-amber-400" />
                 <h2 className="text-sm font-bold uppercase tracking-wider text-amber-300/90">
-                  Scopri PRO
+                  Vantaggi esclusivi
                 </h2>
                 <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/25 rounded-full px-2 py-0.5">
                   €3,90/mese
                 </span>
               </div>
               <p className="text-[11px] text-textMuted font-medium hidden sm:block">
-                Profondità · Personalizzazione · Zero pay-to-win
+                Profondità carriera · Personalizzazione · Analytics
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1062,7 +1062,7 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-sm font-black text-textPrimary">
-                      Analisi forma
+                      Analytics avanzate
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">
                       7 / 30 / 90 giorni
@@ -1103,7 +1103,7 @@ export default async function DashboardPage() {
                       Record avanzati
                     </p>
                     <p className="text-[11px] text-textMuted mt-1 leading-snug">
-                      Streaks · Per ruolo · Insights
+                      Streaks · Per ruolo · Traguardi extra
                     </p>
                   </div>
                 </CardContent>
@@ -1126,26 +1126,45 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* 14) MULTIPLAYER COMING SOON — separatore greca elegante */}
-        <section className="pt-5 md:pt-8">
+        {/* 14) MULTIPLAYER COMING SOON — separatore wave fluida verde CalcettoXP */}
+        <section className="pt-8 md:pt-12">
           <div
             aria-hidden
-            className="pointer-events-none mb-5 md:mb-7 mx-auto w-full max-w-md"
-            style={{
-              height: 22,
-              background:
-                "linear-gradient(180deg, transparent 0%, rgba(124,255,107,0.05) 45%, rgba(124,255,107,0.10) 50%, rgba(124,255,107,0.05) 55%, transparent 100%)",
-              maskImage:
-                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 22' preserveAspectRatio='none'><path d='M0,11 L15,11 L20,5 L30,17 L40,5 L50,17 L60,5 L70,17 L80,5 L90,17 L100,5 L110,17 L120,5 L130,17 L140,5 L150,17 L160,5 L170,17 L180,5 L190,17 L200,5 L210,17 L220,5 L225,11 L240,11' fill='none' stroke='%237CFF6B' stroke-width='1.4' stroke-linecap='square' stroke-linejoin='miter'/></svg>\")",
-              WebkitMaskImage:
-                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 22' preserveAspectRatio='none'><path d='M0,11 L15,11 L20,5 L30,17 L40,5 L50,17 L60,5 L70,17 L80,5 L90,17 L100,5 L110,17 L120,5 L130,17 L140,5 L150,17 L160,5 L170,17 L180,5 L190,17 L200,5 L210,17 L220,5 L225,11 L240,11' fill='none' stroke='%237CFF6B' stroke-width='1.4' stroke-linecap='square' stroke-linejoin='miter'/></svg>\")",
-              maskRepeat: "repeat-x",
-              WebkitMaskRepeat: "repeat-x",
-              maskSize: "240px 22px",
-              WebkitMaskSize: "240px 22px",
-              opacity: 0.55,
-            }}
-          />
+            className="pointer-events-none mb-6 md:mb-9 mx-auto w-full"
+          >
+            <svg
+              viewBox="0 0 1440 80"
+              preserveAspectRatio="none"
+              className="w-full h-12 md:h-16"
+              style={{
+                filter: "drop-shadow(0 0 12px rgba(124,255,107,0.25))",
+              }}
+            >
+              <defs>
+                <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#7CFF6B" stopOpacity="0.55" />
+                  <stop offset="50%" stopColor="#22C55E" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#7CFF6B" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="waveStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#7CFF6B" stopOpacity="0.3" />
+                  <stop offset="50%" stopColor="#7CFF6B" stopOpacity="0.7" />
+                  <stop offset="100%" stopColor="#7CFF6B" stopOpacity="0.3" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0,40 C180,60 360,10 540,30 C720,50 900,5 1080,25 C1260,45 1380,20 1440,35 L1440,80 L0,80 Z"
+                fill="url(#waveGradient)"
+              />
+              <path
+                d="M0,40 C180,60 360,10 540,30 C720,50 900,5 1080,25 C1260,45 1380,20 1440,35"
+                fill="none"
+                stroke="url(#waveStroke)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
           <MultiplayerComingSoonCard />
         </section>
       </div>

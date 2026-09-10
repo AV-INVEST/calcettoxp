@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Crown } from "lucide-react";
+import Link from "next/link";
+import { X, Loader2, Crown, Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -197,9 +198,14 @@ export default function EditProfileModal({
                 Username<span className="text-danger ml-1">*</span>
               </label>
               {!initial.isPro && (
-                <Badge variant="grigio" className="text-[10px] flex items-center gap-1">
-                  <Crown size={10} /> Cambio con PRO
-                </Badge>
+                <Link
+                  href="/pricing"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-yellow-500/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.10)] transition-all hover:from-amber-500/20 hover:via-amber-400/15 hover:to-yellow-500/20 hover:text-amber-200 hover:border-amber-400/60 hover:shadow-[0_0_25px_rgba(251,191,36,0.18)] active:scale-[0.98]"
+                >
+                  <Lock size={9} className="text-amber-400" />
+                  <Crown size={9} className="text-amber-300" />
+                  <span>Cambio con PRO</span>
+                </Link>
               )}
               {initial.isPro && usernameCooldownInfo && (
                 <Badge variant="grigio" className="text-[10px]">

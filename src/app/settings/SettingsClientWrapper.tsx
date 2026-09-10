@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Loader2, Check, Crown, AlertTriangle, Trash2, Eye, EyeOff, MapPin } from 'lucide-react';
+import { Loader2, Check, Crown, AlertTriangle, Trash2, Eye, EyeOff, MapPin, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -231,7 +232,21 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
               </div>
             </div>
             <p id="username-status" className="text-xs">
-              {!initialProfile.canChangeUsername ? (
+              {!isPro ? (
+                <span className="flex flex-col gap-2">
+                  <Link
+                    href="/pricing"
+                    className="group inline-flex self-start items-center gap-1.5 rounded-full border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-yellow-500/15 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.10)] transition-all hover:from-amber-500/20 hover:via-amber-400/15 hover:to-yellow-500/20 hover:text-amber-200 hover:border-amber-400/60 hover:shadow-[0_0_28px_rgba(251,191,36,0.18)] active:scale-[0.99]"
+                  >
+                    <Lock size={11} className="text-amber-400" />
+                    <Crown size={11} className="text-amber-300" />
+                    <span>Cambio con PRO</span>
+                  </Link>
+                  <span className="text-textMuted">
+                    Con PRO puoi personalizzare il tuo username.
+                  </span>
+                </span>
+              ) : !initialProfile.canChangeUsername ? (
                 <span className="text-textMuted">
                   Puoi cambiare username tra {initialProfile.daysLeftUsername} giorni.
                 </span>
@@ -291,7 +306,7 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
                   <BadgePro isPro={!!isPro} />
                 </p>
                 <p className="text-xs text-textMuted">
-                  Personalizzazione visiva PRO. I numeri della carta non cambiano.
+                  Temi esclusivi per personalizzare il tuo stile.
                 </p>
               </div>
             </div>

@@ -2,8 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Crown, Lock, ChevronLeft, ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
+import { Crown, Lock, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import PlayerCard, { type PlayerCardProps } from "@/components/player/PlayerCard";
 import type { CardTheme } from "@/lib/username-config";
 
@@ -23,6 +22,24 @@ export interface DashboardCardStageProps {
 }
 
 type TabMode = "free" | "pro";
+
+const PREMIUM_THEME_PREVIEWS: Array<{ key: CardTheme; label: string; gradient: string }> = [
+  {
+    key: "NIGHT",
+    label: "NIGHT",
+    gradient: "from-sky-500 via-sky-700 to-slate-900",
+  },
+  {
+    key: "ELITE",
+    label: "ELITE",
+    gradient: "from-amber-500 via-yellow-500 to-amber-900",
+  },
+  {
+    key: "NEON",
+    label: "NEON",
+    gradient: "from-emerald-400 via-cyan-400 to-fuchsia-500",
+  },
+];
 
 export default function DashboardCardStage(props: DashboardCardStageProps) {
   const {
@@ -147,13 +164,15 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
           }`}
           aria-hidden={showSwitch && tab !== "free"}
         >
-          <PlayerCard
-            {...cardProps}
-            premiumBadge={isPro}
-            size="lg"
-            highlighted
-            theme={isPro ? effectiveCardTheme : "CLASSIC"}
-          />
+          <div className="relative mx-auto w-full max-w-sm">
+            <PlayerCard
+              {...cardProps}
+              premiumBadge={isPro}
+              size="lg"
+              highlighted
+              theme={isPro ? effectiveCardTheme : "CLASSIC"}
+            />
+          </div>
         </div>
 
         {/* Pro locked preview (only rendered when FREE user + PRO tab) */}
@@ -166,11 +185,11 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
             }`}
             aria-hidden={tab !== "pro"}
           >
-            <div className="relative mx-auto w-fit">
+            <div className="relative mx-auto w-full max-w-sm">
               {/* Gold glow rim (silhouette / bordo dorato) */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute -inset-1.5 rounded-[28px] rounded-b-[32px] opacity-80 blur-[2px] opacity-90"
+                className="pointer-events-none absolute -inset-1.5 rounded-[28px] rounded-b-[32px] opacity-90 blur-[2px]"
                 style={{
                   background:
                     "conic-gradient(from 140deg, rgba(250,204,21,0.55), rgba(234,179,8,0.08), rgba(250,204,21,0.5), rgba(180,83,9,0.05), rgba(250,204,21,0.55))",
@@ -179,7 +198,7 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
               {/* Scan / fascia che attraversa rivelando dettagli premium */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 overflow-hidden rounded-[24px] rounded-b-[28px]"
+                className="pointer-events-none absolute inset-0 overflow-hidden rounded-[24px] rounded-b-[28px] z-20"
               >
                 <div
                   className="absolute -left-1/3 top-0 h-full w-1/3 -skew-x-12"
@@ -192,7 +211,7 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
                 />
               </div>
 
-              <div className="relative">
+              <div className="relative z-10">
                 <PlayerCard
                   {...cardProps}
                   premiumBadge={false}
@@ -201,78 +220,106 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
                   theme="ELITE"
                 />
 
-                {/* Overlay blur e lock - SOLO estetica: statistiche e numeri NON censurati */}
+                {/* Subtle frosted overlay - ONLY cosmetic, NO stats hidden */}
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-[24px] rounded-b-[28px]"
                   style={{
                     background:
-                      "linear-gradient(160deg, rgba(234,179,8,0.05) 0%, rgba(120,53,15,0.0) 30%, rgba(250,204,21,0.06) 100%)",
+                      "linear-gradient(160deg, rgba(234,179,8,0.06) 0%, rgba(120,53,15,0.0) 35%, rgba(250,204,21,0.07) 100%)",
                     backdropFilter:
-                      "saturate(1.05) blur(0.4px)",
+                      "saturate(1.08) blur(0.3px)",
                   }}
                 />
+                {/* Elegant gold top spotlight */}
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-[24px] rounded-b-[28px] mix-blend-screen"
                   style={{
                     background:
-                      "radial-gradient(120% 60% at 50% 0%, rgba(250,204,21,0.14), transparent 60%)",
+                      "radial-gradient(120% 60% at 50% 0%, rgba(250,204,21,0.16), transparent 60%)",
                   }}
                 />
-                {/* Bordo elegante premium */}
+                {/* Premium gold border */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-[24px] rounded-b-[28px] border border-amber-400/35"
+                  className="pointer-events-none absolute inset-0 rounded-[24px] rounded-b-[28px] border border-amber-400/38"
                   style={{
                     boxShadow:
-                      "inset 0 0 0 1px rgba(253,224,71,0.08)",
+                      "inset 0 0 0 1px rgba(253,224,71,0.10)",
                   }}
                 />
-
-                {/* Overlay centrale mistero + CTA */}
-                <div className="absolute inset-0 rounded-[24px] rounded-b-[28px] flex flex-col items-center justify-end pb-9 md:pb-10">
-                  <div className="w-[86%] md:w-[82%] rounded-2xl border border-amber-400/25 bg-gradient-to-b from-amber-950/70 via-amber-950/85 to-black/85 backdrop-blur-sm shadow-[0_0_35px_rgba(250,204,21,0.10)] px-4 py-4 md:px-5 md:py-5 flex flex-col items-center text-center">
-                    <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 mb-2">
-                      <Crown size={12} className="text-amber-300" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
-                        Il tuo look PRO
-                      </span>
-                    </div>
-                    <div className="text-base md:text-lg font-black tracking-tight text-amber-100">
-                      Sblocca la card completa
-                    </div>
-                    <p className="text-[11px] md:text-xs text-amber-200/80 mt-1 max-w-[240px]">
-                      Temi esclusivi · Zero pay-to-win · Solo estetica e analytics
-                    </p>
-                    <div className="mt-3">
-                      <Badge
-                        variant="grigio"
-                        className="text-[10px] flex items-center gap-1"
-                      >
-                        <Lock size={10} /> Anteprima
-                      </Badge>
-                    </div>
-                    <Link
-                      href="/pricing"
-                      className="mt-3.5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-5 py-2.5 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_22px_rgba(250,204,21,0.22)] transition-all hover:shadow-[0_0_36px_rgba(250,204,21,0.36)] active:scale-[0.99]"
-                    >
-                      <Crown size={14} />
-                      Scopri PRO
-                    </Link>
+                {/* Small elegant crown/lock badge corner */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute top-2 right-2 z-30"
+                >
+                  <div className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-gradient-to-br from-amber-950/80 to-amber-950/60 backdrop-blur-sm px-2 py-1 shadow-[0_0_15px_rgba(250,204,21,0.12)]">
+                    <Crown size={10} className="text-amber-300" />
+                    <Lock size={8} className="text-amber-400/70" />
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* THEMES PILLS + CTA — SOTTO LA CARD (NON sopra!) */}
+            <div className="mt-5 md:mt-6 flex flex-col items-center text-center space-y-4">
+              {/* Temi premium locked */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="inline-flex items-center gap-2">
+                  {PREMIUM_THEME_PREVIEWS.map((t) => (
+                    <div
+                      key={t.key}
+                      className="group relative inline-flex items-center gap-1.5 rounded-full border border-amber-400/25 bg-white/[0.03] px-2.5 py-1"
+                    >
+                      <div
+                        aria-hidden
+                        className={`w-4 h-4 rounded-full bg-gradient-to-br ${t.gradient} border border-white/20`}
+                      />
+                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-200/90">
+                        {t.label}
+                      </span>
+                      <Lock
+                        size={8}
+                        className="text-amber-400/60"
+                        aria-hidden
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Headline premium */}
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1">
+                  <Sparkles size={11} className="text-amber-300" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">
+                    SBLOCCA IL TUO STILE PRO
+                  </span>
+                </div>
+                <p className="text-xs md:text-sm text-textMuted max-w-xs mx-auto leading-relaxed">
+                  Temi esclusivi · Analytics avanzate · Storico completo · Record avanzati · Obiettivi extra
+                </p>
+              </div>
+
+              {/* CTA gold */}
+              <Link
+                href="/pricing"
+                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-2.5 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.22)] transition-all hover:shadow-[0_0_42px_rgba(250,204,21,0.38)] hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <Crown size={14} />
+                <span>Scopri PRO</span>
+              </Link>
             </div>
           </div>
         )}
       </div>
 
       {showSwitch && (
-        <p className="mt-3 text-center text-[11px] text-textMuted">
+        <p className="mt-4 text-center text-[11px] text-textMuted">
           {tab === "free"
             ? "La tua card CLASSIC · Dati reali"
-            : "Anteprima PRO bloccata · I tuoi dati restano invariati"}
+            : "Anteprima PRO · I tuoi numeri reali · Design esclusivo"}
         </p>
       )}
 

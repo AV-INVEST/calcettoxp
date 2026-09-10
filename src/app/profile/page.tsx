@@ -180,24 +180,11 @@ export default async function ProfilePage() {
   return (
     <main className="min-h-screen bg-bgPrimary text-textPrimary pb-28">
       <div className="max-w-7xl mx-auto px-5 py-6 md:py-10 space-y-6">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Il tuo profilo</h1>
-            <p className="text-textMuted mt-2">
-              Ecco come appari nel mondo di CalcettoXP.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {isPro ? (
-              <Badge variant="elettrico" className="shrink-0">
-                <Crown size={12} className="mr-1" /> PRO
-              </Badge>
-            ) : (
-              <Badge variant="grigio" className="shrink-0 text-[11px] tracking-wide">
-                FREE
-              </Badge>
-            )}
-          </div>
+        <div className="mb-2">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight">Il tuo profilo</h1>
+          <p className="text-textMuted mt-2">
+            Ecco come appari nel mondo di CalcettoXP.
+          </p>
         </div>
 
         <Card className="relative overflow-hidden">
@@ -619,10 +606,10 @@ export default async function ProfilePage() {
                       Piano FREE
                     </Badge>
                   </div>
-                  <div className="text-lg font-black text-textPrimary">Tutte le basi per iniziare</div>
+                  <div className="text-lg font-black text-textPrimary">Le basi della tua carriera</div>
                   <p className="text-textMuted text-sm max-w-xl">
                     Registra partite, traccia carriera e OVR, condividi la tua Player Card.
-                    Upgrade a PRO per personalizzazione avanzata e analytics profonde.
+                    Passa a PRO per temi esclusivi, analytics avanzate e maggiore profondità.
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 shrink-0">
