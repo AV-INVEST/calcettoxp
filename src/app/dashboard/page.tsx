@@ -29,8 +29,8 @@ import NextAchievementProgress from "@/components/dashboard/NextAchievementProgr
 import CurrentSeasonCard from "@/components/dashboard/CurrentSeasonCard";
 import MultiplayerComingSoonCard from "@/components/dashboard/MultiplayerComingSoonCard";
 import NextGoalModule from "@/components/dashboard/NextGoalModule";
-import DashboardLogoutButton from "@/components/dashboard/DashboardLogoutButton";
 import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
+import { ShareCardButton } from "@/components/share/ShareCardButton";
 import {
   TrendingUp,
   TrendingDown,
@@ -51,6 +51,8 @@ import {
   Palette,
   Lock,
   Star,
+  Share2,
+  Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -308,7 +310,6 @@ export default async function DashboardPage() {
                 {STATUS_LABEL[playerStatus]} · Pronto per la prossima partita?
               </small>
             </div>
-            <DashboardLogoutButton />
           </div>
         </header>
 
@@ -326,8 +327,63 @@ export default async function DashboardPage() {
               premiumBadge={isPro}
               size="lg"
               highlighted
+              avatarImage={session.user?.image ?? null}
             />
           </div>
+        </section>
+
+        {/* 2.5) CONDIVIDI LA MIA CARD */}
+        <section>
+          <Card className="border-white/5 bg-bgCard/60">
+            <CardContent className="p-4 md:p-5">
+              {playerProfile.isPublic ? (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-greenPrimary/20 to-greenElectric/10 border border-greenElectric/20 flex items-center justify-center shrink-0">
+                      <Share2 size={18} className="text-greenElectric" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider">
+                        Condividi la mia card
+                      </p>
+                      <p className="text-[11px] text-textMuted">
+                        Mostra la tua carriera ai tuoi amici
+                      </p>
+                    </div>
+                  </div>
+                  <ShareCardButton
+                    username={playerProfile.username}
+                    label="CONDIVIDI"
+                    variant="primary"
+                    size="md"
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                      <Lock size={18} className="text-textMuted" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-textPrimary uppercase tracking-wider">
+                        Condividi la mia card
+                      </p>
+                      <p className="text-[11px] text-textMuted">
+                        Rendi pubblico il profilo per condividere la tua card
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/settings"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-textPrimary hover:bg-white/10 hover:border-white/25 transition active:scale-[0.99]"
+                  >
+                    <Settings size={15} />
+                    <span>Impostazioni</span>
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </section>
 
         {/* 3) KEY METRICS: OVR · Career Index · Level */}
@@ -950,16 +1006,16 @@ export default async function DashboardPage() {
           />
         </section>
 
-        {/* 13) FREE vs PRO TEASERS (4 eleganti, NON invasivi) */}
+        {/* 13) FREE vs PRO TEASERS — Dark + Gold Premium (4 eleganti, NON invasivi) */}
         {!isPro && (
           <section className="space-y-3">
             <div className="flex items-end justify-between px-0.5">
               <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-violet-400" />
-                <h2 className="text-sm font-bold text-textMuted uppercase tracking-wider">
+                <Crown size={16} className="text-amber-400" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-amber-300/90">
                   Scopri PRO
                 </h2>
-                <span className="text-[10px] font-black uppercase tracking-widest text-violet-400 bg-violet-400/10 border border-violet-400/20 rounded-full px-2 py-0.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/25 rounded-full px-2 py-0.5">
                   €3,90/mese
                 </span>
               </div>
@@ -968,13 +1024,13 @@ export default async function DashboardPage() {
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card className="relative overflow-hidden border-violet-500/15">
-                <div className="absolute top-2 right-2 text-textMuted">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
+                <div className="absolute top-2 right-2 text-amber-400/70">
                   <Lock size={12} />
                 </div>
                 <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                    <Palette size={16} className="text-violet-400" />
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                    <Palette size={16} className="text-amber-400" />
                   </div>
                   <div>
                     <p className="text-sm font-black text-textPrimary">
@@ -987,13 +1043,13 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-violet-500/15">
-                <div className="absolute top-2 right-2 text-textMuted">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
+                <div className="absolute top-2 right-2 text-amber-400/70">
                   <Lock size={12} />
                 </div>
                 <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <BarChart3 size={16} className="text-cyan-400" />
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                    <BarChart3 size={16} className="text-amber-400" />
                   </div>
                   <div>
                     <p className="text-sm font-black text-textPrimary">
@@ -1006,13 +1062,13 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-violet-500/15">
-                <div className="absolute top-2 right-2 text-textMuted">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
+                <div className="absolute top-2 right-2 text-amber-400/70">
                   <Lock size={12} />
                 </div>
                 <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                    <History size={16} className="text-emerald-400" />
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
+                    <History size={16} className="text-amber-400" />
                   </div>
                   <div>
                     <p className="text-sm font-black text-textPrimary">
@@ -1025,12 +1081,12 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden border-violet-500/15">
-                <div className="absolute top-2 right-2 text-textMuted">
+              <Card className="relative overflow-hidden border-amber-500/15 bg-gradient-to-br from-amber-500/[0.04] to-transparent">
+                <div className="absolute top-2 right-2 text-amber-400/70">
                   <Lock size={12} />
                 </div>
                 <CardContent className="p-3 md:p-4 space-y-2">
-                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center">
                     <Star size={16} className="text-amber-400" />
                   </div>
                   <div>
@@ -1048,9 +1104,9 @@ export default async function DashboardPage() {
             <div className="pt-1">
               <Link
                 href="/pricing"
-                className="group inline-flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-violet-300 transition-all hover:bg-violet-500/15 hover:text-violet-200 hover:border-violet-400/40 active:scale-[0.99]"
+                className="group inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 px-4 py-2.5 text-sm font-black uppercase tracking-wider text-amber-300 shadow-[0_0_25px_rgba(251,191,36,0.08)] transition-all hover:from-amber-500/20 hover:via-amber-400/15 hover:to-amber-500/20 hover:text-amber-200 hover:border-amber-400/60 hover:shadow-[0_0_35px_rgba(251,191,36,0.15)] active:scale-[0.99]"
               >
-                <Sparkles size={15} />
+                <Crown size={15} />
                 <span>Scopri PRO</span>
                 <ChevronRight
                   size={16}

@@ -16,6 +16,8 @@ const matchPatchSchema = z.object({
   role: z.nativeEnum(Role).optional(),
   goals: z.number().int().min(0).max(15).optional(),
   assists: z.number().int().min(0).max(10).optional(),
+  penaltiesSaved: z.number().int().min(0).max(20).optional(),
+  keySaves: z.number().int().min(0).max(30).optional(),
   cleanSheet: z.boolean().optional(),
   notes: z.string().max(250).optional().nullable(),
 }).strip();
@@ -138,6 +140,8 @@ export async function PATCH(
     const oldGoals = existingMatch.goals;
     const oldAssists = existingMatch.assists;
     const oldCleanSheet = existingMatch.cleanSheet;
+    const oldPenaltiesSaved = (existingMatch as unknown as { penaltiesSaved?: number }).penaltiesSaved ?? 0;
+    const oldKeySaves = (existingMatch as unknown as { keySaves?: number }).keySaves ?? 0;
 
     const laterMatchExists = await prisma.match.count({
       where: {
@@ -157,15 +161,27 @@ export async function PATCH(
       );
     }
 
-    const merged = {
+    const isGoalkeeper = (parsed.role ?? existingMatch.role) === Role.POR;
+
+    const mergedRaw = {
       result: parsed.result ?? existingMatch.result,
       goalsFor: parsed.goalsFor ?? existingMatch.goalsFor,
       goalsAgainst: parsed.goalsAgainst ?? existingMatch.goalsAgainst,
       role: parsed.role ?? existingMatch.role,
       goals: parsed.goals ?? existingMatch.goals,
       assists: parsed.assists ?? existingMatch.assists,
+      penaltiesSaved: parsed.penaltiesSaved ?? oldPenaltiesSaved,
+      keySaves: parsed.keySaves ?? oldKeySaves,
       cleanSheet: parsed.cleanSheet ?? existingMatch.cleanSheet,
       notes: parsed.notes !== undefined ? parsed.notes : existingMatch.notes,
+    };
+
+    const merged = {
+      ...mergedRaw,
+      goals: isGoalkeeper ? 0 : Math.max(0, mergedRaw.goals),
+      assists: isGoalkeeper ? 0 : Math.max(0, mergedRaw.assists),
+      penaltiesSaved: isGoalkeeper ? Math.max(0, mergedRaw.penaltiesSaved) : 0,
+      keySaves: isGoalkeeper ? Math.max(0, mergedRaw.keySaves) : 0,
     };
 
     if (merged.result === 'WIN' && merged.goalsFor <= merged.goalsAgainst) {
@@ -186,7 +202,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
-    if (merged.goals > merged.goalsFor) {
+    if (!isGoalkeeper && merged.goals > merged.goalsFor) {
       return NextResponse.json(
         { ok: false, error: 'Gol giocatore non possono superare goalsFor' },
         { status: 400 }
@@ -209,6 +225,9 @@ export async function PATCH(
         { status: 400 }
       );
     }
+    if (isGoalkeeper && merged.goalsAgainst === 0 && (parsed.cleanSheet === undefined || parsed.cleanSheet === true)) {
+      cleanSheet = true;
+    }
 
     const newCIChange = calculateCareerIndexChange({
       result: merged.result,
@@ -216,6 +235,9 @@ export async function PATCH(
       goals: merged.goals,
       assists: merged.assists,
       cleanSheet,
+      goalsAgainst: merged.goalsAgainst,
+      penaltiesSaved: merged.penaltiesSaved,
+      keySaves: merged.keySaves,
     });
 
     const newXpEarned = calculateXpEarned({
@@ -258,6 +280,8 @@ export async function PATCH(
           role: merged.role,
           goals: merged.goals,
           assists: merged.assists,
+          penaltiesSaved: merged.penaltiesSaved,
+          keySaves: merged.keySaves,
           cleanSheet,
           notes: merged.notes,
           careerIndexBefore: existingMatch.careerIndexBefore,

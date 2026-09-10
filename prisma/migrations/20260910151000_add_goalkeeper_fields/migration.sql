@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Match" ADD COLUMN "penaltiesSaved" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Match" ADD COLUMN "keySaves" INTEGER NOT NULL DEFAULT 0;

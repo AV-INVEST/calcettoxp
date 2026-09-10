@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, AlertCircle, CheckCircle2, Pencil } from "lucide-react";
+import { Minus, Plus, AlertCircle, CheckCircle2, Pencil, Target, Shield } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -26,6 +26,8 @@ type Props = {
   initialRole: Role;
   initialGoals: number;
   initialAssists: number;
+  initialPenaltiesSaved: number;
+  initialKeySaves: number;
   initialCleanSheet: boolean;
   initialNotes: string;
   minutesLeft: number;
@@ -44,8 +46,15 @@ export default function MatchEditForm(props: Props) {
   const [role, setRole] = useState<Role>(props.initialRole);
   const [goals, setGoals] = useState<number>(props.initialGoals);
   const [assists, setAssists] = useState<number>(props.initialAssists);
+  const [penaltiesSaved, setPenaltiesSaved] = useState<number>(props.initialPenaltiesSaved);
+  const [keySaves, setKeySaves] = useState<number>(props.initialKeySaves);
   const [cleanSheet, setCleanSheet] = useState<boolean>(props.initialCleanSheet);
   const [notes, setNotes] = useState<string>(props.initialNotes);
+
+  const isGoalkeeper = role === "POR";
+  const derivedCleanSheet = useMemo(() => {
+    return isGoalkeeper && goalsAgainst === 0;
+  }, [isGoalkeeper, goalsAgainst]);
 
   const step = (
     setter: React.Dispatch<React.SetStateAction<number>>,
@@ -72,6 +81,8 @@ export default function MatchEditForm(props: Props) {
         role: Role;
         goals: number;
         assists: number;
+        penaltiesSaved: number;
+        keySaves: number;
         cleanSheet: boolean;
         notes: string | null;
       }> = {};
@@ -79,9 +90,12 @@ export default function MatchEditForm(props: Props) {
       if (goalsFor !== props.initialGoalsFor) payload.goalsFor = goalsFor;
       if (goalsAgainst !== props.initialGoalsAgainst) payload.goalsAgainst = goalsAgainst;
       if (role !== props.initialRole) payload.role = role;
-      if (goals !== props.initialGoals) payload.goals = goals;
-      if (assists !== props.initialAssists) payload.assists = assists;
-      if (cleanSheet !== props.initialCleanSheet) payload.cleanSheet = cleanSheet;
+      if (!isGoalkeeper && goals !== props.initialGoals) payload.goals = goals;
+      if (!isGoalkeeper && assists !== props.initialAssists) payload.assists = assists;
+      if (isGoalkeeper && penaltiesSaved !== props.initialPenaltiesSaved) payload.penaltiesSaved = penaltiesSaved;
+      if (isGoalkeeper && keySaves !== props.initialKeySaves) payload.keySaves = keySaves;
+      if (isGoalkeeper && derivedCleanSheet !== props.initialCleanSheet) payload.cleanSheet = derivedCleanSheet;
+      if (!isGoalkeeper && cleanSheet !== props.initialCleanSheet) payload.cleanSheet = cleanSheet;
       if (notes !== props.initialNotes) payload.notes = notes.trim() || null;
 
       if (Object.keys(payload).length === 0) {
@@ -280,85 +294,166 @@ export default function MatchEditForm(props: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Tuoi gol
-              </label>
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => step(setGoals, goals, -1, 0, 15)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Minus size={16} />
-                </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={15}
-                  value={goals}
-                  onChange={(e) => setGoals(Math.max(0, Math.min(15, parseInt(e.target.value) || 0)))}
-                  className="text-center text-lg font-bold"
-                />
-                <button
-                  type="button"
-                  onClick={() => step(setGoals, goals, +1, 0, 15)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Plus size={16} />
-                </button>
+          {isGoalkeeper ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between rounded-xl border border-greenElectric/20 bg-greenElectric/5 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Shield size={16} className="text-greenElectric" />
+                  <div>
+                    <p className="text-xs font-bold text-greenElectric uppercase tracking-wider">
+                      Clean Sheet
+                    </p>
+                    <p className="text-[11px] text-textMuted">
+                      {derivedCleanSheet
+                        ? "0 gol subiti ✓"
+                        : goalsAgainst > 0
+                        ? "Non disponibile (gol subiti > 0)"
+                        : "0 gol subiti"}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant={derivedCleanSheet ? "elettrico" : "grigio"} className="shrink-0">
+                  {derivedCleanSheet ? "ATTIVO" : "—"}
+                </Badge>
               </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Assist
-              </label>
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => step(setAssists, assists, -1, 0, 10)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Minus size={16} />
-                </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={10}
-                  value={assists}
-                  onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
-                  className="text-center text-lg font-bold"
-                />
-                <button
-                  type="button"
-                  onClick={() => step(setAssists, assists, +1, 0, 10)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
 
-          {role === "POR" && (
-            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary p-3">
-              <div>
-                <p className="text-sm font-semibold text-textPrimary">Clean Sheet</p>
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary px-4 py-3">
+                <div>
+                  <p className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
+                    Gol subiti
+                  </p>
+                  <p className="text-[11px] text-textMuted">
+                    Dal punteggio partita
+                  </p>
+                </div>
+                <span className="text-2xl font-black tabular-nums text-textPrimary w-10 text-center">
+                  {goalsAgainst}
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={() => setCleanSheet(!cleanSheet)}
-                className={`relative flex h-7 w-14 shrink-0 items-center rounded-full transition-colors ${
-                  cleanSheet ? "bg-greenPrimary" : "bg-white/15"
-                }`}
-              >
-                <span
-                  className={`absolute h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                    cleanSheet ? "translate-x-7" : "translate-x-0.5"
-                  }`}
-                />
-              </button>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
+                    <Target size={14} className="text-amber-400" />
+                    Rigori parati
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => step(setPenaltiesSaved, penaltiesSaved, -1, 0, 20)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={20}
+                      value={penaltiesSaved}
+                      onChange={(e) => setPenaltiesSaved(Math.max(0, Math.min(20, parseInt(e.target.value) || 0)))}
+                      className="text-center text-lg font-bold tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => step(setPenaltiesSaved, penaltiesSaved, +1, 0, 20)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
+                    <Shield size={14} className="text-cyan-400" />
+                    Parate decisive
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => step(setKeySaves, keySaves, -1, 0, 30)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={keySaves}
+                      onChange={(e) => setKeySaves(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                      className="text-center text-lg font-bold tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => step(setKeySaves, keySaves, +1, 0, 30)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                  Tuoi gol
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => step(setGoals, goals, -1, 0, Math.min(15, goalsFor))}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={Math.min(15, goalsFor)}
+                    value={goals}
+                    onChange={(e) => setGoals(Math.max(0, Math.min(15, Math.min(goalsFor, parseInt(e.target.value) || 0))))}
+                    className="text-center text-lg font-bold tabular-nums"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => step(setGoals, goals, +1, 0, Math.min(15, goalsFor))}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                  Assist
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => step(setAssists, assists, -1, 0, 10)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={assists}
+                    onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
+                    className="text-center text-lg font-bold tabular-nums"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => step(setAssists, assists, +1, 0, 10)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

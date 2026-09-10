@@ -4,16 +4,19 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hasActivePro } from "@/lib/entitlements";
 import { filterVisibleAchievements } from "@/lib/achievements";
+import { calculateCardAttributes } from "@/lib/card-attributes";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import EditProfileModalWrapper from "@/components/profile/EditProfileModalWrapper";
+import PlayerCard from "@/components/player/PlayerCard";
+import { AlreadyProPortalButton } from "@/components/pricing/StripeButtons";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
+import { Button } from "@/components/ui/Button";
 import {
   User as UserIcon,
   Crown,
   MapPin,
-  Flag,
   Calendar,
   Footprints,
   Target,
@@ -21,14 +24,20 @@ import {
   Award,
   TrendingUp,
   Shield,
-  Pencil,
   CalendarDays,
   ChevronRight,
   Star,
+  ArrowLeft,
+  Sparkles,
+  CreditCard,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import Link from "next/link";
 import { Role, PreferredFoot } from "@prisma/client";
+import type { CardTheme } from "@/lib/username-config";
 
 const ROLE_LABELS: Record<Role, string> = {
   POR: "Portiere",
@@ -42,6 +51,25 @@ const FOOT_LABELS: Record<PreferredFoot, string> = {
   LEFT: "Sinistro",
   BOTH: "Entrambi",
 };
+
+const PLAN_LABEL: Record<string, { label: string; price: string }> = {
+  monthly: { label: "Mensile", price: "€3,90/mese" },
+  yearly: { label: "Annuale", price: "€29,90/anno" },
+};
+
+function detectPlanFromPriceId(
+  priceId: string | null | undefined,
+  envMonthly?: string,
+  envYearly?: string
+): "monthly" | "yearly" | null {
+  if (!priceId) return null;
+  if (envMonthly && priceId === envMonthly) return "monthly";
+  if (envYearly && priceId === envYearly) return "yearly";
+  const lower = priceId.toLowerCase();
+  if (lower.includes("year") || lower.includes("annual")) return "yearly";
+  if (lower.includes("month")) return "monthly";
+  return null;
+}
 
 function countryFlagEmoji(country?: string | null): string {
   if (!country) return "🌍";
@@ -75,6 +103,17 @@ export default async function ProfilePage() {
         take: 6,
         orderBy: { unlockedAt: "desc" },
       },
+      matches: {
+        orderBy: { playedAt: "desc" },
+        take: 12,
+        select: {
+          careerIndexChange: true,
+          result: true,
+          goals: true,
+          assists: true,
+          playedAt: true,
+        },
+      },
     },
   });
 
@@ -85,6 +124,15 @@ export default async function ProfilePage() {
   });
 
   const isPro = hasActivePro(subscription);
+
+  const effectiveCardTheme: CardTheme = (() => {
+    const saved = (player.cardTheme ?? "CLASSIC") as CardTheme;
+    const allowedThemes: readonly CardTheme[] = ["CLASSIC", "NIGHT", "ELITE", "NEON"];
+    const freeThemes: readonly CardTheme[] = ["CLASSIC"];
+    if (!allowedThemes.includes(saved)) return "CLASSIC";
+    if (freeThemes.includes(saved) || isPro) return saved;
+    return "CLASSIC";
+  })();
 
   const winRate =
     player.matchesPlayed > 0
@@ -108,33 +156,82 @@ export default async function ProfilePage() {
     (a) => a.playerAchievements[0]?.unlockedAt
   ).length;
 
-  const currentSeason = player.seasons[0];
   const visibleSeasons = isPro ? player.seasons : player.seasons.slice(0, 1);
+
+  const summaryRecent = (player.matches || []).map((m) => ({
+    careerIndexChange: m.careerIndexChange,
+    result: m.result,
+    goals: m.goals,
+    assists: m.assists,
+    playedAt: m.playedAt,
+  }));
+
+  const cardAttrs = calculateCardAttributes({
+    matchesPlayed: player.matchesPlayed,
+    wins: player.wins,
+    losses: player.losses,
+    draws: player.draws,
+    goals: player.goals,
+    assists: player.assists,
+    level: player.level,
+    xp: player.xp,
+    careerIndex: player.careerIndex,
+    role: player.primaryRole,
+    recentMatches: summaryRecent,
+  });
+
+  const planKey = detectPlanFromPriceId(
+    subscription?.stripePriceId ?? null,
+    process.env.STRIPE_PRICE_PRO_MONTHLY,
+    process.env.STRIPE_PRICE_PRO_YEARLY
+  );
+
+  const planLabel = planKey ? PLAN_LABEL[planKey] : null;
+  const cancelAtPeriodEnd = !!subscription?.cancelAtPeriodEnd;
+  const currentPeriodEnd = subscription?.currentPeriodEnd;
+  const disdettoAttivo = isPro && cancelAtPeriodEnd;
 
   return (
     <main className="min-h-screen bg-bgPrimary text-textPrimary pb-28">
-      <div className="max-w-7xl mx-auto px-5 py-6 md:py-10">
-        <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-5 py-6 md:py-10 space-y-6">
+        <div className="mb-2 flex items-start justify-between gap-3">
           <div>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight">Il tuo profilo</h1>
             <p className="text-textMuted mt-2">
               Ecco come appari nel mondo di CalcettoXP.
             </p>
           </div>
-          {isPro && (
-            <Badge variant="elettrico" className="shrink-0">
-              <Crown size={12} className="mr-1" /> PRO
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isPro ? (
+              <Badge variant="elettrico" className="shrink-0">
+                <Crown size={12} className="mr-1" /> PRO
+              </Badge>
+            ) : (
+              <Badge variant="grigio" className="shrink-0 text-[11px] tracking-wide">
+                FREE
+              </Badge>
+            )}
+          </div>
         </div>
 
-        <Card className="mb-6 relative overflow-hidden">
+        <Card className="relative overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-greenElectric/20 via-greenPrimary/10 to-transparent" />
+          {isPro && (
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-amber-400/10 to-transparent pointer-events-none" aria-hidden />
+          )}
           <CardContent className="p-5 md:p-8 relative">
             <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
-              <div className="relative shrink-0">
-                <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-greenElectric via-greenPrimary to-greenElectric/30 opacity-70 blur-[1px]" />
-                <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-bgCard border-2 border-greenElectric/40 flex items-center justify-center overflow-hidden shadow-xl shadow-greenElectric/10">
+              <div className="relative shrink-0 mx-auto md:mx-0">
+                <div className={`absolute -inset-1 rounded-full blur-[1px] ${
+                  isPro
+                    ? "bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600/40 opacity-70"
+                    : "bg-gradient-to-br from-greenElectric via-greenPrimary to-greenElectric/30 opacity-70"
+                }`} />
+                <div className={`relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-bgCard border-2 ${
+                  isPro ? "border-amber-400/50" : "border-greenElectric/40"
+                } flex items-center justify-center overflow-hidden shadow-xl ${
+                  isPro ? "shadow-amber-500/15" : "shadow-greenElectric/10"
+                }`}>
                   {user?.image ? (
                     <img
                       src={user.image}
@@ -143,32 +240,45 @@ export default async function ProfilePage() {
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <UserIcon size={40} className="text-greenElectric/70" />
+                    <UserIcon size={40} className={isPro ? "text-amber-400/70" : "text-greenElectric/70"} />
                   )}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-bgCard border-2 border-bgPrimary flex items-center justify-center shadow-lg">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center text-bgPrimary font-black text-sm">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-bgPrimary font-black text-sm ${
+                    isPro
+                      ? "bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600"
+                      : "bg-gradient-to-br from-greenElectric to-greenPrimary"
+                  }`}>
                     {player.overall}
                   </div>
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1 justify-center md:justify-start">
                   <h2 className="text-2xl md:text-3xl font-black tracking-tight truncate">
-                    {player.nickname}
+                    @{player.username}
                   </h2>
-                  {isPro && (
-                    <Badge variant="elettrico" className="text-[10px]">
+                  {isPro ? (
+                    <Badge variant="elettrico" className="text-[10px] shadow-[0_0_15px_rgba(250,204,21,0.15)] border-amber-400/30">
                       <Crown size={10} className="mr-1" /> PRO
+                    </Badge>
+                  ) : (
+                    <Badge variant="grigio" className="text-[10px] tracking-wide">
+                      FREE
                     </Badge>
                   )}
                 </div>
-                {user?.name && user.name !== player.nickname && (
-                  <p className="text-textMuted text-sm mb-2">{user.name}</p>
+                {user?.name && user.name !== player.username && user.name !== player.nickname && (
+                  <p className="text-textMuted text-sm mb-2 text-center md:text-left">{user.name}</p>
+                )}
+                {player.nickname && player.nickname !== player.username && (
+                  <p className="text-textMuted text-xs mb-2 text-center md:text-left opacity-70">
+                    aka {player.nickname}
+                  </p>
                 )}
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-textMuted">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-sm text-textMuted">
                   <span className="flex items-center gap-1.5">
                     <span className="text-lg leading-none">
                       {countryFlagEmoji(player.country)}
@@ -192,7 +302,7 @@ export default async function ProfilePage() {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 mt-3">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-3">
                   <Badge variant="verde" className="text-xs">
                     {player.primaryRole} · {ROLE_LABELS[player.primaryRole]}
                   </Badge>
@@ -218,17 +328,17 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
-              <div className="md:ml-auto flex md:flex-col gap-2 md:gap-3 items-center md:items-end">
-                <div className="flex items-center gap-3 md:gap-4 bg-bgSecondary/60 rounded-2xl p-3 md:px-5 md:py-4 border border-white/5">
+              <div className="md:ml-auto flex md:flex-col gap-2 md:gap-3 items-center md:items-end w-full md:w-auto">
+                <div className="flex items-center gap-3 md:gap-4 bg-bgSecondary/60 rounded-2xl p-3 md:px-5 md:py-4 border border-white/5 flex-1 md:flex-none justify-center">
                   <StatPill label="LV" value={player.level} icon={<Star size={14} className="text-yellow-400" />} />
-                  <div className="w-px h-8 bg-white/10 md:hidden" />
+                  <div className="w-px h-8 bg-white/10" />
                   <StatPill
                     label="OVR"
                     value={player.overall}
                     icon={<Award size={14} className="text-greenElectric" />}
                     accent
                   />
-                  <div className="w-px h-8 bg-white/10 md:hidden" />
+                  <div className="w-px h-8 bg-white/10" />
                   <StatPill
                     label="CI"
                     value={player.careerIndex}
@@ -238,6 +348,7 @@ export default async function ProfilePage() {
                 </div>
                 <EditProfileModalWrapper
                   initial={{
+                    username: player.username,
                     nickname: player.nickname,
                     country: player.country,
                     city: player.city,
@@ -246,6 +357,8 @@ export default async function ProfilePage() {
                     secondaryRole: player.secondaryRole,
                     birthDate: player.birthDate,
                     lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
+                    lastUsernameChangeAt: player.lastUsernameChangeAt,
+                    isPro,
                   }}
                 />
               </div>
@@ -253,7 +366,7 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard
             icon={<Trophy size={16} className="text-greenElectric" />}
             label="Partite totali"
@@ -287,7 +400,143 @@ export default async function ProfilePage() {
           />
         </div>
 
-        <Card className="mb-6">
+        {!isPro && (
+          <Card className="relative overflow-hidden border-amber-400/15">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 via-transparent to-amber-600/5 pointer-events-none" aria-hidden />
+            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-amber-400/10 to-transparent pointer-events-none blur-3xl" aria-hidden />
+            <CardHeader className="pb-3 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-400/10 border border-amber-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(250,204,21,0.08)]">
+                    <Sparkles size={20} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl md:text-2xl bg-gradient-to-r from-amber-200 via-amber-300 to-amber-500 bg-clip-text text-transparent tracking-tight">
+                      Scopri la tua Card PRO
+                    </CardTitle>
+                    <p className="text-textMuted text-sm mt-0.5">
+                      La tua carriera. Un look completamente nuovo.
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="elettrico" className="hidden md:inline-flex shrink-0 border-amber-400/30">
+                  <Crown size={11} className="mr-1" /> Riservato PRO
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-end">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="grigio" className="text-[10px] tracking-wide uppercase">
+                      La tua card · FREE
+                    </Badge>
+                    <span className="text-[10px] text-textMuted/70 uppercase tracking-wide">Tema CLASSIC</span>
+                  </div>
+                  <div className="mx-auto md:mx-0 w-fit">
+                    <PlayerCard
+                      nickname={player.nickname}
+                      role={player.primaryRole}
+                      overall={player.overall}
+                      level={player.level}
+                      careerIndex={player.careerIndex}
+                      attributes={cardAttrs}
+                      size="sm"
+                      highlighted={false}
+                      premiumBadge={false}
+                      theme="CLASSIC"
+                      avatarImage={user?.image ?? null}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-1.5 text-textMuted/70 text-[11px]">
+                    <CheckCircle2 size={12} className="text-greenElectric/60" /> I tuoi dati reali · Stesso OVR, CI, LV
+                  </div>
+                </div>
+
+                <div className="relative space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="elettrico" className="text-[10px] border-amber-400/30">
+                      <Crown size={10} className="mr-1" /> Anteprima PRO
+                    </Badge>
+                    <span className="text-[10px] text-amber-300/80 uppercase tracking-wide font-semibold">Tema ELITE</span>
+                  </div>
+                  <div className="relative mx-auto md:mx-0 w-fit">
+                    <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-amber-400/25 via-amber-300/10 to-transparent blur-md opacity-70 pointer-events-none" aria-hidden />
+                    <div className="relative">
+                      <PlayerCard
+                        nickname={player.nickname}
+                        role={player.primaryRole}
+                        overall={player.overall}
+                        level={player.level}
+                        careerIndex={player.careerIndex}
+                        attributes={cardAttrs}
+                        size="sm"
+                        highlighted
+                        premiumBadge={true}
+                        theme="ELITE"
+                        avatarImage={user?.image ?? null}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5 text-[11px] text-textMuted md:text-xs pt-2">
+                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> 4 temi esclusivi (NIGHT · ELITE · NEON)</div>
+                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> Analytics avanzate e storico completo</div>
+                    <div className="flex items-center gap-2"><CheckCircle2 size={12} className="text-amber-400" /> Cambio username ogni 30 giorni</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-white/5 pt-6">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className="text-base font-black text-textPrimary">Pass a PRO</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="elettrico" className="text-[10px] border-amber-400/30">{PLAN_LABEL.monthly.price}</Badge>
+                      <Badge variant="outline" className="text-[10px] text-amber-300/90 border-amber-400/20">o {PLAN_LABEL.yearly.price}</Badge>
+                    </div>
+                  </div>
+                  <p className="text-xs text-textMuted">
+                    Zero pay-to-win. Solo estetica e analytics.
+                  </p>
+                </div>
+                <Link
+                  href="/pricing"
+                  className="shrink-0 group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-3 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.2)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.35)] active:scale-[0.99]"
+                >
+                  <Crown size={15} />
+                  Scopri PRO
+                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isPro && (
+          <Card className="border-amber-400/15 overflow-hidden relative">
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-amber-400/10 via-transparent to-transparent pointer-events-none" aria-hidden />
+            <CardHeader className="pb-3 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-400/10 border border-amber-400/30 flex items-center justify-center">
+                    <Crown size={18} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Personalizzazione PRO attiva</CardTitle>
+                    <p className="text-textMuted text-sm mt-0.5">
+                      Tema selezionato: <span className="text-amber-300 font-semibold">{effectiveCardTheme}</span>
+                    </p>
+                  </div>
+                </div>
+                <Link href="/settings" className="text-amber-300/90 text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all">
+                  Cambia tema <ChevronRight size={16} />
+                </Link>
+              </div>
+            </CardHeader>
+          </Card>
+        )}
+
+        <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
@@ -345,7 +594,7 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="mb-6">
+        <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
@@ -358,7 +607,7 @@ export default async function ProfilePage() {
               </div>
               {!isPro && (
                 <Badge variant="grigio" className="flex items-center gap-1">
-                  <Crown size={12} /> LOCKED
+                  <Lock size={12} /> LOCKED
                 </Badge>
               )}
             </div>
@@ -427,6 +676,127 @@ export default async function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-greenElectric/15 border border-greenElectric/25 flex items-center justify-center">
+                <CreditCard size={18} className="text-greenElectric" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Gestione abbonamento</CardTitle>
+                <p className="text-textMuted text-sm mt-0.5">
+                  {isPro ? "Dettagli del tuo piano PRO." : "Piano base · FREE per sempre."}
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isPro ? (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <InfoRow
+                    icon={<Crown size={14} className="text-amber-400" />}
+                    label="Piano attivo"
+                    value={
+                      <div className="flex items-center gap-2">
+                        <Badge variant="elettrico" className="text-[10px] border-amber-400/30">
+                          PRO · {planLabel ? planLabel.label : "CalcettoXP"}
+                        </Badge>
+                        {disdettoAttivo ? (
+                          <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-300">
+                            DISDETTO
+                          </Badge>
+                        ) : (
+                          <Badge variant="verde" className="text-[10px]">
+                            <CheckCircle2 size={10} className="mr-1" /> ATTIVO
+                          </Badge>
+                        )}
+                      </div>
+                    }
+                  />
+                  {currentPeriodEnd && (
+                    <InfoRow
+                      icon={<Calendar size={14} className="text-greenElectric" />}
+                      label={disdettoAttivo ? "Accesso PRO fino al" : "Prossimo rinnovo"}
+                      value={
+                        <span className="font-bold tabular-nums text-textPrimary">
+                          {format(new Date(currentPeriodEnd), "dd MMM yyyy")}
+                        </span>
+                      }
+                    />
+                  )}
+                  {planLabel && (
+                    <InfoRow
+                      icon={<CreditCard size={14} className="text-greenElectric/80" />}
+                      label="Prezzo"
+                      value={<span className="font-semibold">{planLabel.price}</span>}
+                    />
+                  )}
+                </div>
+
+                {disdettoAttivo && (
+                  <div className="rounded-xl border border-amber-400/20 bg-amber-500/5 p-4 flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5">
+                      <CalendarDays size={14} className="text-amber-300" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-amber-200 text-sm">Abbonamento disdetto</div>
+                      <p className="text-textMuted text-xs mt-0.5">
+                        L&lsquo;accesso PRO resterà attivo fino alla fine del periodo pagato.
+                        {currentPeriodEnd && (
+                          <> Dopo il <span className="text-amber-200 font-semibold">{format(new Date(currentPeriodEnd), "dd MMM yyyy")}</span> tornerai automaticamente al piano FREE.</>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between border-t border-white/5 pt-5">
+                  <div className="text-xs text-textMuted">
+                    Fatturazione e pagamenti gestiti in sicurezza da Stripe.
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <AlreadyProPortalButton className="[&>button]:border-amber-400/30 [&>button]:text-amber-200 [&>button:hover]:bg-amber-500/10 [&>button:hover]:text-amber-100 [&>button]:shadow-none" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="grigio" className="text-[11px] tracking-wide uppercase">
+                      Piano FREE
+                    </Badge>
+                  </div>
+                  <div className="text-lg font-black text-textPrimary">Tutte le basi per iniziare</div>
+                  <p className="text-textMuted text-sm max-w-xl">
+                    Registra partite, traccia carriera e OVR, condividi la tua Player Card.
+                    Upgrade a PRO per personalizzazione avanzata e analytics profonde.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                  <Link
+                    href="/pricing"
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-3 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.18)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.32)] active:scale-[0.99]"
+                  >
+                    <Crown size={15} /> Scopri PRO
+                  </Link>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="pt-4">
+          <Link
+            href="/dashboard"
+            className="group inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-bgSecondary/60 border border-white/5 hover:border-greenElectric/25 hover:bg-greenElectric/5 transition-all text-textMuted hover:text-textPrimary font-semibold"
+          >
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+            Torna alla dashboard
+          </Link>
+        </div>
       </div>
 
       <MobileBottomNav />
@@ -492,6 +862,25 @@ function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
     <div>
       <div className="text-[10px] text-textMuted uppercase tracking-wider">{label}</div>
       <div className="font-black text-sm md:text-base tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+function InfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+      <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+        {icon} {label}
+      </div>
+      <div>{value}</div>
     </div>
   );
 }

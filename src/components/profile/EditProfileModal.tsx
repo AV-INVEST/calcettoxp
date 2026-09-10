@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Crown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -14,6 +14,7 @@ interface EditProfileModalProps {
   open: boolean;
   onClose: () => void;
   initial: {
+    username: string;
     nickname: string;
     country?: string | null;
     city?: string | null;
@@ -22,6 +23,8 @@ interface EditProfileModalProps {
     secondaryRole?: Role | null;
     birthDate?: Date | string | null;
     lastPrimaryRoleChangeAt?: Date | string | null;
+    lastUsernameChangeAt?: Date | string | null;
+    isPro: boolean;
   };
   onSuccess?: (updated: any) => void;
 }
@@ -45,7 +48,7 @@ export default function EditProfileModal({
   initial,
   onSuccess,
 }: EditProfileModalProps) {
-  const [nickname, setNickname] = useState(initial.nickname ?? "");
+  const [username, setUsername] = useState(initial.username ?? "");
   const [country, setCountry] = useState(initial.country ?? "");
   const [city, setCity] = useState(initial.city ?? "");
   const [preferredFoot, setPreferredFoot] = useState<PreferredFoot | "">(
@@ -77,11 +80,28 @@ export default function EditProfileModal({
     return null;
   })();
 
+  const usernameCooldownInfo = (() => {
+    if (!initial.isPro) return null;
+    if (!initial.lastUsernameChangeAt) return null;
+    const last = new Date(initial.lastUsernameChangeAt);
+    const now = new Date();
+    const daysSince = differenceInDays(now, last);
+    if (daysSince < 30) {
+      const next = addDays(last, 30);
+      return {
+        nextDate: next,
+        daysLeft: 30 - daysSince,
+      };
+    }
+    return null;
+  })();
+
   const roleDisabled = !!roleCooldownInfo;
+  const usernameDisabled = !initial.isPro || !!usernameCooldownInfo;
 
   useEffect(() => {
     if (open) {
-      setNickname(initial.nickname ?? "");
+      setUsername(initial.username ?? "");
       setCountry(initial.country ?? "");
       setCity(initial.city ?? "");
       setPreferredFoot((initial.preferredFoot as PreferredFoot) ?? "");
@@ -102,7 +122,12 @@ export default function EditProfileModal({
     setLoading(true);
     try {
       const body: any = {};
-      if (nickname.trim() && nickname !== initial.nickname) body.nickname = nickname.trim();
+      if (initial.isPro && username.trim() && username !== initial.username) {
+        body.username = username.trim();
+      }
+      if (birthDateStr !== (initial.birthDate ? format(new Date(initial.birthDate), "yyyy-MM-dd") : "")) {
+        body.birthDate = birthDateStr || null;
+      }
       if (country !== (initial.country ?? "")) body.country = country || null;
       if (city !== (initial.city ?? "")) body.city = city || null;
       if ((preferredFoot || "") !== ((initial.preferredFoot as PreferredFoot) ?? ""))
@@ -166,17 +191,46 @@ export default function EditProfileModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <Field label="Nickname" required>
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm font-semibold flex items-center gap-1.5">
+                Username<span className="text-danger ml-1">*</span>
+              </label>
+              {!initial.isPro && (
+                <Badge variant="grigio" className="text-[10px] flex items-center gap-1">
+                  <Crown size={10} /> Cambio con PRO
+                </Badge>
+              )}
+              {initial.isPro && usernameCooldownInfo && (
+                <Badge variant="grigio" className="text-[10px]">
+                  Cambio disponibile il {format(usernameCooldownInfo.nextDate, "dd/MM/yy")}
+                </Badge>
+              )}
+            </div>
             <Input
               type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              minLength={2}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              minLength={3}
               maxLength={20}
-              placeholder="Il tuo nickname"
+              placeholder="Il tuo username pubblico"
+              disabled={usernameDisabled}
               required
             />
-          </Field>
+            {!initial.isPro ? (
+              <p className="text-[11px] text-textMuted mt-1">
+                Pass a PRO per personalizzare il tuo username con cooldown 30 giorni.
+              </p>
+            ) : usernameCooldownInfo ? (
+              <p className="text-[11px] text-danger mt-1">
+                Puoi cambiare username tra {usernameCooldownInfo.daysLeft} giorni.
+              </p>
+            ) : (
+              <p className="text-[11px] text-textMuted mt-1">
+                3-20 caratteri minuscoli, lettere, numeri o underscore. Una volta ogni 30 giorni.
+              </p>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nazionalità">
@@ -203,12 +257,9 @@ export default function EditProfileModal({
             <Input
               type="date"
               value={birthDateStr}
-              disabled
-              className="opacity-60"
+              onChange={(e) => setBirthDateStr(e.target.value)}
+              max={format(new Date(), "yyyy-MM-dd")}
             />
-            <p className="text-[11px] text-textMuted mt-1">
-              Non modificabile nella MVP
-            </p>
           </Field>
 
           <Field label="Piede preferito">

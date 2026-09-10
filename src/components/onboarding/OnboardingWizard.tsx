@@ -299,6 +299,7 @@ export default function OnboardingWizard() {
         primaryRole={data.primaryRole as "POR" | "DIF" | "CEN" | "ATT"}
         overall={overall}
         level={level}
+        avatarImage={userImage ?? null}
         onContinue={() => router.push("/dashboard")}
       />
     );
@@ -804,12 +805,14 @@ function FinishScreen({
   primaryRole,
   overall,
   level,
+  avatarImage,
   onContinue,
 }: {
   nickname: string;
   primaryRole: "POR" | "DIF" | "CEN" | "ATT";
   overall: number;
   level: number;
+  avatarImage: string | null;
   onContinue: () => void;
 }) {
   const [reveal, setReveal] = useState(false);
@@ -834,7 +837,13 @@ function FinishScreen({
             transition: "all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s",
           }}
         >
-          <PlayerCard nickname={nickname} role={primaryRole} overall={overall} level={level} />
+          <PlayerCard
+            nickname={nickname}
+            role={primaryRole}
+            overall={overall}
+            level={level}
+            avatarImage={avatarImage}
+          />
         </div>
 
         <div
@@ -875,11 +884,13 @@ function PlayerCard({
   role,
   overall,
   level,
+  avatarImage,
 }: {
   nickname: string;
   role: "POR" | "DIF" | "CEN" | "ATT";
   overall: number;
   level: number;
+  avatarImage: string | null;
 }) {
   const roleColor =
     role === "POR"
@@ -889,6 +900,9 @@ function PlayerCard({
       : role === "CEN"
       ? "#10B981"
       : "#EF4444";
+
+  const [imgError, setImgError] = useState(false);
+  const effectiveAvatar = avatarImage && !imgError ? avatarImage : null;
 
   return (
     <div style={styles.cardShell}>
@@ -902,9 +916,26 @@ function PlayerCard({
       </div>
 
       <div style={styles.cardAvatar}>
-        <span style={{ fontSize: "3.5rem" }}>
-          {role === "POR" ? "🧤" : role === "DIF" ? "🛡️" : role === "CEN" ? "🎯" : "⚡"}
-        </span>
+        {effectiveAvatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={effectiveAvatar}
+            alt=""
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: "50%",
+              display: "block",
+            }}
+          />
+        ) : (
+          <span style={{ fontSize: "3.5rem" }}>
+            {role === "POR" ? "🧤" : role === "DIF" ? "🛡️" : role === "CEN" ? "🎯" : "⚡"}
+          </span>
+        )}
       </div>
 
       <div style={styles.cardName}>{nickname}</div>

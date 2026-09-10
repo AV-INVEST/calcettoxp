@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, AlertCircle } from "lucide-react";
+import { Minus, Plus, AlertCircle, Shield, Target, Goal } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -12,6 +12,7 @@ import { type PlayerStatus } from "@/lib/xp-levels";
 
 type Role = "POR" | "DIF" | "CEN" | "ATT";
 type MatchResult = "WIN" | "DRAW" | "LOSS";
+type Team = "T1" | "T2";
 
 type UnlockedAchievement = {
   id: string;
@@ -32,6 +33,8 @@ type MatchResultData = {
   role: Role;
   goals: number;
   assists: number;
+  penaltiesSaved?: number;
+  keySaves?: number;
   cleanSheet: boolean;
   notes: string | null;
   careerIndexBefore: number;
@@ -83,13 +86,20 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   const defaultDate = today.toISOString().slice(0, 16);
 
   const [playedAt, setPlayedAt] = useState<string>(defaultDate);
-  const [goalsFor, setGoalsFor] = useState<number>(0);
-  const [goalsAgainst, setGoalsAgainst] = useState<number>(0);
+  const [team1Score, setTeam1Score] = useState<number>(0);
+  const [team2Score, setTeam2Score] = useState<number>(0);
+  const [team, setTeam] = useState<Team>("T1");
   const [role, setRole] = useState<Role>(defaultRole ?? "ATT");
   const [goals, setGoals] = useState<number>(0);
   const [assists, setAssists] = useState<number>(0);
-  const [cleanSheet, setCleanSheet] = useState<boolean>(false);
+  const [penaltiesSaved, setPenaltiesSaved] = useState<number>(0);
+  const [keySaves, setKeySaves] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
+
+  const isGoalkeeper = role === "POR";
+
+  const goalsFor = team === "T1" ? team1Score : team2Score;
+  const goalsAgainst = team === "T1" ? team2Score : team1Score;
 
   const derivedResult: MatchResult = useMemo(() => {
     if (goalsFor > goalsAgainst) return "WIN";
@@ -103,11 +113,9 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     LOSS: "SCONFITTA",
   };
 
-  const effectiveCleanSheet = useMemo(() => {
-    if (role !== "POR") return false;
-    if (goalsAgainst > 0) return false;
-    return cleanSheet;
-  }, [role, goalsAgainst, cleanSheet]);
+  const derivedCleanSheet = useMemo(() => {
+    return isGoalkeeper && goalsAgainst === 0;
+  }, [isGoalkeeper, goalsAgainst]);
 
   useEffect(() => {
     if (!defaultRole) {
@@ -128,12 +136,14 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     const t = new Date();
     t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
     setPlayedAt(t.toISOString().slice(0, 16));
-    setGoalsFor(0);
-    setGoalsAgainst(0);
+    setTeam1Score(0);
+    setTeam2Score(0);
+    setTeam("T1");
     setRole(defaultRole ?? "ATT");
     setGoals(0);
     setAssists(0);
-    setCleanSheet(false);
+    setPenaltiesSaved(0);
+    setKeySaves(0);
     setNotes("");
   };
 
@@ -157,17 +167,23 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     setError(null);
 
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         playedAt: new Date(playedAt).toISOString(),
-        result: derivedResult,
-        goalsFor,
-        goalsAgainst,
+        team1Score,
+        team2Score,
+        team,
         role,
-        goals,
-        assists,
-        cleanSheet: effectiveCleanSheet,
         notes: notes.trim() || null,
       };
+
+      if (isGoalkeeper) {
+        payload.penaltiesSaved = penaltiesSaved;
+        payload.keySaves = keySaves;
+        payload.cleanSheet = derivedCleanSheet;
+      } else {
+        payload.goals = goals;
+        payload.assists = assists;
+      }
 
       const res = await fetch("/api/matches", {
         method: "POST",
@@ -243,10 +259,10 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
       </Card>
 
       <Card>
-        <CardContent className="p-5 space-y-4">
+        <CardContent className="p-5 space-y-5">
           <div className="flex items-center justify-between">
             <label className="block text-sm font-semibold text-textPrimary">
-              Punteggio
+              Punteggio partita
             </label>
             <Badge
               variant={
@@ -261,15 +277,15 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
             </Badge>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Gol fatti
+              <label className="mb-2 block text-center text-xs font-bold uppercase tracking-wider text-textMuted">
+                Squadra 1
               </label>
               <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => step(setGoalsFor, goalsFor, -1, 0, 30)}
+                  onClick={() => step(setTeam1Score, team1Score, -1, 0, 30)}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Minus size={18} />
@@ -278,13 +294,13 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
                   type="number"
                   min={0}
                   max={30}
-                  value={goalsFor}
-                  onChange={(e) => setGoalsFor(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                  className="text-center text-xl font-bold"
+                  value={team1Score}
+                  onChange={(e) => setTeam1Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                  className="text-center text-2xl font-black tabular-nums"
                 />
                 <button
                   type="button"
-                  onClick={() => step(setGoalsFor, goalsFor, +1, 0, 30)}
+                  onClick={() => step(setTeam1Score, team1Score, +1, 0, 30)}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Plus size={18} />
@@ -292,13 +308,13 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Gol subiti
+              <label className="mb-2 block text-center text-xs font-bold uppercase tracking-wider text-textMuted">
+                Squadra 2
               </label>
               <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => step(setGoalsAgainst, goalsAgainst, -1, 0, 30)}
+                  onClick={() => step(setTeam2Score, team2Score, -1, 0, 30)}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Minus size={18} />
@@ -307,17 +323,67 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
                   type="number"
                   min={0}
                   max={30}
-                  value={goalsAgainst}
-                  onChange={(e) => setGoalsAgainst(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                  className="text-center text-xl font-bold"
+                  value={team2Score}
+                  onChange={(e) => setTeam2Score(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                  className="text-center text-2xl font-black tabular-nums"
                 />
                 <button
                   type="button"
-                  onClick={() => step(setGoalsAgainst, goalsAgainst, +1, 0, 30)}
+                  onClick={() => step(setTeam2Score, team2Score, +1, 0, 30)}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
                 >
                   <Plus size={18} />
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-1">
+            <label className="mb-2 block text-sm font-semibold text-textPrimary">
+              In che squadra hai giocato?
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setTeam("T1")}
+                className={`rounded-xl border px-3 py-3.5 text-sm font-bold transition-all ${
+                  team === "T1"
+                    ? "border-greenElectric/50 bg-greenElectric/15 text-greenElectric ring-2 ring-greenElectric/40"
+                    : "border-white/10 bg-bgSecondary text-textMuted hover:bg-white/5"
+                }`}
+              >
+                <span className="block text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                  La tua squadra
+                </span>
+                Squadra 1 · {team1Score} gol
+              </button>
+              <button
+                type="button"
+                onClick={() => setTeam("T2")}
+                className={`rounded-xl border px-3 py-3.5 text-sm font-bold transition-all ${
+                  team === "T2"
+                    ? "border-greenElectric/50 bg-greenElectric/15 text-greenElectric ring-2 ring-greenElectric/40"
+                    : "border-white/10 bg-bgSecondary text-textMuted hover:bg-white/5"
+                }`}
+              >
+                <span className="block text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                  La tua squadra
+                </span>
+                Squadra 2 · {team2Score} gol
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/5 bg-bgSecondary/60 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Goal size={14} className="text-greenElectric" />
+                <span className="text-xs text-textMuted">
+                  Gol fatti: <span className="font-bold text-textPrimary">{goalsFor}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield size={14} className="text-danger/80" />
+                <span className="text-xs text-textMuted">
+                  Gol subiti: <span className="font-bold text-textPrimary">{goalsAgainst}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -351,95 +417,178 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Tuoi gol
-              </label>
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => step(setGoals, goals, -1, 0, 15)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+          {isGoalkeeper ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between rounded-xl border border-greenElectric/20 bg-greenElectric/5 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Shield size={16} className="text-greenElectric" />
+                  <div>
+                    <p className="text-xs font-bold text-greenElectric uppercase tracking-wider">
+                      Clean Sheet
+                    </p>
+                    <p className="text-[11px] text-textMuted">
+                      {derivedCleanSheet
+                        ? "Nessun gol subito ✓"
+                        : goalsAgainst > 0
+                        ? "Non disponibile (gol subiti > 0)"
+                        : "0 gol subiti nella partita"}
+                    </p>
+                  </div>
+                </div>
+                <Badge
+                  variant={derivedCleanSheet ? "elettrico" : "grigio"}
+                  className="shrink-0"
                 >
-                  <Minus size={18} />
-                </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={15}
-                  value={goals}
-                  onChange={(e) => setGoals(Math.max(0, Math.min(15, parseInt(e.target.value) || 0)))}
-                  className="text-center text-xl font-bold"
-                />
-                <button
-                  type="button"
-                  onClick={() => step(setGoals, goals, +1, 0, 15)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Plus size={18} />
-                </button>
+                  {derivedCleanSheet ? "ATTIVO" : "—"}
+                </Badge>
               </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
-                Assist
-              </label>
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => step(setAssists, assists, -1, 0, 10)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Minus size={18} />
-                </button>
-                <Input
-                  type="number"
-                  min={0}
-                  max={10}
-                  value={assists}
-                  onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
-                  className="text-center text-xl font-bold"
-                />
-                <button
-                  type="button"
-                  onClick={() => step(setAssists, assists, +1, 0, 10)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
 
-          {role === "POR" && (
-            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary p-4">
-              <div>
-                <p className="text-sm font-semibold text-textPrimary">Clean Sheet</p>
-                <p className="text-xs text-textMuted">
-                  {goalsAgainst > 0
-                    ? "Non disponibile (gol subiti > 0)"
-                    : "Nessun gol subito"}
-                </p>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-bgSecondary px-4 py-3">
+                  <div>
+                    <p className="text-xs font-semibold text-textPrimary uppercase tracking-wider">
+                      Gol subiti
+                    </p>
+                    <p className="text-[11px] text-textMuted">
+                      Calcolato automaticamente dal punteggio
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-black tabular-nums text-textPrimary w-10 text-center">
+                      {goalsAgainst}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setCleanSheet(!cleanSheet)}
-                disabled={goalsAgainst > 0}
-                className={`relative flex h-7 w-14 shrink-0 items-center rounded-full transition-colors ${
-                  goalsAgainst > 0
-                    ? "bg-white/10 opacity-60 cursor-not-allowed"
-                    : effectiveCleanSheet
-                    ? "bg-greenPrimary"
-                    : "bg-white/15"
-                }`}
-              >
-                <span
-                  className={`absolute h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                    effectiveCleanSheet ? "translate-x-7" : "translate-x-0.5"
-                  }`}
-                />
-              </button>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
+                    <Target size={14} className="text-amber-400" />
+                    Rigori parati
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => step(setPenaltiesSaved, penaltiesSaved, -1, 0, 20)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={20}
+                      value={penaltiesSaved}
+                      onChange={(e) => setPenaltiesSaved(Math.max(0, Math.min(20, parseInt(e.target.value) || 0)))}
+                      className="text-center text-xl font-bold tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => step(setPenaltiesSaved, penaltiesSaved, +1, 0, 20)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 flex items-center justify-center gap-1.5 text-center text-sm font-semibold text-textPrimary">
+                    <Shield size={14} className="text-cyan-400" />
+                    Parate decisive
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => step(setKeySaves, keySaves, -1, 0, 30)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={keySaves}
+                      onChange={(e) => setKeySaves(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                      className="text-center text-xl font-bold tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => step(setKeySaves, keySaves, +1, 0, 30)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                  Tuoi gol
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => step(setGoals, goals, -1, 0, Math.min(15, goalsFor))}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Minus size={18} />
+                  </button>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={Math.min(15, goalsFor)}
+                    value={goals}
+                    onChange={(e) => setGoals(Math.max(0, Math.min(15, Math.min(goalsFor, parseInt(e.target.value) || 0))))}
+                    className="text-center text-xl font-bold tabular-nums"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => step(setGoals, goals, +1, 0, Math.min(15, goalsFor))}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+                {goals > goalsFor && (
+                  <p className="mt-1 text-center text-[11px] text-danger font-semibold">
+                    Non puoi aver fatto più gol della tua squadra
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-center text-sm font-semibold text-textPrimary">
+                  Assist
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => step(setAssists, assists, -1, 0, 10)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Minus size={18} />
+                  </button>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={assists}
+                    onChange={(e) => setAssists(Math.max(0, Math.min(10, parseInt(e.target.value) || 0)))}
+                    className="text-center text-xl font-bold tabular-nums"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => step(setAssists, assists, +1, 0, 10)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bgSecondary text-textPrimary hover:bg-white/10 active:scale-95 transition"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>

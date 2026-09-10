@@ -119,16 +119,6 @@ export async function PATCH(req: Request) {
       );
     }
 
-    if (parsed.birthDate !== undefined) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Data di nascita non modificabile nella MVP",
-        },
-        { status: 400 }
-      );
-    }
-
     type ProfilePatchData = Partial<{
       username: string;
       lastUsernameChangeAt: Date;
@@ -142,10 +132,52 @@ export async function PATCH(req: Request) {
       city: string | null;
       preferredFoot: PreferredFoot | null;
       secondaryRole: Role | null;
+      birthDate: Date | null;
     }>;
     const data: ProfilePatchData = {};
 
+    if (parsed.birthDate !== undefined) {
+      if (parsed.birthDate === null) {
+        data.birthDate = null;
+      } else if (typeof parsed.birthDate === 'string' && parsed.birthDate.trim() !== '') {
+        const parsedDate = new Date(parsed.birthDate);
+        if (Number.isNaN(parsedDate.getTime())) {
+          return NextResponse.json(
+            { ok: false, error: 'Data di nascita non valida' },
+            { status: 400 }
+          );
+        }
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        if (parsedDate > today) {
+          return NextResponse.json(
+            { ok: false, error: 'La data di nascita non può essere futura' },
+            { status: 400 }
+          );
+        }
+        const minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 120);
+        if (parsedDate < minDate) {
+          return NextResponse.json(
+            { ok: false, error: 'Data di nascita non realistica' },
+            { status: 400 }
+          );
+        }
+        data.birthDate = parsedDate;
+      }
+    }
+
     if (parsed.username !== undefined && parsed.username !== currentProfile.username) {
+      const isPro = hasActivePro(subscriptionForEntitlement);
+      if (!isPro) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Cambio username disponibile con abbonamento PRO',
+          },
+          { status: 403 }
+        );
+      }
       const desired = parsed.username.trim().toLowerCase();
 
       const formatCheck = validateUsernameFormat(desired);
@@ -191,6 +223,7 @@ export async function PATCH(req: Request) {
       }
 
       data.username = desired;
+      data.nickname = desired;
       data.lastUsernameChangeAt = new Date();
     }
 
@@ -233,7 +266,6 @@ export async function PATCH(req: Request) {
       data.lastPrimaryRoleChangeAt = now;
     }
 
-    if (parsed.nickname !== undefined) data.nickname = parsed.nickname;
     if (parsed.country !== undefined) data.country = parsed.country;
     if (parsed.city !== undefined) data.city = parsed.city;
     if (parsed.preferredFoot !== undefined) data.preferredFoot = parsed.preferredFoot;

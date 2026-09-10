@@ -145,34 +145,65 @@ export default async function MatchDetailPage({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-greenPrimary/15 text-greenPrimary">
-                  <Target size={20} />
-                </div>
-                <div>
-                  <p className="text-xs text-textMuted">Gol (tuoi)</p>
-                  <p className="text-xl font-bold tabular-nums text-textPrimary">
-                    {match.goals}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-greenElectric/15 text-greenElectric">
-                  <Zap size={20} />
-                </div>
-                <div>
-                  <p className="text-xs text-textMuted">Assist</p>
-                  <p className="text-xl font-bold tabular-nums text-textPrimary">
-                    {match.assists}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {(match.role as string) === "POR" ? (
+            <div className="grid grid-cols-2 gap-3">
+              <Card>
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400">
+                    <Target size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-textMuted">Rigori parati</p>
+                    <p className="text-xl font-bold tabular-nums text-textPrimary">
+                      {(match as unknown as { penaltiesSaved?: number }).penaltiesSaved ?? 0}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-400">
+                    <Shield size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-textMuted">Parate decisive</p>
+                    <p className="text-xl font-bold tabular-nums text-textPrimary">
+                      {(match as unknown as { keySaves?: number }).keySaves ?? 0}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <Card>
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-greenPrimary/15 text-greenPrimary">
+                    <Target size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-textMuted">Gol (tuoi)</p>
+                    <p className="text-xl font-bold tabular-nums text-textPrimary">
+                      {match.goals}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-greenElectric/15 text-greenElectric">
+                    <Zap size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-textMuted">Assist</p>
+                    <p className="text-xl font-bold tabular-nums text-textPrimary">
+                      {match.assists}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <Card>
             <CardContent className="p-5 space-y-4">
@@ -289,6 +320,8 @@ export default async function MatchDetailPage({
               initialRole={match.role as "POR" | "DIF" | "CEN" | "ATT"}
               initialGoals={match.goals}
               initialAssists={match.assists}
+              initialPenaltiesSaved={(match as unknown as { penaltiesSaved?: number }).penaltiesSaved ?? 0}
+              initialKeySaves={(match as unknown as { keySaves?: number }).keySaves ?? 0}
               initialCleanSheet={match.cleanSheet}
               initialNotes={match.notes ?? ""}
               minutesLeft={minutesLeft}

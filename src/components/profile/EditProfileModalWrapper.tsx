@@ -9,6 +9,7 @@ import { Role, PreferredFoot } from "@prisma/client";
 
 interface Props {
   initial: {
+    username: string;
     nickname: string;
     country?: string | null;
     city?: string | null;
@@ -17,6 +18,8 @@ interface Props {
     secondaryRole?: Role | null;
     birthDate?: Date | string | null;
     lastPrimaryRoleChangeAt?: Date | string | null;
+    lastUsernameChangeAt?: Date | string | null;
+    isPro: boolean;
   };
 }
 

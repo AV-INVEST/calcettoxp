@@ -17,11 +17,14 @@ const matchCreateSchema = z
   .object({
     playedAt: z.string().datetime(),
     result: z.string().optional(),
-    goalsFor: z.number().int().min(0).max(30),
-    goalsAgainst: z.number().int().min(0).max(30),
+    team1Score: z.number().int().min(0).max(30),
+    team2Score: z.number().int().min(0).max(30),
+    team: z.enum(['T1', 'T2']),
     role: z.nativeEnum(Role),
-    goals: z.number().int().min(0).max(15),
-    assists: z.number().int().min(0).max(10),
+    goals: z.number().int().min(0).max(15).optional(),
+    assists: z.number().int().min(0).max(10).optional(),
+    penaltiesSaved: z.number().int().min(0).max(20).optional(),
+    keySaves: z.number().int().min(0).max(30).optional(),
     cleanSheet: z.boolean().optional(),
     notes: z.string().max(250).optional().nullable(),
   })
@@ -41,14 +44,24 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = matchCreateSchema.parse(body);
 
+    // Normalize team scores to player-centric goalsFor / goalsAgainst
+    const goalsFor = parsed.team === 'T1' ? parsed.team1Score : parsed.team2Score;
+    const goalsAgainst = parsed.team === 'T1' ? parsed.team2Score : parsed.team1Score;
+
     const derivedResult =
-      parsed.goalsFor > parsed.goalsAgainst
+      goalsFor > goalsAgainst
         ? "WIN"
-        : parsed.goalsFor === parsed.goalsAgainst
+        : goalsFor === goalsAgainst
         ? "DRAW"
         : "LOSS";
 
-    if (parsed.goals > parsed.goalsFor) {
+    const isGoalkeeper = parsed.role === Role.POR;
+    const goals = isGoalkeeper ? 0 : Math.max(0, parsed.goals ?? 0);
+    const assists = isGoalkeeper ? 0 : Math.max(0, parsed.assists ?? 0);
+    const penaltiesSaved = isGoalkeeper ? Math.max(0, parsed.penaltiesSaved ?? 0) : 0;
+    const keySaves = isGoalkeeper ? Math.max(0, parsed.keySaves ?? 0) : 0;
+
+    if (!isGoalkeeper && goals > goalsFor) {
       return NextResponse.json(
         {
           ok: false,
@@ -162,8 +175,8 @@ export async function POST(req: Request) {
         playerId: player.id,
         playedAt: playedAtDate,
         role: parsed.role,
-        goalsFor: parsed.goalsFor,
-        goalsAgainst: parsed.goalsAgainst,
+        goalsFor,
+        goalsAgainst,
       },
     });
 
@@ -179,19 +192,26 @@ export async function POST(req: Request) {
     }
 
     let cleanSheet = parsed.cleanSheet ?? false;
-    if (parsed.role !== Role.POR) {
+    if (!isGoalkeeper) {
       cleanSheet = false;
     }
-    if (cleanSheet && parsed.goalsAgainst !== 0) {
+    if (cleanSheet && goalsAgainst !== 0) {
       cleanSheet = false;
+    }
+    // Auto cleanSheet for POR when GA = 0 (user doesn't need to set it, but honor their false if they explicit it)
+    if (isGoalkeeper && goalsAgainst === 0 && (parsed.cleanSheet === undefined || parsed.cleanSheet === true)) {
+      cleanSheet = true;
     }
 
     const ciChange = calculateCareerIndexChange({
       result: derivedResult,
       role: parsed.role,
-      goals: parsed.goals,
-      assists: parsed.assists,
+      goals,
+      assists,
       cleanSheet,
+      goalsAgainst,
+      penaltiesSaved,
+      keySaves,
     });
 
     const oldCI = player.careerIndex;
@@ -200,8 +220,8 @@ export async function POST(req: Request) {
     const xpEarned = calculateXpEarned({
       result: derivedResult,
       role: parsed.role,
-      goals: parsed.goals,
-      assists: parsed.assists,
+      goals,
+      assists,
       cleanSheet,
     });
 
@@ -224,11 +244,13 @@ export async function POST(req: Request) {
           playerId: player.id,
           playedAt: playedAtDate,
           result: derivedResult,
-          goalsFor: parsed.goalsFor,
-          goalsAgainst: parsed.goalsAgainst,
+          goalsFor,
+          goalsAgainst,
           role: parsed.role,
-          goals: parsed.goals,
-          assists: parsed.assists,
+          goals,
+          assists,
+          penaltiesSaved,
+          keySaves,
           cleanSheet,
           notes: parsed.notes ?? null,
           careerIndexBefore: oldCI,

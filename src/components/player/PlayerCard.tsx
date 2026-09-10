@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { TrendingUp, TrendingDown, Shield, Crown, Zap, Target, Award, Flame } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { CardTheme, CARD_THEMES } from "@/lib/username-config";
@@ -268,6 +269,39 @@ export interface PlayerCardProps {
   premiumBadge?: boolean;
   size?: "sm" | "md" | "lg";
   theme?: CardTheme;
+  avatarImage?: string | null;
+}
+
+const avatarSizeMap: Record<"sm" | "md" | "lg", { desktop: string; mobile: string }> = {
+  sm: { desktop: "h-[72px] w-[72px]", mobile: "h-[60px] w-[60px]" },
+  md: { desktop: "h-[88px] w-[88px]", mobile: "h-[70px] w-[70px]" },
+  lg: { desktop: "h-[96px] w-[96px]", mobile: "h-[76px] w-[76px]" },
+};
+
+function AvatarFallback({ accent }: { accent: string }) {
+  return (
+    <div
+      className="h-full w-full flex items-center justify-center rounded-full"
+      style={{
+        background: `linear-gradient(145deg, rgba(34,197,94,0.12), rgba(124,255,107,0.08))`,
+        color: accent,
+      }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-1/2 h-1/2"
+      >
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    </div>
+  );
 }
 
 export default function PlayerCard({
@@ -282,6 +316,7 @@ export default function PlayerCard({
   premiumBadge = false,
   size = "md",
   theme = "CLASSIC",
+  avatarImage = null,
 }: PlayerCardProps) {
   const status = getStatusFromLevel(level);
   const statusStyle = STATUS_STYLE[status];
@@ -295,6 +330,7 @@ export default function PlayerCard({
     ? theme
     : "CLASSIC";
 
+  const [avatarError, setAvatarError] = useState(false);
   const cfg = sizeConfig[size];
   const roleStyle = roleColors[role];
   const hasPositiveChange = (careerIndexChange ?? 0) >= 0;
@@ -420,7 +456,7 @@ export default function PlayerCard({
       </div>
 
       {/* Top section */}
-      <div className="relative flex items-start justify-between mb-4">
+      <div className="relative flex items-start justify-between mb-3">
         {/* OVR + Level */}
         <div className="flex flex-col items-center gap-1.5">
           <div
@@ -484,6 +520,33 @@ export default function PlayerCard({
               PRO
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Avatar Google photo (centered) */}
+      <div className="relative flex justify-center -mt-1 mb-3 z-10">
+        <div
+          className={`relative rounded-full ${avatarSizeMap[size].mobile} md:${avatarSizeMap[size].desktop} shrink-0`}
+          style={{
+            padding: "3px",
+            background: `linear-gradient(135deg, ${t.accent} 0%, ${t.accentSoft} 100%)`,
+            boxShadow: `0 0 0 2px ${t.accent}33, 0 8px 24px -4px ${t.accent}55`,
+          }}
+        >
+          <div className="h-full w-full rounded-full overflow-hidden bg-bgPrimary">
+            {avatarImage && !avatarError ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarImage}
+                alt=""
+                className="h-full w-full object-cover rounded-full"
+                referrerPolicy="no-referrer"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <AvatarFallback accent={t.accentSoft} />
+            )}
+          </div>
         </div>
       </div>
 

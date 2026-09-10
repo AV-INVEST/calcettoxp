@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const returnUrl = `${APP_URL}/settings`;
+    const returnUrl = `${APP_URL}/profile`;
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: subscription.stripeCustomerId,

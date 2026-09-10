@@ -1,17 +1,20 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { calculateCardAttributes } from '@/lib/card-attributes';
 import PlayerCard from '@/components/player/PlayerCard';
 import CareerIndexChart from '@/components/charts/CareerIndexChart';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Home, Trophy, TrendingUp, Target, Users, Zap } from 'lucide-react';
+import { Home, Trophy, TrendingUp, Target, Users, Zap, Sparkles, ArrowRight, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
 import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
+import { hasActivePro } from '@/lib/entitlements';
+import { CARD_THEMES, type CardTheme } from '@/lib/username-config';
 import CxpLogo from '@/../assets/LOGOCXP.jpg';
 
 const APP_URL = getAppBaseUrl();
@@ -114,42 +117,29 @@ const FOOT_LABELS: Record<string, string> = {
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   const { username: rawUsername } = await params;
   const username = decodeURIComponent(rawUsername || '').trim().toLowerCase();
+  const viewerSession = await auth();
 
   if (!username) return notFound();
 
-  const profile = await prisma.playerProfile.findUnique({
+  const profileRaw = await prisma.playerProfile.findUnique({
     where: { username },
-    select: {
-      id: false,
-      userId: false,
-      nickname: true,
-      username: true,
-      country: true,
-      city: true,
-      showCity: true,
-      isPublic: true,
-      preferredFoot: true,
-      primaryRole: true,
-      level: true,
-      overall: true,
-      careerIndex: true,
-      matchesPlayed: true,
-      wins: true,
-      draws: true,
-      losses: true,
-      goals: true,
-      assists: true,
-      cardTheme: true,
-      currentSeasonKey: true,
-      createdAt: true,
+    include: {
+      user: {
+        select: {
+          image: true,
+          subscription: {
+            select: {
+              subscriptionStatus: true,
+              currentPeriodEnd: true,
+            },
+          },
+        },
+      },
       achievements: {
         where: { unlockedAt: { not: null } },
         orderBy: { unlockedAt: 'desc' },
         take: 24,
-        select: {
-          unlockedAt: true,
-          achievement: { select: { id: false, key: false, name: true, description: true, icon: true, tier: true } },
-        },
+        include: { achievement: { select: { name: true, description: true, icon: true, tier: true } } },
       },
       seasons: {
         orderBy: { startDate: 'desc' },
@@ -176,7 +166,44 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     },
   });
 
-  if (!profile) return notFound();
+  if (!profileRaw) return notFound();
+
+  const avatarImage = profileRaw.user?.image ?? null;
+  const ownerIsPro = hasActivePro(profileRaw.user?.subscription ?? null);
+  const FREE_THEMES: readonly CardTheme[] = ['CLASSIC'];
+  const rawTheme = (profileRaw.cardTheme ?? 'CLASSIC') as CardTheme;
+  const effectiveCardTheme: CardTheme =
+    (CARD_THEMES as readonly string[]).includes(rawTheme) &&
+    (FREE_THEMES.includes(rawTheme) || ownerIsPro)
+      ? rawTheme
+      : 'CLASSIC';
+
+  const profile = {
+    nickname: profileRaw.nickname,
+    username: profileRaw.username,
+    country: profileRaw.country,
+    city: profileRaw.city,
+    showCity: profileRaw.showCity,
+    isPublic: profileRaw.isPublic,
+    preferredFoot: profileRaw.preferredFoot,
+    primaryRole: profileRaw.primaryRole,
+    level: profileRaw.level,
+    overall: profileRaw.overall,
+    careerIndex: profileRaw.careerIndex,
+    matchesPlayed: profileRaw.matchesPlayed,
+    wins: profileRaw.wins,
+    draws: profileRaw.draws,
+    losses: profileRaw.losses,
+    goals: profileRaw.goals,
+    assists: profileRaw.assists,
+    cardTheme: profileRaw.cardTheme,
+    currentSeasonKey: profileRaw.currentSeasonKey,
+    createdAt: profileRaw.createdAt,
+    achievements: profileRaw.achievements,
+    seasons: profileRaw.seasons,
+    careerIndexHistories: profileRaw.careerIndexHistories,
+    matches: profileRaw.matches,
+  };
 
   if (!profile.isPublic) {
     return (
@@ -264,6 +291,35 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       </header>
 
       <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-16 space-y-8">
+        {!viewerSession?.user?.userId && (
+          <section>
+            <div className="relative overflow-hidden rounded-2xl border border-greenElectric/20 bg-gradient-to-br from-greenPrimary/10 via-greenElectric/5 to-transparent p-[1px] shadow-[0_0_40px_rgba(124,255,107,0.08)]">
+              <div className="rounded-[15px] bg-bgPrimary/80 backdrop-blur-sm p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-greenPrimary/25 to-greenElectric/10 border border-greenElectric/30 flex items-center justify-center">
+                    <Sparkles size={20} className="text-greenElectric" />
+                  </div>
+                  <div>
+                    <p className="text-base md:text-lg font-black tracking-tight text-textPrimary">
+                      Crea la tua Player Card gratis
+                    </p>
+                    <p className="text-[11px] md:text-xs text-textMuted mt-0.5">
+                      Registra le partite, traccia carriera e OVR, condividi con gli amici.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/signin"
+                  className="group shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-greenPrimary via-greenElectric to-emerald-400 px-5 py-2.5 text-sm font-black uppercase tracking-wider text-bgPrimary shadow-[0_0_25px_rgba(124,255,107,0.25)] transition hover:shadow-[0_0_40px_rgba(124,255,107,0.4)] active:scale-[0.99]"
+                >
+                  <span>CREA LA TUA CARD</span>
+                  <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="space-y-6">
           <div className="grid md:grid-cols-[auto,1fr] gap-6 items-center">
             <div className="mx-auto md:mx-0">
@@ -276,7 +332,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 attributes={attributes}
                 size="md"
                 highlighted
-                premiumBadge={false}
+                premiumBadge={ownerIsPro}
+                theme={effectiveCardTheme}
+                avatarImage={avatarImage}
               />
             </div>
 
@@ -291,6 +349,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   <h1 className="text-3xl md:text-4xl font-black text-textPrimary tracking-tight">
                     {profile.nickname}
                   </h1>
+                  {ownerIsPro && (
+                    <Badge variant="elettrico" className="text-[10px]">
+                      <Crown size={10} className="mr-1" /> PRO
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-textMuted font-medium">@{profile.username}</p>
               </div>

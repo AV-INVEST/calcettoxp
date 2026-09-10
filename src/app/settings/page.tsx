@@ -136,16 +136,19 @@ export default async function SettingsPage() {
                   </div>
                 )}
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 space-y-1.5">
                 <p className="font-bold text-textPrimary truncate">
                   {user.name || 'Account Google'}
                 </p>
                 <p className="text-sm text-textMuted truncate">{user.email}</p>
-                <Badge variant="outline" size="xs" className="mt-1">
+                <Badge variant="outline" size="xs">
                   Accesso con Google
                 </Badge>
               </div>
             </div>
+            <p className="text-[11px] md:text-xs text-textMuted leading-snug mt-0.5">
+              Foto collegata al tuo account Google. Per cambiarla, aggiorna la foto su Google.
+            </p>
           </CardContent>
         </Card>
 
