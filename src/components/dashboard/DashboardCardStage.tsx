@@ -12,7 +12,6 @@ import {
   Shield,
   Target,
   Award,
-  Sparkles,
 } from "lucide-react";
 import PlayerCard, { type PlayerCardProps } from "@/components/player/PlayerCard";
 import { getStatusFromLevel, type PlayerStatus } from "@/lib/xp-levels";
@@ -424,129 +423,332 @@ function LockedProCardPreview(props: {
         </div>
       </div>
 
-      {/* ===============================
-       * ATTRIBUTI — CENSURA PREMIUM
-       * Valori numerici e label leggibili
-       * Ma decorazioni/progress bar parzialmente velate
-       * =============================== */}
+      {/* ============================================================
+       *   ATTRIBUTI BASE — solo 3, ACCENNATI (non il focus)
+       *   Più sotto PRO INSIGHTS sezione dedicata.
+       * ============================================================ */}
+      <div className="relative flex flex-col gap-y-2.5 mb-3.5 z-[18]">
+        {(
+          ["form", "impact", "results"] as Array<keyof typeof attributes>
+        ).map((key, i) => {
+          const Icon = attributeIcons[key];
+          const value = attributes[key];
+          return (
+            <div key={key} className="flex items-center gap-2">
+              <div
+                className="w-5 h-5 flex items-center justify-center shrink-0"
+                style={{ color: `${champagne}CC`, opacity: 0.8 }}
+              >
+                <Icon size={12} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span
+                    className="text-[10px] font-semibold tracking-wider uppercase"
+                    style={{ color: `${ivory}88` }}
+                  >
+                    {attributeLabels[key]}
+                  </span>
+                  <span
+                    className="text-[11px] font-bold tabular-nums"
+                    style={{ color: `${ivory}CC`, opacity: 0.75 }}
+                  >
+                    {value}
+                  </span>
+                </div>
+                <div
+                  className="h-1.5 w-full rounded-full overflow-hidden opacity-75"
+                  style={{ background: "rgba(242,210,122,0.06)" }}
+                >
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${value}%`,
+                      background: `linear-gradient(90deg, ${bronze}99 0%, ${gold}88 60%, ${champagne}99 100%)`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ============================================================
+       *   PRO INSIGHTS — sezione dedicata, il vero level-up premium
+       *   Label vere da metriche esistenti del progetto.
+       *   Valori SOLO placeholder/censurati:
+       *   NESSUN dato reale PRO passato a FREE user.
+       * ============================================================ */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-2xl z-20"
+        className="relative rounded-xl px-3 py-2.5 z-[22]"
         style={{
           background:
-            "linear-gradient(180deg, transparent 0%, transparent 54%, rgba(8,7,4,0.48) 72%, rgba(10,8,5,0.58) 100%)",
-          maskImage:
-            "linear-gradient(180deg, transparent 0%, transparent 52%, black 68%, black 100%)",
-          WebkitMaskImage:
-            "linear-gradient(180deg, transparent 0%, transparent 52%, black 68%, black 100%)",
-        }}
-      />
-      {/* Frosted glass foglia bassa */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 right-0 bottom-0 h-[48%] rounded-b-2xl z-10"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(10,8,5,0.0) 0%, rgba(10,8,5,0.50) 25%, rgba(8,7,4,0.70) 60%, rgba(8,7,4,0.80) 100%)",
-          backdropFilter: "blur(6px)",
-          WebkitBackdropFilter: "blur(6px)",
-        }}
-      />
-      {/* Pattern filigrana nascosta (velata) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[11] opacity-[0.12]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 20% 80%, rgba(242,210,122,0.25) 0%, transparent 38%), radial-gradient(circle at 85% 75%, rgba(212,175,55,0.30) 0%, transparent 36%)",
-        }}
-      />
-      {/* Small decorative Crown engraving (velata) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-16 right-4 z-[12] opacity-[0.22]"
-        style={{
-          filter: "blur(4px)",
+            "linear-gradient(180deg, rgba(28,21,9,0.65), rgba(16,12,5,0.60))",
+          border: `1px solid ${gold}30`,
+          boxShadow: `inset 0 0 0 1px ${champagne}0A, 0 0 20px ${gold}0A`,
         }}
       >
-        <Crown size={54} style={{ color: champagne }} />
+        {/* Header sezione PRO INSIGHTS */}
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="inline-flex items-center gap-1.5">
+            <Crown size={10} style={{ color: champagne }} />
+            <span
+              className="text-[9.5px] font-black uppercase tracking-[0.18em]"
+              style={{ color: champagne }}
+            >
+              PRO Insights
+            </span>
+          </div>
+          <div
+            aria-hidden
+            className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5"
+            style={{
+              background: "rgba(8,7,4,0.55)",
+              border: `1px solid ${gold}25`,
+            }}
+          >
+            <Lock size={8} style={{ color: `${champagne}99` }} />
+            <span
+              className="text-[8.5px] font-black uppercase tracking-widest"
+              style={{ color: `${ivory}88` }}
+            >
+              Solo PRO
+            </span>
+          </div>
+        </div>
+
+        {/* Righe metriche locked — label vere, NO valori reali */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+          {/* 1 — Forma 30G (analisi 30 giorni) */}
+          <LockedRow
+            label="Forma 30G"
+            placeholder="•••"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+          {/* 2 — Δ CI 90G (delta CI 90 giorni) */}
+          <LockedRow
+            label="Δ CI 90G"
+            placeholder="+••"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+          {/* 3 — Win rate ruolo */}
+          <LockedRow
+            label="Win rate ruolo"
+            placeholder="••%"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+          {/* 4 — Streak vittorie (streak esiste) */}
+          <LockedRow
+            label="Streak vittorie"
+            placeholder="••"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+          {/* 5 — Media gol (media partite) */}
+          <LockedRow
+            label="Media gol"
+            placeholder="•.••"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+          {/* 6 — Record CI (record esiste) */}
+          <LockedRow
+            label="Record CI"
+            placeholder="+••"
+            gold={gold}
+            champagne={champagne}
+            ivory={ivory}
+          />
+        </div>
+      </div>
+
+      {/* ============================================================
+       *   CENSURA: frost + dark sui layer INFERIORI
+       *   (stanno DENTRO la cornice, z < cornice finale)
+       * ============================================================ */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] rounded-b-2xl z-[26]"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(10,8,5,0.0) 0%, rgba(10,8,5,0.38) 25%, rgba(8,7,4,0.58) 60%, rgba(8,7,4,0.68) 100%)",
+          backdropFilter: "blur(5px)",
+          WebkitBackdropFilter: "blur(5px)",
+        }}
+      />
+      {/* Pattern filigrana nascosta */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[11] opacity-[0.10]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 22% 82%, rgba(242,210,122,0.26) 0%, transparent 38%), radial-gradient(circle at 88% 78%, rgba(212,175,55,0.28) 0%, transparent 36%)",
+        }}
+      />
+      {/* Small engraving Crown (velata) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-6 right-4 z-[12] opacity-[0.18]"
+        style={{ filter: "blur(3.5px)" }}
+      >
+        <Crown size={52} style={{ color: champagne }} />
       </div>
       {/* Locks mini discreti */}
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-24 left-4 z-[12] opacity-[0.35]"
+        className="pointer-events-none absolute bottom-24 left-4 z-[12] opacity-[0.32]"
       >
-        <Lock size={12} style={{ color: gold }} />
+        <Lock size={11} style={{ color: gold }} />
       </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-28 right-10 z-[12] opacity-[0.30]"
+        className="pointer-events-none absolute bottom-20 right-10 z-[12] opacity-[0.28]"
       >
-        <Lock size={10} style={{ color: bronze }} />
-      </div>
-
-      {/* Attributi REALI (valori + icone leggibili, ma il block viene
-       * in parte coperto dai layer di sopra per creare mistero) */}
-      <div className="relative flex flex-col gap-y-3 z-[18]">
-        {(Object.keys(attributes) as Array<keyof typeof attributes>).map(
-          (key, i) => {
-            const Icon = attributeIcons[key];
-            const value = attributes[key];
-            return (
-              <div key={key} className="flex items-center gap-2">
-                <div
-                  className="w-5 h-5 flex items-center justify-center shrink-0"
-                  style={{ color: champagne }}
-                >
-                  <Icon size={12} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span
-                      className="text-[10px] font-semibold tracking-wider uppercase"
-                      style={{ color: `${ivory}BB` }}
-                    >
-                      {attributeLabels[key]}
-                    </span>
-                    <span
-                      className="text-[11px] font-bold tabular-nums"
-                      style={{ color: ivory }}
-                    >
-                      {value}
-                    </span>
-                  </div>
-                  {/* Progress bar (più design premium, parzialmente velata) */}
-                  <div
-                    className="h-1.5 w-full rounded-full overflow-hidden"
-                    style={{ background: "rgba(242,210,122,0.08)" }}
-                  >
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${value}%`,
-                        background: `linear-gradient(90deg, ${bronze} 0%, ${gold} 55%, ${champagne} 100%)`,
-                        boxShadow:
-                          i === 5
-                            ? `0 0 8px ${gold}33`
-                            : undefined,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          }
-        )}
+        <Lock size={9} style={{ color: bronze }} />
       </div>
 
       {/* ==========================================================
-       * GOLD SCANNER — fascia sottile che rivela frammenti
+       *   GOLD SCANNER — rivela DESIGN, NON numeri
+       *   (z < cornice finale)
        * ========================================================== */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl z-[40]"
       >
         <div className="cxp-vaultscan" />
+      </div>
+
+      {/* ==========================================================
+       *   ✅ CORNICE DORATA FINALE — layer più alto
+       *   absolute inset-0, pointer-events-none
+       *   copre TUTTI e 4 lati, non viene mai coperta da frost/blur
+       * ========================================================== */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl z-[60]"
+        style={{
+          border: `1.5px solid ${gold}55`,
+          boxShadow:
+            `inset 0 1px 0 ${champagne}33, inset 0 -1px 0 ${bronze}55, inset 1px 0 0 ${champagne}14, inset -1px 0 0 ${champagne}14, 0 0 28px ${gold}0B`,
+        }}
+      />
+      {/* Corner brackets — sopra la cornice gold, uguale design */}
+      {(["tl", "tr", "bl", "br"] as const).map((c) => (
+        <div
+          key={"brkt-" + c}
+          aria-hidden
+          className="pointer-events-none absolute w-10 h-10 z-[61]"
+          style={{
+            top: c.startsWith("t") ? 5 : undefined,
+            bottom: c.startsWith("b") ? 5 : undefined,
+            left: c.endsWith("l") ? 5 : undefined,
+            right: c.endsWith("r") ? 5 : undefined,
+            borderTop: c.startsWith("t")
+              ? `2px solid ${champagne}88`
+              : undefined,
+            borderBottom: c.startsWith("b")
+              ? `2px solid ${gold}88`
+              : undefined,
+            borderLeft: c.endsWith("l")
+              ? `2px solid ${champagne}88`
+              : undefined,
+            borderRight: c.endsWith("r")
+              ? `2px solid ${gold}88`
+              : undefined,
+            borderTopLeftRadius: c === "tl" ? "14px" : undefined,
+            borderTopRightRadius: c === "tr" ? "14px" : undefined,
+            borderBottomLeftRadius: c === "bl" ? "14px" : undefined,
+            borderBottomRightRadius: c === "br" ? "14px" : undefined,
+          }}
+        />
+      ))}
+      {(["tl", "tr", "bl", "br"] as const).map((c) => (
+        <div
+          key={"in-" + c}
+          aria-hidden
+          className="pointer-events-none absolute w-3.5 h-3.5 z-[62]"
+          style={{
+            top: c.startsWith("t") ? 13 : undefined,
+            bottom: c.startsWith("b") ? 13 : undefined,
+            left: c.endsWith("l") ? 13 : undefined,
+            right: c.endsWith("r") ? 13 : undefined,
+            borderTop: c.startsWith("t")
+              ? `1.5px solid ${bronze}AA`
+              : undefined,
+            borderBottom: c.startsWith("b")
+              ? `1.5px solid ${bronze}AA`
+              : undefined,
+            borderLeft: c.endsWith("l")
+              ? `1.5px solid ${bronze}AA`
+              : undefined,
+            borderRight: c.endsWith("r")
+              ? `1.5px solid ${bronze}AA`
+              : undefined,
+            borderTopLeftRadius: c === "tl" ? "6px" : undefined,
+            borderTopRightRadius: c === "tr" ? "6px" : undefined,
+            borderBottomLeftRadius: c === "bl" ? "6px" : undefined,
+            borderBottomRightRadius: c === "br" ? "6px" : undefined,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* Helper riga lockata PRO INSIGHTS */
+function LockedRow(props: {
+  label: string;
+  placeholder: string;
+  gold: string;
+  champagne: string;
+  ivory: string;
+}) {
+  const { label, placeholder, gold, champagne, ivory } = props;
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1.5 min-w-0">
+        <Lock
+          size={7.5}
+          aria-hidden
+          style={{ color: `${champagne}88`, flexShrink: 0 }}
+        />
+        <span
+          className="text-[9.5px] font-semibold tracking-wider uppercase truncate"
+          style={{ color: `${ivory}D6` }}
+        >
+          {label}
+        </span>
+      </div>
+      <div
+        aria-hidden
+        className="inline-flex items-center h-5 px-2 rounded-md"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(8,7,4,0.6), rgba(14,11,5,0.55))",
+          border: `1px solid ${gold}22`,
+          backdropFilter: "blur(3px)",
+          WebkitBackdropFilter: "blur(3px)",
+        }}
+      >
+        <span
+          className="text-[10px] font-black tabular-nums tracking-wider"
+          style={{
+            color: `${ivory}33`,
+            textShadow: `0 0 4px ${champagne}12`,
+            userSelect: "none",
+          }}
+        >
+          {placeholder}
+        </span>
       </div>
     </div>
   );
@@ -720,21 +922,17 @@ export default function DashboardCardStage(props: DashboardCardStageProps) {
                 ))}
               </div>
 
-              {/* Headline */}
-              <div className="space-y-1.5">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-500/10 px-3 py-1 shadow-[0_0_18px_rgba(251,191,36,0.08)]">
-                  <Sparkles size={11} className="text-amber-300" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200">
-                    Sblocca la tua card PRO
-                  </span>
-                </div>
-                <div className="space-y-1 text-textMuted text-xs md:text-sm max-w-xs mx-auto leading-relaxed">
-                  <p>Temi esclusivi · Personalizzazioni · Analytics avanzate</p>
-                  <p>Storico completo · Record avanzati · Obiettivi extra</p>
-                </div>
+              {/* Headline — valore e profondità */}
+              <div className="space-y-2">
+                <p className="text-sm md:text-base font-bold text-textPrimary max-w-sm mx-auto leading-snug">
+                  Scopri cosa raccontano davvero le tue partite.
+                </p>
+                <p className="text-[11px] md:text-xs text-textMuted max-w-xs mx-auto leading-relaxed">
+                  Temi esclusivi · Analytics avanzate · Storico completo · Record
+                </p>
               </div>
 
-              {/* CTA gold */}
+              {/* CTA gold premium */}
               <Link
                 href="/pricing"
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-2.5 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_26px_rgba(250,204,21,0.24)] transition-all hover:shadow-[0_0_48px_rgba(250,204,21,0.42)] hover:scale-[1.01] active:scale-[0.99]"
