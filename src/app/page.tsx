@@ -784,10 +784,6 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
-            <div className="md:col-span-3 text-center">
-              <SmartCTA label="INIZIA GRATIS" icon={Zap} variant="primary" size="lg" fullWidth
-                className="!min-h-[54px]" loggedInLabel="VAI ALLA DASHBOARD"/>
-            </div>
           </div>
         </div>
       </section>

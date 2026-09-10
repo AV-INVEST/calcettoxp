@@ -22,12 +22,15 @@ export async function POST(req: Request) {
     );
   }
 
+  let requestedPlan: 'monthly' | 'yearly' | undefined;
+
   try {
     const body = await req.json();
     const parsed = planSchema.parse(body);
+    requestedPlan = parsed.plan;
 
     const priceId =
-      parsed.plan === 'monthly'
+      requestedPlan === 'monthly'
         ? process.env.STRIPE_PRICE_PRO_MONTHLY
         : process.env.STRIPE_PRICE_PRO_YEARLY;
 
@@ -141,10 +144,57 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    console.error('Stripe checkout error:', error);
+
+    const stripeAny = error as {
+      type?: string;
+      message?: string;
+      code?: string;
+      requestId?: string;
+      statusCode?: number;
+      raw?: unknown;
+    };
+
+    const isStripeError =
+      !!stripeAny.type &&
+      (stripeAny.type.startsWith('Stripe') ||
+        !!stripeAny.requestId ||
+        !!stripeAny.code);
+
+    const logPayload: Record<string, unknown> = {
+      ok: false,
+      stage: 'checkout-session-create',
+      plan: requestedPlan,
+    };
+
+    if (isStripeError) {
+      Object.assign(logPayload, {
+        stripeType: stripeAny.type,
+        stripeMessage: stripeAny.message,
+        stripeCode: stripeAny.code,
+        stripeRequestId: stripeAny.requestId,
+        stripeStatus: stripeAny.statusCode,
+      });
+      console.error('Stripe checkout error (Stripe):', JSON.stringify(logPayload));
+    } else {
+      Object.assign(logPayload, {
+        name: (error as { name?: string })?.name ?? 'Error',
+        message: (error as { message?: string })?.message ?? String(error),
+        stack: (error as { stack?: string })?.stack,
+      });
+      console.error('Stripe checkout error (generic):', JSON.stringify(logPayload));
+    }
+
     return NextResponse.json(
-      { ok: false, error: 'Errore interno del server' },
-      { status: 500 }
+      {
+        ok: false,
+        error: 'Errore interno del server',
+        ...(isStripeError ? {
+          debugCode: stripeAny.code ?? undefined,
+          requestId: stripeAny.requestId ?? undefined,
+          stripeType: stripeAny.type ?? undefined,
+        } : {}),
+      },
+      { status: isStripeError ? (stripeAny.statusCode ?? 500) : 500 }
     );
   }
 }
