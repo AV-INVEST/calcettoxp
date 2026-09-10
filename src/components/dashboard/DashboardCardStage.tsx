@@ -481,12 +481,14 @@ function LockedProCardPreview(props: {
        *   NESSUN dato reale PRO passato a FREE user.
        * ============================================================ */}
       <div
-        className="relative rounded-xl px-3 py-2.5 z-[22]"
+        className="relative rounded-xl px-3 py-2.5 z-[35]"
         style={{
           background:
-            "linear-gradient(180deg, rgba(28,21,9,0.65), rgba(16,12,5,0.60))",
-          border: `1px solid ${gold}30`,
-          boxShadow: `inset 0 0 0 1px ${champagne}0A, 0 0 20px ${gold}0A`,
+            "linear-gradient(180deg, rgba(12,9,4,0.95), rgba(9,7,3,0.92))",
+          border: `1px solid ${gold}45`,
+          boxShadow: `inset 0 0 0 1px ${champagne}14, 0 0 22px ${gold}12, 0 2px 0 ${champagne}0A inset, 0 -2px 0 ${gold}0C inset`,
+          backdropFilter: "blur(2px)",
+          WebkitBackdropFilter: "blur(2px)",
         }}
       >
         {/* Header sezione PRO INSIGHTS */}
@@ -704,7 +706,7 @@ function LockedProCardPreview(props: {
   );
 }
 
-/* Helper riga lockata PRO INSIGHTS */
+/* Helper riga lockata PRO INSIGHTS — Label VISIBILE, Valore LOCKATO */
 function LockedRow(props: {
   label: string;
   placeholder: string;
@@ -715,30 +717,29 @@ function LockedRow(props: {
   const { label, placeholder, gold, champagne, ivory } = props;
   return (
     <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-1.5 min-w-0">
-        <Lock
-          size={7.5}
-          aria-hidden
-          style={{ color: `${champagne}88`, flexShrink: 0 }}
-        />
-        <span
-          className="text-[9.5px] font-semibold tracking-wider uppercase truncate"
-          style={{ color: `${ivory}D6` }}
-        >
-          {label}
-        </span>
-      </div>
-      <div
-        aria-hidden
-        className="inline-flex items-center h-5 px-2 rounded-md"
+      <span
+        className="text-[9.5px] font-semibold tracking-wider uppercase truncate"
         style={{
-          background:
-            "linear-gradient(180deg, rgba(8,7,4,0.6), rgba(14,11,5,0.55))",
-          border: `1px solid ${gold}22`,
-          backdropFilter: "blur(3px)",
-          WebkitBackdropFilter: "blur(3px)",
+          color: ivory,
+          textShadow: `0 0 6px ${champagne}18`,
         }}
       >
+        {label}
+      </span>
+      <div
+        aria-hidden
+        className="inline-flex items-center gap-1 h-5 px-2 rounded-md"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(8,7,4,0.75), rgba(14,11,5,0.68))",
+          border: `1px solid ${gold}30`,
+        }}
+      >
+        <Lock
+          size={7}
+          aria-hidden
+          style={{ color: `${champagne}80`, flexShrink: 0 }}
+        />
         <span
           className="text-[10px] font-black tabular-nums tracking-wider"
           style={{

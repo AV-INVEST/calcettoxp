@@ -598,7 +598,7 @@ export default function PlayerCard({
               <span
                 className={`${cfg.ciLabel} font-semibold text-textMuted uppercase tracking-widest`}
               >
-                Career Index
+                CI
               </span>
             </div>
             <div className="flex items-center gap-2">
