@@ -9,6 +9,7 @@ import { Home, Trophy, TrendingUp, Target, Users, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
 import { format } from 'date-fns';
+import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
 
 const APP_URL = getAppBaseUrl();
@@ -291,7 +292,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   LV. {profile.level}
                 </Badge>
                 <Badge variant="primary" size="sm">
-                  Career Index {profile.careerIndex.toLocaleString('it-IT')}
+                  Career Index {formatCI(profile.careerIndex)}
                 </Badge>
                 {profile.primaryRole && (
                   <Badge variant="secondary" size="sm">

@@ -18,14 +18,19 @@ export default function SignInPage() {
           <div className="relative rounded-3xl bg-gradient-to-br from-bgSecondary/90 to-bgCard/90 backdrop-blur-sm border border-greenPrimary/15 calcetto-shadow-green p-8 sm:p-10">
             <div className="flex flex-col items-center gap-6">
               <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/20">
+                <Link
+                  href="/"
+                  aria-label="Torna alla home"
+                  title="Home"
+                  className="group inline-flex items-center gap-2.5 -mx-2 -my-2 px-2 py-2 rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenElectric/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bgSecondary"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/20 transition-transform duration-200 group-hover:scale-[1.03]">
                     <Zap className="w-5.5 h-5.5 text-bgPrimary" strokeWidth={3} />
                   </div>
-                  <span className="font-bold text-greenElectric text-3xl tracking-tight">
+                  <span className="font-bold text-greenElectric text-3xl tracking-tight transition-all duration-200 group-hover:text-greenElectric/90">
                     CalcettoXP
                   </span>
-                </div>
+                </Link>
 
                 <div className="flex flex-col items-center gap-2">
                   <h1 className="text-textPrimary text-2xl font-bold tracking-tight text-center">

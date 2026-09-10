@@ -5,10 +5,10 @@ import { z } from "zod";
 import { careerIndexToOverall } from "@/lib/ovr";
 import { getSeasonKeyInfo } from "@/lib/seasons";
 import { Role, PreferredFoot } from "@prisma/client";
-import { USERNAME_REGEX, RESERVED_USERNAMES, generateUsernameFromNickname } from "@/lib/username-config";
+import { USERNAME_REGEX, validateUsernameFormat } from "@/lib/username-config";
 
 const onboardingSchema = z.object({
-  nickname: z.string().min(2).max(20),
+  nickname: z.string().min(2).max(20).optional(),
   username: z.string().regex(USERNAME_REGEX, "Username non valido"),
   birthDate: z.string().optional().nullable(),
   country: z.string().optional().nullable(),
@@ -44,18 +44,22 @@ export async function POST(req: Request) {
     const parsed = onboardingSchema.parse(body);
 
     parsed.username = parsed.username.toLowerCase().trim();
-    if (parsed.username.length < 3 || parsed.username.length > 20) {
+
+    const formatCheck = validateUsernameFormat(parsed.username);
+    if (!formatCheck.valid) {
+      const reason = formatCheck.reason || "invalid";
+      let message = "L'username deve essere tra 3 e 20 caratteri minuscoli, numeri o underscore.";
+      if (reason === "reserved") message = "Questo username non è disponibile.";
+      if (reason === "offensive") message = "Questo username non rispetta le linee guida della community.";
       return NextResponse.json(
-        { ok: false, error: "L'username deve essere tra 3 e 20 caratteri" },
+        { ok: false, error: message },
         { status: 400 }
       );
     }
-    if (RESERVED_USERNAMES.has(parsed.username)) {
-      return NextResponse.json(
-        { ok: false, error: "Questo username non è disponibile" },
-        { status: 400 }
-      );
-    }
+
+    const finalNickname: string = (parsed.nickname && parsed.nickname.trim())
+      ? parsed.nickname.trim()
+      : parsed.username;
 
     const usernameTaken = await prisma.playerProfile.findUnique({
       where: { username: parsed.username },
@@ -77,7 +81,7 @@ export async function POST(req: Request) {
         data: {
           userId,
           username: parsed.username,
-          nickname: parsed.nickname,
+          nickname: finalNickname,
           birthDate: parsed.birthDate ? new Date(parsed.birthDate) : null,
           country: parsed.country ?? null,
           city: parsed.city ?? null,

@@ -9,7 +9,7 @@ export default function SessionProviderWrapper({
 }) {
   return (
     <SessionProvider
-      refetchOnWindowFocus={false}
+      refetchOnWindowFocus={true}
       refetchWhenOffline={false}
       refetchInterval={0}
     >

@@ -15,6 +15,7 @@ import NextAchievementProgress from "@/components/dashboard/NextAchievementProgr
 import CurrentSeasonCard from "@/components/dashboard/CurrentSeasonCard";
 import MultiplayerComingSoonCard from "@/components/dashboard/MultiplayerComingSoonCard";
 import NextGoalModule from "@/components/dashboard/NextGoalModule";
+import DashboardLogoutButton from "@/components/dashboard/DashboardLogoutButton";
 import {
   TrendingUp,
   TrendingDown,
@@ -25,6 +26,7 @@ import {
   Zap,
   Award,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -205,13 +207,26 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-bgPrimary text-textPrimary pb-32 md:pb-10">
       <div className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-6 md:space-y-8">
         {/* 1) Header */}
-        <header className="space-y-1">
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            Ciao, <span className="text-greenElectric">{playerProfile.nickname}</span>.
-          </h1>
-          <small className="text-sm text-textMuted font-medium">
-            Pronto per la prossima partita?
-          </small>
+        <header>
+          <div className="flex items-start gap-3">
+            <Link
+              href="/"
+              aria-label="Torna alla home"
+              title="Home"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-bgCard text-textMuted transition-all hover:border-greenElectric/30 hover:bg-greenElectric/8 hover:text-greenElectric active:scale-[0.97] md:hidden"
+            >
+              <ArrowLeft className="h-[17px] w-[17px]" strokeWidth={2.2} />
+            </Link>
+            <div className="space-y-1 min-w-0 flex-1">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight truncate">
+                Ciao, <span className="text-greenElectric">{playerProfile.nickname}</span>.
+              </h1>
+              <small className="text-sm text-textMuted font-medium block">
+                Pronto per la prossima partita?
+              </small>
+            </div>
+            <DashboardLogoutButton />
+          </div>
         </header>
 
         {/* 2) Main PlayerCard */}

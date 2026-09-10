@@ -6,7 +6,7 @@ import {
   PlaySquare, ClipboardList, TrendingUp, Trophy, Flame, ShieldCheck,
   Target, Zap, Award, Crown, Star, ChevronRight, Check, Users,
   Hand, Compass, Dices, Medal, Rocket, Mountain, Sparkles, ArrowRight,
-  Goal, Swords, LogIn, Minus, TrendingDown, Lock,
+  Goal, Swords, Minus, TrendingDown, Lock,
 } from "lucide-react";
 import {
   LineChart, Line, ResponsiveContainer, AreaChart, Area, XAxis, Tooltip,
@@ -14,7 +14,6 @@ import {
 import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 import AppFooter from "@/components/layout/AppFooter";
 import { SmartCTA } from "@/components/cta/SmartCTA";
-import MobileHeader from "@/components/layout/MobileHeader";
 import {
   FreeCTAButton, ProCheckoutButton, YearlyCheckoutButton,
 } from "@/components/pricing/StripeButtons";
@@ -22,6 +21,7 @@ import AndreaImg from "@/../assets/Andrea.jpg";
 import FedericoImg from "@/../assets/Federico.jpg";
 import RiccardoImg from "@/../assets/Riccardo.jpg";
 import MarcoImg from "@/../assets/Marco.jpg";
+import { formatCI } from "@/lib/career-index";
 
 const demoPlayers = [{ id:"andrea", name:"ANDREA", role:"ATT", roleLabel:"Attaccante", ovr:78, lv:15,
   image: AndreaImg, imageAlt:"Andrea - Attaccante CalcettoXP",
@@ -438,7 +438,7 @@ function MobilePlayerFlipCard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-[9px] text-textMuted font-black tracking-[0.2em] mb-1">CAREER INDEX</div>
-                    <div className="text-textPrimary font-black text-2xl tracking-tight tabular-nums">{player.ci.toLocaleString("it-IT")}</div>
+                    <div className="text-textPrimary font-black text-2xl tracking-tight tabular-nums">{formatCI(player.ci)}</div>
                   </div>
                   <div className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border ${backCIAccent}`}>
                     <TrendingUp className={`w-3.5 h-3.5 ${backCIIcon}`} strokeWidth={2.5}/>
@@ -524,7 +524,7 @@ function SimpleCIDemo() {
           <span className="text-[10px] text-textMuted font-black tracking-[0.18em]">CAREER INDEX · IN TEMPO REALE</span>
           <span className="text-greenElectric text-xs font-bold">+{changePct}%</span>
         </div>
-        <div className="text-textPrimary font-black text-4xl tabular-nums tracking-tight mb-4">{final.value.toLocaleString("it-IT")}</div>
+        <div className="text-textPrimary font-black text-4xl tabular-nums tracking-tight mb-4">{formatCI(final.value)}</div>
         <div className="h-24">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ciSimpleSequence.map((s,i)=>({i,v:s.value}))}>
@@ -545,7 +545,7 @@ function SimpleCIDemo() {
         </div>
       </div>
       <div className="relative z-10 mb-3">
-        <div className="text-textPrimary font-black text-4xl tabular-nums tracking-tight">{displayValue.toLocaleString("it-IT")}</div>
+        <div className="text-textPrimary font-black text-4xl tabular-nums tracking-tight">{formatCI(displayValue)}</div>
       </div>
       <div key={stepIdx} className={`relative z-10 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border ${colors.bg} ${colors.bd} mb-4 animate-fade-in`}>
         <Delta className={`w-4 h-4 ${colors.t}`} strokeWidth={2.5}/>
@@ -615,7 +615,7 @@ function LegacyHeroCILiveDemo() {
     return (
       <div className="mx-auto mt-7 w-full max-w-[300px] rounded-2xl bg-bgCard/85 backdrop-blur-sm border border-greenPrimary/20 p-5">
         <span className="text-textMuted text-[11px] font-bold tracking-[0.18em]">CAREER INDEX · IN TEMPO REALE</span>
-        <div className="text-textPrimary font-black text-3xl tracking-tight mt-2">{fs.value.toLocaleString("it-IT")}</div>
+        <div className="text-textPrimary font-black text-3xl tracking-tight mt-2">{formatCI(fs.value)}</div>
       </div>
     );
   }
@@ -634,7 +634,7 @@ function LegacyHeroCILiveDemo() {
           </span>
         </div>
       </div>
-      <div className="text-textPrimary font-black text-3xl tracking-tight tabular-nums mt-2">{displayValue.toLocaleString("it-IT")}</div>
+      <div className="text-textPrimary font-black text-3xl tracking-tight tabular-nums mt-2">{formatCI(displayValue)}</div>
       <div className="w-full h-16 mt-3">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={cd} margin={{top:4, right:4, bottom:2, left:4}}>
@@ -671,22 +671,11 @@ export default function LandingPage() {
     <main className="min-h-screen bg-bgPrimary text-textPrimary overflow-x-hidden pitch-wrapper">
       <style>{`@keyframes evo-ball-travel{0%{left:-4%;opacity:0}10%{opacity:1}50%{left:100%;opacity:1}60%{opacity:0}100%{left:-4%;opacity:0}}`}</style>
 
-      <div className="md:hidden"><MobileHeader/></div>
-
       {/* HERO */}
       <section className="relative pt-4 md:pt-10 md:pb-28 pb-10">
         <PitchLines/>
         <div className="relative max-w-5xl mx-auto px-4 md:px-8">
           <div className="grid md:grid-cols-2 md:gap-10 gap-8 items-start">
-            <div className="hidden md:flex md:col-span-2 items-center justify-between mb-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-greenElectric to-greenPrimary flex items-center justify-center shadow-lg shadow-greenElectric/25">
-                  <Zap className="w-5 h-5 text-bgPrimary" strokeWidth={3}/>
-                </div>
-                <span className="font-black text-greenElectric text-2xl tracking-tight">CalcettoXP</span>
-              </div>
-              <SmartCTA label="ACCEDI" icon={LogIn} variant="secondary" size="md" loggedInLabel="DASHBOARD"/>
-            </div>
             <div className="md:pt-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-greenElectric/25 bg-greenElectric/8 px-3.5 py-1.5 mb-5 backdrop-blur-sm md:mb-7">
                 <span className="relative flex h-2 w-2">
@@ -863,7 +852,7 @@ export default function LandingPage() {
                     <div>
                       <div className="text-[11px] text-textMuted font-bold tracking-[0.2em]">CAREER INDEX</div>
                       <div className="flex items-baseline gap-2.5 mt-1">
-                        <span className="text-4xl font-black text-textPrimary tracking-tight">{currentPlayer.ci.toLocaleString("it-IT")}</span>
+                        <span className="text-4xl font-black text-textPrimary tracking-tight">{formatCI(currentPlayer.ci)}</span>
                         <span className="text-greenElectric text-sm font-bold flex items-center gap-1"><TrendingUp className="w-3.5 h-3.5" strokeWidth={2.5}/> {currentPlayer.ciDelta}</span>
                       </div>
                     </div>
@@ -895,7 +884,7 @@ export default function LandingPage() {
                         </defs>
                         <XAxis dataKey="m" axisLine={false} tickLine={false} tick={{fill:"#8B968D", fontSize:11}} tickFormatter={v=>`S${v}`} dy={8}/>
                         <Tooltip contentStyle={{backgroundColor:"#111713",border:"1px solid rgba(34,197,94,0.25)",borderRadius:"12px",fontSize:"13px",color:"#F8FAF8"}}
-                          labelFormatter={v=>`Settimana ${v}`} formatter={(v:any)=>[`CI: ${Number(v).toLocaleString("it-IT")}`]}
+                          labelFormatter={v=>`Settimana ${v}`} formatter={(v:any)=>[`CI: ${formatCI(Number(v))}`]}
                           cursor={{stroke:"#7CFF6B",strokeWidth:1,strokeDasharray:"4 4"}}/>
                         <Area type="monotone" dataKey="v" stroke="#7CFF6B" strokeWidth={3} fill={`url(#ciG-${currentPlayer.id})`} strokeLinecap="round"
                           dot={{r:4,fill:"#7CFF6B",stroke:"#070A08",strokeWidth:2}} activeDot={{r:6,fill:"#7CFF6B",stroke:"#070A08",strokeWidth:2}}/>
@@ -1212,7 +1201,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <SmartCTA label="INIZIA ORA" icon={PlaySquare} variant="primary" size="lg" fullWidth
-                  className="shadow-xl shadow-greenElectric/30 hover:shadow-greenElectric/45" loggedInLabel="CONTINUA LA TUA CARRIERA"/>
+                  className="shadow-xl shadow-greenElectric/30 hover:shadow-greenElectric/45" loggedInLabel="RIPRENDI CARRIERA"/>
               </div>
             </div>
             <div className="relative group rounded-3xl bg-bgCard/65 border border-textPrimary/12 p-9 overflow-hidden">

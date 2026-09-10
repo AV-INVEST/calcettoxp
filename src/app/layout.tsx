@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 import { CookieBanner } from "@/components/legal/CookieBanner";
+import AppHeader from "@/components/layout/AppHeader";
 import { getAppBaseUrl } from "@/lib/app-url";
 
 const inter = Inter({
@@ -128,6 +129,7 @@ export default function RootLayout({
       <body className="bg-bgPrimary text-textPrimary font-sans antialiased">
         <div className="pitch-wrapper min-h-[100dvh]">
           <SessionProviderWrapper>
+            <AppHeader />
             {children}
             <CookieBanner />
           </SessionProviderWrapper>

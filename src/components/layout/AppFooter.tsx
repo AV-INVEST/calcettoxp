@@ -2,7 +2,6 @@
 
 import { Zap } from "lucide-react";
 import Link from "next/link";
-import { CookiePreferencesButton } from "@/components/legal/CookiePreferencesButton";
 
 const LEGAL_LINKS = [
   { href: "/privacy", label: "Privacy" },
@@ -45,7 +44,6 @@ export default function AppFooter() {
                 </div>
               ))}
             </div>
-            <CookiePreferencesButton className="!mt-0" />
           </nav>
 
           <div className="space-y-2 text-center">

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 const ROLE_LABELS: Record<string, string> = {
   POR: "Portiere",
@@ -67,7 +69,6 @@ const COUNTRY_OPTIONS = [
   { value: "SI", label: "Slovenia" },
   { value: "SK", label: "Slovacchia" },
   { value: "BG", label: "Bulgaria" },
-  { value: "RS", label: "Serbia" },
   { value: "ME", label: "Montenegro" },
   { value: "MK", label: "Macedonia del Nord" },
   { value: "AL", label: "Albania" },
@@ -90,17 +91,15 @@ const COUNTRY_OPTIONS = [
 ];
 
 const STEPS = [
-  { id: 1, title: "Nickname" },
-  { id: 2, title: "Username" },
-  { id: 3, title: "Data di nascita" },
-  { id: 4, title: "Nazionalità" },
-  { id: 5, title: "Città" },
-  { id: 6, title: "Piede preferito" },
-  { id: 7, title: "Ruolo" },
+  { id: 1, title: "Username" },
+  { id: 2, title: "Nascita" },
+  { id: 3, title: "Nazionalità" },
+  { id: 4, title: "Città" },
+  { id: 5, title: "Piede" },
+  { id: 6, title: "Ruolo" },
 ];
 
 type WizardData = {
-  nickname: string;
   username: string;
   birthDate: string;
   ageMode: "date" | "age";
@@ -110,10 +109,10 @@ type WizardData = {
   preferredFoot: "" | "RIGHT" | "LEFT" | "BOTH";
   primaryRole: "" | "POR" | "DIF" | "CEN" | "ATT";
   secondaryRole: "" | "POR" | "DIF" | "CEN" | "ATT";
+  communityAccepted: boolean;
 };
 
 const initialData: WizardData = {
-  nickname: "",
   username: "",
   birthDate: "",
   ageMode: "date",
@@ -123,6 +122,7 @@ const initialData: WizardData = {
   preferredFoot: "",
   primaryRole: "",
   secondaryRole: "",
+  communityAccepted: false,
 };
 
 function calcBirthDateFromAge(ageStr: string): string {
@@ -145,9 +145,10 @@ function calcAge(birthDateStr: string): number {
 
 export default function OnboardingWizard() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>(initialData);
-  const [errors, setErrors] = useState<Partial<Record<keyof WizardData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof WizardData | "community", string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -175,50 +176,46 @@ export default function OnboardingWizard() {
 
   const update = <K extends keyof WizardData>(key: K, value: WizardData[K]) => {
     setData((d) => ({ ...d, [key]: value }));
-    if (errors[key]) {
+    if ((errors as Record<string, unknown>)[key]) {
       setErrors((e) => {
         const n = { ...e };
-        delete n[key];
+        delete (n as Record<string, unknown>)[key];
         return n;
       });
     }
   };
 
   const validateStep = (s: number): boolean => {
-    const e: Partial<Record<keyof WizardData, string>> = {};
+    const e: Partial<Record<keyof WizardData | "community", string>> = {};
     if (s === 1) {
-      if (!data.nickname.trim()) e.nickname = "Inserisci un nickname";
-      else if (data.nickname.trim().length < 2) e.nickname = "Nickname troppo corto (min 2)";
-      else if (data.nickname.trim().length > 20) e.nickname = "Nickname troppo lungo (max 20)";
+      if (!data.username.trim()) (e as Record<string, string>).username = "Inserisci un username";
+      else if (!/^[a-z0-9_]{3,20}$/.test(data.username.toLowerCase().trim())) {
+        (e as Record<string, string>).username = "Solo lettere minuscole, numeri o underscore (3-20 caratteri)";
+      }
+      if (!data.communityAccepted) (e as Record<string, string>).community = "Devi confermare le linee guida della community";
     }
     if (s === 2) {
-      if (!data.username.trim()) e.username = "Inserisci un username";
-      else if (!/^[a-z0-9_]{3,20}$/.test(data.username.toLowerCase().trim())) {
-        e.username = "Solo lettere minuscole, numeri o underscore (3-20 caratteri)";
+      if (data.ageMode === "date") {
+        if (!data.birthDate) (e as Record<string, string>).birthDate = "Seleziona una data";
+        else if (calcAge(data.birthDate) < 14) (e as Record<string, string>).birthDate = "Devi avere almeno 14 anni";
+      } else {
+        const a = parseInt(data.age, 10);
+        if (!data.age || isNaN(a)) (e as Record<string, string>).age = "Inserisci un'età valida";
+        else if (a < 14) (e as Record<string, string>).age = "Devi avere almeno 14 anni";
+        else if (a > 99) (e as Record<string, string>).age = "Età non valida";
       }
     }
     if (s === 3) {
-      if (data.ageMode === "date") {
-        if (!data.birthDate) e.birthDate = "Seleziona una data";
-        else if (calcAge(data.birthDate) < 14) e.birthDate = "Devi avere almeno 14 anni";
-      } else {
-        const a = parseInt(data.age, 10);
-        if (!data.age || isNaN(a)) e.age = "Inserisci un'età valida";
-        else if (a < 14) e.age = "Devi avere almeno 14 anni";
-        else if (a > 99) e.age = "Età non valida";
-      }
+      if (!data.country) (e as Record<string, string>).country = "Seleziona una nazionalità";
     }
     if (s === 4) {
-      if (!data.country) e.country = "Seleziona una nazionalità";
+      if (!data.city.trim()) (e as Record<string, string>).city = "Inserisci la città";
     }
     if (s === 5) {
-      if (!data.city.trim()) e.city = "Inserisci la città";
+      if (!data.preferredFoot) (e as Record<string, string>).preferredFoot = "Seleziona un piede";
     }
     if (s === 6) {
-      if (!data.preferredFoot) e.preferredFoot = "Seleziona un piede";
-    }
-    if (s === 7) {
-      if (!data.primaryRole) e.primaryRole = "Seleziona un ruolo primario";
+      if (!data.primaryRole) (e as Record<string, string>).primaryRole = "Seleziona un ruolo primario";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -226,13 +223,13 @@ export default function OnboardingWizard() {
 
   const next = async () => {
     if (!validateStep(step)) return;
-    if (step === 2) {
+    if (step === 1) {
       const candidate = data.username.toLowerCase().trim();
       try {
         const res = await fetch(`/api/username-check?u=${encodeURIComponent(candidate)}`);
         const j = await res.json().catch(() => ({}));
-        if (!j.ok) {
-          setErrors({ username: j?.error || "Username non disponibile" });
+        if (!j.ok || !j.available) {
+          setErrors({ username: j?.message || j?.error || "Username non disponibile" });
           return;
         }
       } catch {
@@ -240,7 +237,7 @@ export default function OnboardingWizard() {
         return;
       }
     }
-    if (step === 7) handleSubmit();
+    if (step === 6) handleSubmit();
     else setStep((s) => s + 1);
   };
 
@@ -254,7 +251,6 @@ export default function OnboardingWizard() {
         data.ageMode === "age" ? calcBirthDateFromAge(data.age) : data.birthDate || null;
 
       const payload: Record<string, unknown> = {
-        nickname: data.nickname.trim(),
         username: data.username.toLowerCase().trim(),
         birthDate,
         country: data.country || null,
@@ -276,14 +272,19 @@ export default function OnboardingWizard() {
       }
       setFinished(true);
     } catch (err) {
-      setErrors({ nickname: err instanceof Error ? err.message : "Errore" });
+      setErrors({ username: err instanceof Error ? err.message : "Errore" });
+      setStep(1);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const overall = useMemo(() => 60, []);
-  const level = useMemo(() => 1, []);
+  const overall = 60;
+  const level = 1;
+  const userImage = session?.user?.image;
+  const userName = session?.user?.name;
+
+  const handleLogout = () => signOut({ callbackUrl: "/" });
 
   if (checking) {
     return <LoadingShell />;
@@ -292,7 +293,7 @@ export default function OnboardingWizard() {
   if (finished) {
     return (
       <FinishScreen
-        nickname={data.nickname}
+        nickname={data.username}
         primaryRole={data.primaryRole as "POR" | "DIF" | "CEN" | "ATT"}
         overall={overall}
         level={level}
@@ -304,7 +305,7 @@ export default function OnboardingWizard() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.container}>
-        <LogoHeader />
+        <LogoHeader userImage={userImage} userName={userName} onLogout={handleLogout} />
         <Stepper step={step} total={STEPS.length} labels={STEPS} />
 
         <div style={styles.card}>
@@ -317,30 +318,16 @@ export default function OnboardingWizard() {
 
           <div style={styles.stepBody}>
             {step === 1 && (
-              <StepNickname
-                value={data.nickname}
-                error={errors.nickname}
-                onChange={(v) => {
-                  update("nickname", v);
-                  if (!data.username && v.length >= 2) {
-                    const base = v.toLowerCase()
-                      .replace(/[^a-z0-9]/g, "_")
-                      .replace(/_+/g, "_")
-                      .replace(/^_|_$/g, "")
-                      .slice(0, 20);
-                    if (base.length >= 3) update("username", base);
-                  }
-                }}
-              />
-            )}
-            {step === 2 && (
               <StepUsername
                 value={data.username}
                 error={errors.username}
+                communityAccepted={data.communityAccepted}
+                communityError={(errors as Record<string, string>).community}
                 onChange={(v) => update("username", v.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                onCommunityChange={(v) => update("communityAccepted", v)}
               />
             )}
-            {step === 3 && (
+            {step === 2 && (
               <StepBirth
                 mode={data.ageMode}
                 birthDate={data.birthDate}
@@ -352,28 +339,28 @@ export default function OnboardingWizard() {
                 onAge={(v) => update("age", v)}
               />
             )}
-            {step === 4 && (
+            {step === 3 && (
               <StepCountry
                 value={data.country}
                 error={errors.country}
                 onChange={(v) => update("country", v)}
               />
             )}
-            {step === 5 && (
+            {step === 4 && (
               <StepCity
                 value={data.city}
                 error={errors.city}
                 onChange={(v) => update("city", v)}
               />
             )}
-            {step === 6 && (
+            {step === 5 && (
               <StepFoot
                 value={data.preferredFoot}
                 error={errors.preferredFoot}
                 onChange={(v) => update("preferredFoot", v)}
               />
             )}
-            {step === 7 && (
+            {step === 6 && (
               <StepRole
                 primary={data.primaryRole}
                 secondary={data.secondaryRole}
@@ -387,13 +374,21 @@ export default function OnboardingWizard() {
           <div style={styles.navRow}>
             {step > 1 ? (
               <Button variant="ghost" onClick={prev} disabled={submitting}>
+                <ArrowLeft size={16} strokeWidth={2.4} style={{ marginRight: 6 }} />
                 Indietro
               </Button>
             ) : (
-              <span />
+              <button
+                type="button"
+                onClick={handleLogout}
+                style={styles.logoutSoft}
+                title="Torna alla home"
+              >
+                <LogOut size={14} strokeWidth={2.2} />
+              </button>
             )}
-            <Button variant="primary" onClick={next} disabled={submitting} loading={submitting && step === 7}>
-              {step === 7 ? (submitting ? "Creazione..." : "Completa onboarding") : "Avanti"}
+            <Button variant="primary" onClick={next} disabled={submitting} loading={submitting && step === 6}>
+              {step === 6 ? (submitting ? "Creazione..." : "Completa profilo") : "Avanti"}
             </Button>
           </div>
         </div>
@@ -414,12 +409,38 @@ function LoadingShell() {
   );
 }
 
-function LogoHeader() {
+function LogoHeader({
+  userImage,
+  userName,
+  onLogout,
+}: {
+  userImage?: string | null;
+  userName?: string | null;
+  onLogout: () => void;
+}) {
   return (
     <div style={styles.logoHeader}>
       <div style={styles.logoBadge}>⚽</div>
       <h1 style={styles.logoTitle}>CALCETTOXP</h1>
-      <p style={styles.logoSubtitle}>Crea il tuo profilo giocatore</p>
+      <p style={styles.logoSubtitle}>Inizia l&apos;avventura da giocatore</p>
+      {userImage && (
+        <div style={styles.userRow}>
+          <img src={userImage} alt="" style={styles.userAvatar} />
+          <div style={{ minWidth: 0, flex: 1, textAlign: "left" }}>
+            <div style={styles.userName}>{userName || "Giocatore"}</div>
+            <div style={styles.userHint}>Account Google connesso</div>
+          </div>
+          <button
+            type="button"
+            onClick={onLogout}
+            style={styles.logoutPill}
+            title="Esci dall'account"
+            aria-label="Esci"
+          >
+            <LogOut size={13} strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -472,30 +493,54 @@ function FieldError({ children }: { children?: string }) {
   return <span style={styles.fieldError}>{children}</span>;
 }
 
-function StepNickname({
+function StepUsername({
   value,
   error,
+  communityAccepted,
+  communityError,
   onChange,
+  onCommunityChange,
 }: {
   value: string;
   error?: string;
+  communityAccepted: boolean;
+  communityError?: string;
   onChange: (v: string) => void;
+  onCommunityChange: (v: boolean) => void;
 }) {
   return (
     <div style={styles.fieldStack}>
-      <label style={styles.label}>Nickname</label>
-      <Input
-        placeholder="es. MagoDelCampo"
-        value={value}
-        onChange={onChange}
-        maxLength={20}
-        error={!!error}
-      />
+      <label style={styles.label}>Username pubblico</label>
+      <div style={{ position: "relative" }}>
+        <span style={styles.prefixLabel}>calcettoxp.com/p/</span>
+        <Input
+          placeholder="andreavivace"
+          value={value}
+          onChange={onChange}
+          error={!!error}
+          style={{ paddingLeft: "136px" }}
+          maxLength={20}
+        />
+      </div>
       <div style={styles.hintRow}>
-        <span style={styles.hint}>Tra 2 e 20 caratteri</span>
+        <span style={styles.hint}>3-20 caratteri • minuscole, numeri, underscore</span>
         <span style={styles.counter}>{value.length}/20</span>
       </div>
       <FieldError>{error}</FieldError>
+
+      <label style={styles.communityBox}>
+        <input
+          type="checkbox"
+          checked={communityAccepted}
+          onChange={(e) => onCommunityChange(e.target.checked)}
+          style={styles.communityCheckbox}
+        />
+        <span style={styles.communityText}>
+          Confermo che il mio username rispetta le linee guida della community. I nomi
+          offensivi possono comportare la rimozione dell&apos;account.
+        </span>
+      </label>
+      <FieldError>{communityError}</FieldError>
     </div>
   );
 }
@@ -521,7 +566,7 @@ function StepBirth({
 }) {
   return (
     <div style={styles.fieldStack}>
-      <label style={styles.label}>Data di nascita o età</label>
+      <label style={styles.label}>Nascita</label>
       <div style={styles.segWrap}>
         <SegButton active={mode === "date"} onClick={() => onMode("date")}>
           Data
@@ -590,47 +635,6 @@ function StepCity({
   );
 }
 
-function StepUsername({
-  value,
-  error,
-  onChange,
-}: {
-  value: string;
-  error?: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div style={styles.fieldStack}>
-      <label style={styles.label}>Username pubblico</label>
-      <div style={{ position: "relative" }}>
-        <span style={{
-          position: "absolute",
-          left: "14px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          color: "#6B7280",
-          fontSize: "14px",
-          fontWeight: 500,
-          pointerEvents: "none"
-        }}>calcettoxp.com/p/</span>
-        <Input
-          placeholder="andreavivace"
-          value={value}
-          onChange={onChange}
-          error={!!error}
-          style={{ paddingLeft: "140px" }}
-          maxLength={20}
-        />
-      </div>
-      <div style={styles.hintRow}>
-        <span style={styles.hint}>3-20 caratteri • lettere minuscole, numeri, underscore</span>
-        <span style={styles.counter}>{value.length}/20</span>
-      </div>
-      <FieldError>{error}</FieldError>
-    </div>
-  );
-}
-
 function StepFoot({
   value,
   error,
@@ -647,7 +651,7 @@ function StepFoot({
   ];
   return (
     <div style={styles.fieldStack}>
-      <label style={styles.label}>Piede preferito</label>
+      <label style={styles.label}>Piede</label>
       <div style={styles.optionGrid3}>
         {opts.map((o) => (
           <button
@@ -1014,6 +1018,9 @@ function Button({
         ...styles.button,
         ...base,
         ...pad,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         opacity: disabled ? 0.5 : 1,
         cursor: disabled ? "not-allowed" : "pointer",
       }}
@@ -1059,55 +1066,113 @@ const styles: Record<string, React.CSSProperties> = {
   wrapper: {
     width: "100%",
     minHeight: "100vh",
-    padding: "2rem 1rem",
+    padding: "1.25rem 0.75rem 3rem",
     boxSizing: "border-box",
     display: "flex",
     justifyContent: "center",
+    background: "linear-gradient(180deg, #070A08 0%, #0B120D 100%)",
   },
   container: {
     width: "100%",
-    maxWidth: "560px",
+    maxWidth: "520px",
     display: "flex",
     flexDirection: "column",
-    gap: "2rem",
+    gap: "1.5rem",
   },
   logoHeader: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "0.5rem",
-    paddingTop: "0.5rem",
+    gap: "0.4rem",
+    paddingTop: "0.25rem",
   },
   logoBadge: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "16px",
+    width: "48px",
+    height: "48px",
+    borderRadius: "14px",
     backgroundColor: "rgba(34,197,94,0.15)",
     border: "1px solid rgba(34,197,94,0.3)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "1.75rem",
+    fontSize: "1.5rem",
   },
   logoTitle: {
     margin: 0,
     color: "#ffffff",
-    fontSize: "1.5rem",
+    fontSize: "1.35rem",
     fontWeight: 800,
     letterSpacing: "-0.02em",
   },
   logoSubtitle: {
     margin: 0,
     color: "#9CA3AF",
-    fontSize: "0.85rem",
+    fontSize: "0.8rem",
+  },
+  userRow: {
+    marginTop: "0.75rem",
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.65rem",
+    padding: "0.55rem 0.75rem",
+    borderRadius: "12px",
+    backgroundColor: "rgba(34,197,94,0.06)",
+    border: "1px solid rgba(34,197,94,0.18)",
+  },
+  userAvatar: {
+    width: "32px",
+    height: "32px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    flexShrink: 0,
+    border: "2px solid rgba(34,197,94,0.3)",
+  },
+  userName: {
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    color: "#F3F4F6",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  userHint: {
+    fontSize: "0.65rem",
+    color: "#6B7280",
+    fontWeight: 500,
+  },
+  logoutPill: {
+    width: "28px",
+    height: "28px",
+    borderRadius: "8px",
+    border: "1px solid rgba(239,68,68,0.25)",
+    background: "rgba(239,68,68,0.08)",
+    color: "#F87171",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    flexShrink: 0,
+  },
+  logoutSoft: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "10px",
+    border: "1px solid #374151",
+    background: "transparent",
+    color: "#9CA3AF",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
   },
   stepperWrap: {
     display: "flex",
     flexDirection: "column",
-    gap: "1rem",
+    gap: "0.85rem",
   },
   progressTrack: {
-    height: "6px",
+    height: "5px",
     borderRadius: "999px",
     backgroundColor: "#1F2937",
     overflow: "hidden",
@@ -1126,34 +1191,36 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "0.4rem",
+    gap: "0.3rem",
     flex: 1,
   },
   stepperDot: {
-    width: "28px",
-    height: "28px",
+    width: "24px",
+    height: "24px",
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "0.75rem",
+    fontSize: "0.7rem",
     fontWeight: 700,
     border: "2px solid",
     transition: "all 0.3s",
   },
   stepperLabel: {
-    fontSize: "0.7rem",
-    fontWeight: 500,
+    fontSize: "0.62rem",
+    fontWeight: 600,
     transition: "color 0.3s",
+    textAlign: "center",
+    lineHeight: 1.1,
   },
   card: {
     backgroundColor: "#0F1411",
     border: "1px solid #1F2937",
     borderRadius: "16px",
-    padding: "1.75rem",
+    padding: "1.25rem",
     display: "flex",
     flexDirection: "column",
-    gap: "1.5rem",
+    gap: "1.25rem",
     boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
   },
   stepHeader: {
@@ -1164,50 +1231,61 @@ const styles: Record<string, React.CSSProperties> = {
   stepTitle: {
     margin: 0,
     color: "#ffffff",
-    fontSize: "1.35rem",
+    fontSize: "1.15rem",
     fontWeight: 700,
   },
   stepCounter: {
     color: "#6B7280",
-    fontSize: "0.8rem",
+    fontSize: "0.75rem",
   },
   stepBody: {
-    minHeight: "220px",
+    minHeight: "180px",
   },
   navRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "1rem",
-    marginTop: "0.5rem",
+    gap: "0.75rem",
+    marginTop: "0.25rem",
   },
   fieldStack: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.75rem",
+    gap: "0.65rem",
   },
   label: {
     color: "#D1D5DB",
-    fontSize: "0.9rem",
+    fontSize: "0.85rem",
     fontWeight: 600,
   },
   labelRow: {
     display: "flex",
     alignItems: "center",
     gap: "0.5rem",
-    marginBottom: "0.75rem",
+    marginBottom: "0.6rem",
   },
   optionalTag: {
-    fontSize: "0.7rem",
+    fontSize: "0.65rem",
     padding: "0.15rem 0.5rem",
     borderRadius: "999px",
     backgroundColor: "rgba(107,114,128,0.2)",
     color: "#9CA3AF",
   },
+  prefixLabel: {
+    position: "absolute",
+    left: "14px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    color: "#6B7280",
+    fontSize: "12.5px",
+    fontWeight: 600,
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
+  },
   input: {
     width: "100%",
-    padding: "0.85rem 1rem",
-    fontSize: "0.95rem",
+    padding: "0.75rem 1rem",
+    fontSize: "0.9rem",
     borderRadius: "10px",
     backgroundColor: "#070A08",
     border: "1.5px solid #374151",
@@ -1228,19 +1306,48 @@ const styles: Record<string, React.CSSProperties> = {
   hintRow: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
+    gap: "0.5rem",
+    flexWrap: "wrap",
   },
   hint: {
-    fontSize: "0.75rem",
+    fontSize: "0.72rem",
     color: "#6B7280",
   },
   counter: {
-    fontSize: "0.75rem",
+    fontSize: "0.72rem",
     color: "#6B7280",
+    fontWeight: 600,
   },
   fieldError: {
     color: "#F87171",
-    fontSize: "0.8rem",
+    fontSize: "0.78rem",
     fontWeight: 500,
+  },
+  communityBox: {
+    marginTop: "0.4rem",
+    padding: "0.7rem 0.85rem",
+    borderRadius: "10px",
+    backgroundColor: "rgba(255,255,255,0.02)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "0.6rem",
+    cursor: "pointer",
+    userSelect: "none",
+  },
+  communityCheckbox: {
+    marginTop: "2px",
+    width: "16px",
+    height: "16px",
+    accentColor: "#22C55E",
+    flexShrink: 0,
+    cursor: "pointer",
+  },
+  communityText: {
+    fontSize: "0.75rem",
+    color: "#9CA3AF",
+    lineHeight: 1.45,
   },
   segWrap: {
     display: "flex",
@@ -1253,21 +1360,21 @@ const styles: Record<string, React.CSSProperties> = {
   optionGrid3: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "0.75rem",
+    gap: "0.6rem",
   },
   optionGrid4: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "0.6rem",
+    gap: "0.5rem",
   },
   optionCard: {
     border: "1.5px solid",
     borderRadius: "12px",
-    padding: "1rem 0.5rem",
+    padding: "0.85rem 0.4rem",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "0.5rem",
+    gap: "0.45rem",
     cursor: "pointer",
     transition: "all 0.2s",
     background: "none",
@@ -1275,21 +1382,21 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "inherit",
   },
   optionIcon: {
-    fontSize: "1.5rem",
+    fontSize: "1.35rem",
   },
   optionLabel: {
     color: "#E5E7EB",
-    fontSize: "0.85rem",
+    fontSize: "0.8rem",
     fontWeight: 600,
   },
   roleCard: {
     border: "1.5px solid",
     borderRadius: "12px",
-    padding: "0.9rem 0.3rem",
+    padding: "0.8rem 0.25rem",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "0.35rem",
+    gap: "0.3rem",
     cursor: "pointer",
     transition: "all 0.2s",
     background: "none",
@@ -1297,16 +1404,16 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "inherit",
   },
   roleTag: {
-    padding: "0.2rem 0.55rem",
+    padding: "0.18rem 0.5rem",
     borderRadius: "6px",
     color: "#070A08",
-    fontSize: "0.75rem",
+    fontSize: "0.72rem",
     fontWeight: 800,
     letterSpacing: "0.04em",
   },
   roleSub: {
     color: "#9CA3AF",
-    fontSize: "0.72rem",
+    fontSize: "0.68rem",
   },
   button: {
     borderRadius: "10px",
@@ -1318,30 +1425,31 @@ const styles: Record<string, React.CSSProperties> = {
   finishWrap: {
     width: "100%",
     minHeight: "100vh",
-    padding: "2rem 1rem",
+    padding: "1.5rem 1rem 3rem",
     boxSizing: "border-box",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    background: "linear-gradient(180deg, #070A08 0%, #0B120D 100%)",
   },
   finishInner: {
     width: "100%",
-    maxWidth: "520px",
+    maxWidth: "500px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "2rem",
+    gap: "1.75rem",
   },
   finishSparkles: {
     textAlign: "center",
-    fontSize: "2rem",
-    marginBottom: "0.5rem",
+    fontSize: "1.75rem",
+    marginBottom: "0.4rem",
   },
   finishTitle: {
     margin: 0,
     textAlign: "center",
     color: "#ffffff",
-    fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
+    fontSize: "clamp(1.6rem, 6vw, 2.25rem)",
     fontWeight: 900,
     letterSpacing: "-0.02em",
     lineHeight: 1.1,
@@ -1349,17 +1457,17 @@ const styles: Record<string, React.CSSProperties> = {
   finishHint: {
     color: "#9CA3AF",
     textAlign: "center",
-    fontSize: "0.9rem",
-    maxWidth: "380px",
+    fontSize: "0.85rem",
+    maxWidth: "360px",
   },
   playerCardWrap: {
-    marginTop: "1rem",
+    marginTop: "0.75rem",
   },
   cardShell: {
     position: "relative",
-    width: "280px",
+    width: "260px",
     borderRadius: "18px",
-    padding: "1.25rem 1.25rem 1.5rem",
+    padding: "1.1rem 1.1rem 1.35rem",
     background: "linear-gradient(160deg, #111827 0%, #0F1411 50%, #070A08 100%)",
     border: "1.5px solid #22C55E",
     boxShadow: "0 24px 60px rgba(34,197,94,0.15), 0 0 0 1px rgba(34,197,94,0.08) inset",
@@ -1378,27 +1486,27 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "flex-start",
   },
   cardOverall: {
-    fontSize: "2.75rem",
+    fontSize: "2.4rem",
     fontWeight: 900,
     lineHeight: 1,
   },
   cardOverallLabel: {
     color: "#9CA3AF",
-    fontSize: "0.7rem",
+    fontSize: "0.65rem",
     fontWeight: 700,
     letterSpacing: "0.1em",
   },
   cardRoleBadge: {
-    padding: "0.35rem 0.6rem",
+    padding: "0.3rem 0.55rem",
     borderRadius: "8px",
     color: "#070A08",
-    fontSize: "0.8rem",
+    fontSize: "0.75rem",
     fontWeight: 800,
   },
   cardAvatar: {
-    margin: "0.75rem auto 0.5rem",
-    width: "110px",
-    height: "110px",
+    margin: "0.65rem auto 0.4rem",
+    width: "96px",
+    height: "96px",
     borderRadius: "50%",
     backgroundColor: "rgba(34,197,94,0.08)",
     border: "2px solid rgba(34,197,94,0.3)",
@@ -1409,20 +1517,20 @@ const styles: Record<string, React.CSSProperties> = {
   cardName: {
     textAlign: "center",
     color: "#ffffff",
-    fontSize: "1.15rem",
+    fontSize: "1.05rem",
     fontWeight: 800,
     letterSpacing: "-0.01em",
   },
   cardRoleName: {
     textAlign: "center",
     color: "#9CA3AF",
-    fontSize: "0.8rem",
+    fontSize: "0.75rem",
     marginTop: "2px",
   },
   cardDivider: {
     height: "1px",
     backgroundColor: "#1F2937",
-    margin: "1rem 0",
+    margin: "0.85rem 0",
   },
   cardStatsRow: {
     display: "flex",
@@ -1436,17 +1544,17 @@ const styles: Record<string, React.CSSProperties> = {
   },
   cardStatLabel: {
     color: "#6B7280",
-    fontSize: "0.65rem",
+    fontSize: "0.62rem",
     fontWeight: 700,
     letterSpacing: "0.08em",
   },
   cardStatValue: {
     color: "#ffffff",
-    fontSize: "1rem",
+    fontSize: "0.95rem",
     fontWeight: 800,
   },
   cardLevelBar: {
-    marginTop: "1rem",
+    marginTop: "0.85rem",
     height: "4px",
     borderRadius: "999px",
     backgroundColor: "#1F2937",

@@ -11,15 +11,22 @@ import {
   loadOptionalScripts,
 } from "@/lib/cookie-consent";
 
+const CB_LOCK = "data-cookie-banner-open";
+
 function lockBody(id: string) {
   if (typeof document === "undefined") return;
   const html = document.documentElement;
   const body = document.body;
-  if (body.dataset.lockId) return;
+  if (body.getAttribute(CB_LOCK) === "1") return;
   const scrollY = window.scrollY;
+  body.style.position = "fixed";
   body.style.top = `-${scrollY}px`;
-  body.classList.add("body-locked", "body-locked-ios");
+  body.style.left = "0";
+  body.style.right = "0";
+  body.style.overflow = "hidden";
+  html.style.overflow = "hidden";
   html.dataset.scrollY = String(scrollY);
+  body.setAttribute(CB_LOCK, "1");
   body.dataset.lockId = id;
 }
 
@@ -29,8 +36,13 @@ function unlockBody(id: string) {
   const body = document.body;
   if (body.dataset.lockId !== id) return;
   const scrollY = Number(html.dataset.scrollY || "0");
-  body.classList.remove("body-locked", "body-locked-ios");
+  body.style.position = "";
   body.style.top = "";
+  body.style.left = "";
+  body.style.right = "";
+  body.style.overflow = "";
+  html.style.overflow = "";
+  body.removeAttribute(CB_LOCK);
   delete body.dataset.lockId;
   if (scrollY) window.scrollTo(0, scrollY);
   delete html.dataset.scrollY;
@@ -194,26 +206,27 @@ export function CookieBanner() {
       aria-live="polite"
       aria-modal="true"
       aria-labelledby="cookie-title"
-      className="fixed inset-0 z-[95] isolate"
+      className="fixed inset-0 z-[9998] overflow-hidden"
+      style={{ touchAction: "none" }}
     >
       <div
-        className={`absolute inset-0 bg-black/85 backdrop-blur-md ${
+        className={`absolute inset-0 bg-black/90 backdrop-blur-md ${
           closing ? "animate-fade-out" : "animate-fade-in"
         }`}
-        onClick={mode === "banner" ? handleContinue : close}
+        onClick={mode === "banner" ? undefined : close}
         aria-hidden
       />
 
-      <div className="absolute inset-x-0 bottom-0" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 8px)" }}>
+      <div className="relative w-full h-[100dvh] flex flex-col justify-end" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 8px)" }}>
         <div
           className={`mx-auto w-full max-w-md ${
             closing ? "animate-sheet-down" : "animate-sheet-up"
           }`}
         >
-          <div className="mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-t-3xl sm:rounded-3xl border border-greenElectric/25 bg-bgCard/98 backdrop-blur-xl shadow-[0_-4px_0_rgba(124,255,107,0.22),0_-24px_72px_rgba(0,0,0,0.85)] relative overflow-hidden">
+          <div className="mx-2 sm:mx-4 mb-2 sm:mb-4 rounded-t-3xl sm:rounded-3xl border border-greenElectric/25 bg-bgCard/98 backdrop-blur-xl shadow-[0_-4px_0_rgba(124,255,107,0.22),0_-24px_72px_rgba(0,0,0,0.85)] relative overflow-hidden" style={{ maxHeight: "90dvh", display: "flex", flexDirection: "column" }}>
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-greenElectric/50 to-transparent" />
 
-            <div className="px-5 pt-5 pb-4">
+            <div className="px-5 pt-5 pb-4 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   <div className="w-11 h-11 rounded-2xl bg-greenPrimary/10 border border-greenPrimary/30 flex items-center justify-center shrink-0">
@@ -235,14 +248,16 @@ export function CookieBanner() {
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={close}
-                  aria-label="Chiudi pannello cookie"
-                  className="w-9 h-9 rounded-xl bg-bgSecondary/80 border border-white/10 flex items-center justify-center active:scale-95 transition-transform hover:bg-bgSecondary shrink-0"
-                >
-                  <X className="w-4.5 h-4.5 text-textMuted" strokeWidth={2.2} />
-                </button>
+                {mode === "preferences" && (
+                  <button
+                    type="button"
+                    onClick={close}
+                    aria-label="Chiudi pannello cookie"
+                    className="w-9 h-9 rounded-xl bg-bgSecondary/80 border border-white/10 flex items-center justify-center active:scale-95 transition-transform hover:bg-bgSecondary shrink-0"
+                  >
+                    <X className="w-4.5 h-4.5 text-textMuted" strokeWidth={2.2} />
+                  </button>
+                )}
               </div>
 
               {mode === "banner" && (
@@ -258,7 +273,7 @@ export function CookieBanner() {
                       onClick={handleContinue}
                       className="w-full inline-flex items-center justify-center gap-2 h-14 rounded-2xl text-base font-black tracking-wide bg-gradient-to-r from-greenElectric to-greenPrimary text-bgPrimary shadow-lg shadow-greenElectric/25 active:scale-[0.98] transition-transform hover:shadow-greenElectric/40"
                     >
-                      CONTINUA CON I SOLI NECESSARI
+                      SOLI NECESSARI
                     </button>
 
                     <div className="grid grid-cols-2 gap-2.5">
