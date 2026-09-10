@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { X, Loader2, Crown, Lock } from "lucide-react";
+import { X, Loader2, Crown, Lock, Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -175,23 +175,39 @@ export default function EditProfileModal({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full md:max-w-lg max-h-[92vh] overflow-y-auto bg-bgCard border border-white/10 md:rounded-3xl rounded-t-3xl shadow-2xl animate-in slide-in-from-bottom md:zoom-in-95">
-        <div className="sticky top-0 z-10 bg-bgCard/95 backdrop-blur border-b border-white/5 px-5 py-4 flex items-center justify-between">
-          <div>
+      <div className="relative w-full md:max-w-lg max-h-[92vh] overflow-y-auto bg-bgCard border border-white/10 md:rounded-3xl rounded-t-3xl shadow-2xl animate-in slide-in-from-bottom md:zoom-in-95 pb-24 md:pb-0" style={{paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'}}>
+        <div className="sticky top-0 z-10 bg-bgCard/95 backdrop-blur border-b border-white/5 px-5 py-4 flex items-center justify-between gap-2">
+          <div className="min-w-0">
             <h2 className="text-xl font-black">Modifica profilo</h2>
-            <p className="text-textMuted text-xs mt-0.5">
+            <p className="text-textMuted text-xs mt-0.5 truncate">
               Aggiorna i tuoi dati giocatore
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-textMuted hover:text-textPrimary transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="submit"
+              form="edit-profile-form"
+              aria-label="Salva modifiche"
+              disabled={loading}
+              className="w-10 h-10 rounded-full bg-greenElectric/15 hover:bg-greenElectric/25 flex items-center justify-center text-greenElectric hover:text-greenPrimary transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-greenElectric/25"
+            >
+              {loading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Save size={18} />
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Chiudi senza salvare"
+              className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-textMuted hover:text-textPrimary transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form id="edit-profile-form" onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-sm font-semibold flex items-center gap-1.5">

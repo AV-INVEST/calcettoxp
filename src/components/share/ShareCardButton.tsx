@@ -73,7 +73,7 @@ export function ShareCardButton({
   }
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div className="flex items-center justify-center sm:justify-end gap-2 flex-wrap w-full sm:w-auto">
       <Button
         variant={variant}
         size={size}
@@ -95,12 +95,14 @@ export function ShareCardButton({
         {copied ? (
           <>
             <Check className="w-4 h-4 text-greenElectric" aria-hidden />
-            <span className="text-greenElectric">Copiato!</span>
+            <span className="md:inline hidden text-greenElectric">Copiato!</span>
+            <span className="md:hidden inline text-greenElectric">OK</span>
           </>
         ) : (
           <>
             <Copy className="w-4 h-4" aria-hidden />
-            <span>Copia link</span>
+            <span className="md:inline hidden">Copia link</span>
+            <span className="md:hidden inline">Copia</span>
           </>
         )}
       </Button>

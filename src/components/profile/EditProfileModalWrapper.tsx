@@ -29,9 +29,15 @@ export default function EditProfileModalWrapper({ initial }: Props) {
 
   return (
     <>
-      <Button variant="secondary" size="md" onClick={() => setOpen(true)}>
+      <Button
+        variant="secondary"
+        size="md"
+        onClick={() => setOpen(true)}
+        aria-label="Modifica profilo"
+        className="md:w-auto"
+      >
         <Pencil size={16} />
-        Modifica profilo
+        <span className="md:inline hidden">Modifica profilo</span>
       </Button>
       <EditProfileModal
         open={open}
