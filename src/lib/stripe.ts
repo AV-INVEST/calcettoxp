@@ -5,7 +5,7 @@ type StripeConstructor = new (
   opts: { apiVersion: string; typescript?: boolean },
 ) => Stripe;
 
-const STRIPE_API_VERSION = '2024-06-20';
+const STRIPE_API_VERSION = '2025-03-31.basil';
 
 function createStripeClient(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
