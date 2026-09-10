@@ -202,22 +202,26 @@ export default async function ProfilePage() {
                 }`} />
                 <div className={`relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-bgCard border-2 ${
                   isPro ? "border-amber-400/50" : "border-greenElectric/40"
-                } flex items-center justify-center overflow-hidden shadow-xl ${
+                } overflow-hidden shadow-xl ${
                   isPro ? "shadow-amber-500/15" : "shadow-greenElectric/10"
                 }`}>
-                  {user?.image ? (
-                    <img
-                      src={user.image}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <UserIcon size={40} className={isPro ? "text-amber-400/70" : "text-greenElectric/70"} />
-                  )}
+                  <div className="w-full h-full md:p-0 p-0.5 flex items-center justify-center">
+                    {user?.image ? (
+                      <img
+                        src={user.image}
+                        alt="Profile"
+                        className="w-full h-full rounded-full object-cover object-center block"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <UserIcon size={40} className={isPro ? "text-amber-400/70" : "text-greenElectric/70"} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-bgCard border-2 border-bgPrimary flex items-center justify-center shadow-lg">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-bgPrimary font-black text-sm ${
+                <div className="absolute bottom-0 right-0 translate-x-1 translate-y-1 md:bottom-0 md:right-0 md:-translate-y-0.5 md:translate-x-0.5 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bgCard border-2 border-bgPrimary flex items-center justify-center shadow-lg z-10">
+                  <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-bgPrimary font-black text-xs md:text-sm ${
                     isPro
                       ? "bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600"
                       : "bg-gradient-to-br from-greenElectric to-greenPrimary"
@@ -308,33 +312,39 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
-              <div className="md:ml-auto flex md:flex-col gap-3 md:gap-3 items-stretch md:items-end w-full md:w-auto">
-                {/* Mobile: 3 colonne equal width FULL-WIDTH con più padding e aria; Desktop invariato */}
-                <div className="grid grid-cols-3 md:flex md:items-center gap-2 md:gap-3 lg:gap-4 bg-bgSecondary/60 rounded-2xl p-3 md:p-3 lg:px-5 lg:py-4 border border-white/5 w-full md:w-auto">
-                  <div className="min-w-0">
-                    <MobileStatPill label="LV" value={player.level} icon={<Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-400" />} />
+              {/* ========== MOBILE ONLY (<md) ========== */}
+              <div className="md:hidden w-full space-y-3">
+                <div className="grid grid-cols-3 gap-2 bg-bgSecondary/60 rounded-2xl px-4 py-4 border border-white/5 w-full">
+                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Star size={10} className="text-yellow-400 shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">LV</span>
+                    </div>
+                    <div className="text-xl font-black tabular-nums text-textPrimary leading-tight">
+                      {player.level}
+                    </div>
                   </div>
-                  <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
-                  <div className="min-w-0">
-                    <MobileStatPill
-                      label="OVR"
-                      value={player.overall}
-                      icon={<Award size={12} className="md:w-[14px] md:h-[14px] text-greenElectric" />}
-                      accent
-                    />
+                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Award size={10} className="text-greenElectric shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">OVR</span>
+                    </div>
+                    <div className="text-xl font-black tabular-nums text-greenElectric leading-tight">
+                      {player.overall}
+                    </div>
                   </div>
-                  <div className="hidden md:block w-px h-8 bg-white/10 self-stretch" />
-                  <div className="min-w-0">
-                    <MobileStatPill
-                      label="CI"
-                      value={player.careerIndex}
-                      icon={<TrendingUp size={12} className="md:w-[14px] md:h-[14px] text-greenPrimary" />}
-                      accent
-                    />
+                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                    <div className="flex items-center gap-1 mb-1">
+                      <TrendingUp size={10} className="text-greenPrimary shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">CI</span>
+                    </div>
+                    <div className="text-xl font-black tabular-nums text-greenPrimary leading-tight">
+                      {player.careerIndex}
+                    </div>
                   </div>
                 </div>
-                <div className="w-full md:w-auto flex justify-center md:justify-end">
-                  <div className="w-full md:w-auto max-w-sm md:max-w-none">
+                <div className="flex justify-end">
+                  <div className="[&>button]:!h-9 [&>button]:!w-9 [&>button]:!p-0 [&>button]:!min-w-0 [&>button]:!justify-center [&>button]:!aspect-square">
                     <EditProfileModalWrapper
                       initial={{
                         username: player.username,
@@ -351,6 +361,50 @@ export default async function ProfilePage() {
                       }}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* ========== DESKTOP ONLY (≥md) — UNCHANGED ========== */}
+              <div className="hidden md:flex md:ml-auto md:flex-col md:gap-3 md:items-end md:w-auto">
+                <div className="flex md:items-center gap-3 lg:gap-4 bg-bgSecondary/60 rounded-2xl md:p-3 lg:px-5 lg:py-4 border border-white/5">
+                  <div className="min-w-0">
+                    <MobileStatPill label="LV" value={player.level} icon={<Star size={12} className="md:w-[14px] md:h-[14px] text-yellow-400" />} />
+                  </div>
+                  <div className="w-px h-8 bg-white/10 self-stretch" />
+                  <div className="min-w-0">
+                    <MobileStatPill
+                      label="OVR"
+                      value={player.overall}
+                      icon={<Award size={12} className="md:w-[14px] md:h-[14px] text-greenElectric" />}
+                      accent
+                    />
+                  </div>
+                  <div className="w-px h-8 bg-white/10 self-stretch" />
+                  <div className="min-w-0">
+                    <MobileStatPill
+                      label="CI"
+                      value={player.careerIndex}
+                      icon={<TrendingUp size={12} className="md:w-[14px] md:h-[14px] text-greenPrimary" />}
+                      accent
+                    />
+                  </div>
+                </div>
+                <div className="flex md:justify-end">
+                  <EditProfileModalWrapper
+                    initial={{
+                      username: player.username,
+                      nickname: player.nickname,
+                      country: player.country,
+                      city: player.city,
+                      preferredFoot: player.preferredFoot,
+                      primaryRole: player.primaryRole,
+                      secondaryRole: player.secondaryRole,
+                      birthDate: player.birthDate,
+                      lastPrimaryRoleChangeAt: player.lastPrimaryRoleChangeAt,
+                      lastUsernameChangeAt: player.lastUsernameChangeAt,
+                      isPro,
+                    }}
+                  />
                 </div>
               </div>
             </div>
