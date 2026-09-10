@@ -121,7 +121,6 @@ export async function POST(req: Request) {
         userId,
       },
       allow_promotion_codes: true,
-      payment_method_types: ['card'],
     });
 
     if (!checkoutSession.url) {

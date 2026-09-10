@@ -69,11 +69,11 @@ export default function AppHeader() {
                 <Button
                   variant="secondary"
                   size="md"
-                  className="!gap-2"
+                  className="!gap-2 !px-3 md:!px-4"
                   onClick={() => {}}
                 >
                   <User size={16} strokeWidth={2.2} />
-                  <span>PROFILO</span>
+                  <span className="hidden md:inline">PROFILO</span>
                 </Button>
               </Link>
               <button

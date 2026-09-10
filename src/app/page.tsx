@@ -730,10 +730,6 @@ export default function LandingPage() {
       <section className="md:hidden pb-4">
         <div className="max-w-4xl mx-auto px-4">
           <MobilePlayerFlipCard/>
-          <div className="mt-7 flex flex-col gap-3">
-            <SmartCTA label="GIOCA ORA" icon={PlaySquare} variant="primary" size="lg" fullWidth
-              className="!min-h-[56px] shadow-xl shadow-greenElectric/25" loggedInLabel="VAI ALLA DASHBOARD"/>
-          </div>
         </div>
       </section>
 
@@ -770,10 +766,6 @@ export default function LandingPage() {
                 );
               })}
             </div>
-            <div className="mt-6 text-center">
-              <SmartCTA label="INIZIA GRATIS" icon={Zap} variant="primary" size="lg" fullWidth
-                className="!min-h-[54px]" loggedInLabel="VAI ALLA DASHBOARD"/>
-            </div>
           </div>
           {/* Desktop cards */}
           <div className="hidden md:grid relative md:grid-cols-3 gap-7">
@@ -792,6 +784,10 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+            <div className="md:col-span-3 text-center">
+              <SmartCTA label="INIZIA GRATIS" icon={Zap} variant="primary" size="lg" fullWidth
+                className="!min-h-[54px]" loggedInLabel="VAI ALLA DASHBOARD"/>
+            </div>
           </div>
         </div>
       </section>
@@ -954,22 +950,74 @@ export default function LandingPage() {
               Verde → Verde acceso → Elettrico → Oro
             </p>
           </div>
-          {/* Mobile scroll */}
-          <div className="md:hidden overflow-x-auto pb-4 -mx-4 px-4" style={{scrollbarWidth:"none"}}>
-            <div className="flex items-center gap-3 w-max mx-auto">
-              {evolutions.map((e,i) => (
-                <div key={e.ovr} className="relative shrink-0 w-[132px]">
-                  <div className={`relative rounded-2xl p-4 flex flex-col items-center justify-center transition-all duration-300 ${evoShell[i]}`}>
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 shadow-lg ${evoBadge[i]}`}>
-                      <span className="text-bgPrimary font-black text-lg tabular-nums">{e.ovr}</span>
-                    </div>
-                    <div className="mt-3 text-center">
-                      <p className={`text-[10px] font-black tracking-[0.15em] ${evoLbl[i]}`}>LV {e.lv} · {e.label.toUpperCase()}</p>
-                      <p className="text-[10px] text-textMuted/80 leading-snug mt-1.5">{e.desc}</p>
-                    </div>
+          {/* Mobile: griglia 2x2 percorso serpente */}
+          <div className="md:hidden relative max-w-sm mx-auto">
+            {/* Connectori grafici (z=0, pointer-events none) */}
+            {/* 1) 1→2 orizzontale alto (verde grigio→primary) */}
+            <div aria-hidden className="absolute pointer-events-none z-0" style={{ left: "calc(50% + 2px)", right: "calc(50% + 2px)", top: "50px", height: "3px" }}>
+              <div className="absolute inset-0 rounded-full" style={{ background: "linear-gradient(to right, rgba(156,163,175,0.35) 0%, rgba(34,197,94,0.85) 100%)" }}/>
+              <div className="absolute top-1/2" style={{ right: "-2px", transform: "translateY(-50%) rotate(45deg)", width: "7px", height: "7px", borderTop: "3px solid #22C55E", borderRight: "3px solid #22C55E", boxShadow: "0 0 10px rgba(34,197,94,0.85)" }}/>
+            </div>
+            {/* 2) 2↓3 verticale dx (verde primary→elettrico) */}
+            <div aria-hidden className="absolute pointer-events-none z-0" style={{ right: "calc(25% - 1px)", top: "calc(50px + 10px)", bottom: "calc(50px + 10px)", width: "3px" }}>
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(34,197,94,0.9) 0%, rgba(124,255,107,0.9) 100%)" }}/>
+              <div className="absolute left-1/2" style={{ bottom: "-2px", transform: "translateX(-50%) rotate(45deg)", width: "7px", height: "7px", borderBottom: "3px solid #7CFF6B", borderRight: "3px solid #7CFF6B", boxShadow: "0 0 10px rgba(124,255,107,0.9)" }}/>
+            </div>
+            {/* 3) 3→4 orizzontale basso DX→SX (elettrico→oro) */}
+            <div aria-hidden className="absolute pointer-events-none z-0" style={{ left: "calc(50% + 2px)", right: "calc(50% + 2px)", bottom: "50px", height: "3px" }}>
+              <div className="absolute inset-0 rounded-full" style={{ background: "linear-gradient(to left, rgba(124,255,107,0.9) 0%, rgba(234,179,8,0.85) 100%)" }}/>
+              <div className="absolute top-1/2" style={{ left: "-2px", transform: "translateY(-50%) rotate(45deg)", width: "7px", height: "7px", borderBottom: "3px solid #EAB308", borderLeft: "3px solid #EAB308", boxShadow: "0 0 10px rgba(234,179,8,0.9)" }}/>
+            </div>
+            {/* Griglia card 2x2, z=10 sopra connector */}
+            <div className="grid grid-cols-2 gap-3 relative z-10">
+              {/* LV 1 · Novizio (top left) */}
+              <div className="relative">
+                <div className={`relative rounded-2xl p-3 flex flex-col items-center justify-center transition-all duration-300 ${evoShell[0]}`}>
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md ${evoBadge[0]}`}>
+                    <span className="text-bgPrimary font-black text-base tabular-nums">{evolutions[0].ovr}</span>
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-[10px] font-black tracking-[0.15em] ${evoLbl[0]}`}>LV {evolutions[0].lv} · {evolutions[0].label.toUpperCase()}</p>
+                    <p className="text-[10px] text-textMuted/80 leading-snug mt-1">{evolutions[0].desc}</p>
                   </div>
                 </div>
-              ))}
+              </div>
+              {/* LV 5 · Emergente (top right) */}
+              <div className="relative">
+                <div className={`relative rounded-2xl p-3 flex flex-col items-center justify-center transition-all duration-300 ${evoShell[1]}`}>
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md ${evoBadge[1]}`}>
+                    <span className="text-bgPrimary font-black text-base tabular-nums">{evolutions[1].ovr}</span>
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-[10px] font-black tracking-[0.15em] ${evoLbl[1]}`}>LV {evolutions[1].lv} · {evolutions[1].label.toUpperCase()}</p>
+                    <p className="text-[10px] text-textMuted/80 leading-snug mt-1">{evolutions[1].desc}</p>
+                  </div>
+                </div>
+              </div>
+              {/* LV 22 · Veterano (bottom left) */}
+              <div className="relative">
+                <div className={`relative rounded-2xl p-3 flex flex-col items-center justify-center transition-all duration-300 ${evoShell[3]}`}>
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md ${evoBadge[3]}`}>
+                    <span className="text-bgPrimary font-black text-base tabular-nums">{evolutions[3].ovr}</span>
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-[10px] font-black tracking-[0.15em] ${evoLbl[3]}`}>LV {evolutions[3].lv} · {evolutions[3].label.toUpperCase()}</p>
+                    <p className="text-[10px] text-textMuted/80 leading-snug mt-1">{evolutions[3].desc}</p>
+                  </div>
+                </div>
+              </div>
+              {/* LV 12 · Affermato (bottom right) */}
+              <div className="relative">
+                <div className={`relative rounded-2xl p-3 flex flex-col items-center justify-center transition-all duration-300 ${evoShell[2]}`}>
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md ${evoBadge[2]}`}>
+                    <span className="text-bgPrimary font-black text-base tabular-nums">{evolutions[2].ovr}</span>
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-[10px] font-black tracking-[0.15em] ${evoLbl[2]}`}>LV {evolutions[2].lv} · {evolutions[2].label.toUpperCase()}</p>
+                    <p className="text-[10px] text-textMuted/80 leading-snug mt-1">{evolutions[2].desc}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           {/* Desktop */}
