@@ -1,16 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2, Crown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
+type ResetFn = () => void;
+
+function useResetOnReturn(reset: ResetFn) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) reset();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") reset();
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [reset]);
+}
+
 export function FreeCTAButton({ className }: { className?: string }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  useResetOnReturn(() => setLoading(false));
 
   function handleClick() {
     setLoading(true);
@@ -56,6 +82,11 @@ export function ProCheckoutButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useResetOnReturn(() => {
+    setLoading(false);
+    setError(null);
+  });
 
   async function handleClick() {
     setLoading(true);
@@ -117,6 +148,11 @@ export function AlreadyProPortalButton({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useResetOnReturn(() => {
+    setLoading(false);
+    setError(null);
+  });
+
   async function handleClick() {
     setLoading(true);
     setError(null);
@@ -172,6 +208,11 @@ export function YearlyCheckoutButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useResetOnReturn(() => {
+    setLoading(false);
+    setError(null);
+  });
 
   async function handleClick() {
     setLoading(true);
