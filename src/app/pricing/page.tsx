@@ -26,6 +26,7 @@ import {
   AlreadyProBanner,
   YearlyCheckoutButton,
 } from "@/components/pricing/StripeButtons";
+import FaqAccordion from "@/components/pricing/FaqAccordion";
 
 const pricingFree = [
   { icon: Users, text: "Profilo giocatore personalizzato" },
@@ -260,7 +261,7 @@ export default async function PricingPage() {
           <div className="rounded-3xl bg-bgCard border border-white/5 p-6 md:p-10 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-72 h-72 bg-greenElectric/5 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2 pointer-events-none" />
             <div className="relative grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-              <div>
+              <div className="md:self-center">
                 <h2 className="text-2xl md:text-3xl font-black tracking-tight">
                   Domande frequenti
                 </h2>
@@ -268,37 +269,11 @@ export default async function PricingPage() {
                   Hai ancora dubbi? Ecco le risposte alle domande più comuni.
                 </p>
               </div>
-              <div className="space-y-5">
-                <Faq
-                  q="Posso cancellare l'abbonamento in qualsiasi momento?"
-                  a="Sì. Puoi disattivare il rinnovo automatico in qualsiasi momento dal Customer Portal Stripe (Impostazioni → Abbonamento → Gestisci abbonamento), senza penali. La disattivazione non pregiudica l'utilizzo del periodo PRO già pagato fino alla sua scadenza naturale."
-                />
-                <Faq
-                  q="Cosa succede al mio account se torno FREE?"
-                  a="Niente. Tutti i tuoi dati restano intatti. Torni semplicemente ad avere le limitazioni del piano FREE."
-                />
-                <Faq
-                  q="Come posso pagare?"
-                  a="Accettiamo tutte le principali carte di credito e debito, oltre a Google Pay e Apple Pay tramite Stripe."
-                />
-                <Faq
-                  q="C'è un periodo di prova?"
-                  a="Il piano PRO si attiva immediatamente al momento dell'abbonamento; non è attualmente previsto un periodo di prova tecnico. I diritti di recesso, rimborso e gli altri diritti del consumatore si applicano nei casi e secondo le modalità previste dalla normativa vigente."
-                />
-              </div>
+              <FaqAccordion />
             </div>
           </div>
         </div>
       </div>
     </main>
-  );
-}
-
-function Faq({ q, a }: { q: string; a: string }) {
-  return (
-    <div>
-      <div className="font-bold text-sm md:text-base mb-1">{q}</div>
-      <div className="text-textMuted text-sm leading-relaxed">{a}</div>
-    </div>
   );
 }
