@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import stripe from '@/lib/stripe';
 import { SubscriptionStatus } from '@prisma/client';
+import { reconcileProUnlocks } from '@/lib/achievement-engine';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -16,6 +17,19 @@ class WebhookProcessingError extends Error {
   ) {
     super(message);
     this.name = 'WebhookProcessingError';
+  }
+}
+
+async function reconcileAchievementsForUserId(userId: string): Promise<void> {
+  try {
+    const profile = await prisma.playerProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!profile) return;
+    await reconcileProUnlocks(profile.id);
+  } catch (err) {
+    console.warn('achievement reconciliation skipped:', err instanceof Error ? err.message : String(err));
   }
 }
 
@@ -74,6 +88,25 @@ function getPeriodStartFromSubscription(sub: Stripe.Subscription): Date | null {
 
 function getCanceledAtFromSubscription(sub: Stripe.Subscription): Date | null {
   return sub.canceled_at ? new Date(sub.canceled_at * 1000) : null;
+}
+
+function statusIsActiveLike(s: Stripe.Subscription.Status): boolean {
+  return s === 'active' || s === 'trialing' || s === 'past_due';
+}
+
+async function resolveUserIdFromStripeSub(
+  stripeSub: Stripe.Subscription
+): Promise<string | null> {
+  const stripeSubscriptionId = stripeSub.id;
+  const customerFromSub =
+    typeof stripeSub.customer === 'string'
+      ? stripeSub.customer
+      : stripeSub.customer?.id ?? null;
+  const existing = await findSubscriptionByStripeRefs(
+    stripeSubscriptionId,
+    customerFromSub
+  );
+  return existing?.userId ?? null;
 }
 
 async function upsertSubscriptionFromStripeSub(
@@ -213,16 +246,26 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
       canceledAt: null,
     },
   });
+
+  void reconcileAchievementsForUserId(userId);
 }
 
 async function handleCustomerSubscriptionCreated(event: Stripe.Event) {
   const stripeSub = event.data.object as Stripe.Subscription;
   await upsertSubscriptionFromStripeSub(stripeSub);
+  const userId = await resolveUserIdFromStripeSub(stripeSub);
+  if (userId && statusIsActiveLike(stripeSub.status)) {
+    void reconcileAchievementsForUserId(userId);
+  }
 }
 
 async function handleCustomerSubscriptionUpdated(event: Stripe.Event) {
   const stripeSub = event.data.object as Stripe.Subscription;
   await upsertSubscriptionFromStripeSub(stripeSub);
+  const userId = await resolveUserIdFromStripeSub(stripeSub);
+  if (userId && statusIsActiveLike(stripeSub.status)) {
+    void reconcileAchievementsForUserId(userId);
+  }
 }
 
 async function handleCustomerSubscriptionDeleted(event: Stripe.Event) {
@@ -318,6 +361,10 @@ async function handleInvoicePaid(event: Stripe.Event) {
         currentPeriodEnd,
       },
     });
+
+    void reconcileAchievementsForUserId(subscription.userId);
+  } else if (subRecord?.subscriptionStatus === SubscriptionStatus.ACTIVE) {
+    void reconcileAchievementsForUserId(subscription.userId);
   }
 }
 

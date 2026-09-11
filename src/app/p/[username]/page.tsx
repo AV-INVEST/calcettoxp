@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { calculateCardAttributes } from '@/lib/card-attributes';
@@ -15,6 +16,7 @@ import { getAppBaseUrl } from '@/lib/app-url';
 import { hasActivePro } from '@/lib/entitlements';
 import { CARD_THEMES, type CardTheme } from '@/lib/username-config';
 import { formatSeasonName } from '@/lib/seasons';
+import { REFERRAL_COOKIE_NAME, normalizeReferralCode } from '@/lib/referral';
 
 const APP_URL = getAppBaseUrl();
 
@@ -22,6 +24,7 @@ export const revalidate = 300;
 
 interface PublicProfilePageProps {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ ref?: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
@@ -113,10 +116,34 @@ const FOOT_LABELS: Record<string, string> = {
   BOTH: 'Ambipede',
 };
 
-export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
+export default async function PublicProfilePage({ params, searchParams }: PublicProfilePageProps) {
   const { username: rawUsername } = await params;
   const username = decodeURIComponent(rawUsername || '').trim().toLowerCase();
   const viewerSession = await auth();
+
+  try {
+    const rawRef = (await searchParams).ref;
+    const refStr = Array.isArray(rawRef) ? rawRef[0] : rawRef;
+    const normalized = normalizeReferralCode(refStr);
+    if (normalized) {
+      try {
+        const cookieJar = await cookies();
+        if (!cookieJar.has(REFERRAL_COOKIE_NAME) || cookieJar.get(REFERRAL_COOKIE_NAME)?.value !== normalized) {
+          cookieJar.set(REFERRAL_COOKIE_NAME, normalized, {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 60,
+          });
+        }
+      } catch {
+        // ignore cookie write errors
+      }
+    }
+  } catch {
+    // ignore searchParams parsing errors
+  }
 
   if (!username) return notFound();
 

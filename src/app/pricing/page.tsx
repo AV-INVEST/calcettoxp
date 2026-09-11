@@ -34,7 +34,7 @@ const pricingFree = [
   { icon: BarChart3, text: "Statistiche essenziali" },
   { icon: TrendingUp, text: "Career Index (ultimi 20 punti)" },
   { icon: Sparkles, text: "XP, livelli e progressione" },
-  { icon: Award, text: "Achievement FREE" },
+  { icon: Award, text: "Trofei FREE" },
   { icon: LineChart, text: "Stagione corrente visibile" },
 ];
 
@@ -47,7 +47,7 @@ const pricingPro = [
   "Record personali e migliori streak",
   "Andamento e confronto stagioni",
   "Card premium + personalizzazioni",
-  "Achievement esclusivi PRO",
+  "Trofei esclusivi PRO",
   "Insight sulla forma atletica",
   "Badge PRO su profilo e classifiche",
   "Tutte le novità in anteprima",

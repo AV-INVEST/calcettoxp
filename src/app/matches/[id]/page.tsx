@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import PageContainer from "@/components/layout/PageContainer";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { format, differenceInMinutes } from "date-fns";
+import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import {
   ArrowLeft,
@@ -18,13 +18,11 @@ import {
   TrendingDown,
   Minus,
   Lock,
-  Pencil,
   Shield,
   Clock,
   StickyNote,
   AlertCircle,
 } from "lucide-react";
-import MatchEditForm from "./_components/MatchEditForm";
 import type { Role as PrismaRole, MatchResult as PrismaMatchResult } from "@prisma/client";
 
 export const metadata: Metadata = {
@@ -70,12 +68,6 @@ export default async function MatchDetailPage({
   if (match.playerId !== player.id) {
     redirect("/matches");
   }
-
-  const now = new Date();
-  const isLocked = !match.lockedAt || now >= new Date(match.lockedAt);
-  const minutesLeft = !isLocked && match.lockedAt
-    ? Math.max(0, differenceInMinutes(new Date(match.lockedAt), now))
-    : 0;
 
   const r = RESULT_INFO[match.result] ?? RESULT_INFO.DRAW;
   const ciUp = match.careerIndexChange > 0;
@@ -248,51 +240,29 @@ export default async function MatchDetailPage({
           <Card>
             <CardContent className="p-5 space-y-3">
               <h3 className="text-sm font-bold text-textPrimary">Stato partita</h3>
-              <div className="flex flex-col gap-2">
-                {isLocked ? (
-                  <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-bgSecondary p-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-textMuted">
-                      <Lock size={18} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-textPrimary">
-                        {match.isVerified ? "Partita verificata" : "Partita registrata"}
-                      </p>
-                      <p className="text-xs text-textMuted">
-                        {match.verificationType === "SELF_REPORTED"
-                          ? "Registrazione personale · Non più modificabile"
-                          : "Confermata da altri giocatori"}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-greenElectric/30 bg-greenElectric/10 p-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-greenElectric/20 text-greenElectric animate-pulse">
-                      <Pencil size={18} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-greenElectric">
-                        Modifica disponibile per altri {minutesLeft} minuti
-                      </p>
-                      <p className="text-xs text-textMuted">
-                        Blocco automatico:{" "}
-                        {format(new Date(match.lockedAt!), "HH:mm", {
-                          locale: it,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-bgSecondary/60 p-3 text-xs text-textMuted">
-                  <Clock size={14} className="shrink-0" />
-                  <span>
-                    Creata:{" "}
-                    {format(new Date(match.createdAt), "d MMM yyyy · HH:mm", {
-                      locale: it,
-                    })}
-                  </span>
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-bgSecondary p-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-textMuted">
+                  <Lock size={18} />
                 </div>
+                <div>
+                  <p className="text-sm font-semibold text-textPrimary">
+                    Partita registrata · Non più modificabile
+                  </p>
+                  <p className="text-xs text-textMuted">
+                    {match.verificationType === "SELF_REPORTED"
+                      ? "Registrazione personale"
+                      : "Confermata da altri giocatori"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-bgSecondary/60 p-3 text-xs text-textMuted">
+                <Clock size={14} className="shrink-0" />
+                <span>
+                  Creata:{" "}
+                  {format(new Date(match.createdAt), "d MMM yyyy · HH:mm", {
+                    locale: it,
+                  })}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -309,23 +279,6 @@ export default async function MatchDetailPage({
                 </p>
               </CardContent>
             </Card>
-          )}
-
-          {!isLocked && (
-            <MatchEditForm
-              matchId={match.id}
-              initialResult={match.result as "WIN" | "DRAW" | "LOSS"}
-              initialGoalsFor={match.goalsFor}
-              initialGoalsAgainst={match.goalsAgainst}
-              initialRole={match.role as "POR" | "DIF" | "CEN" | "ATT"}
-              initialGoals={match.goals}
-              initialAssists={match.assists}
-              initialPenaltiesSaved={(match as unknown as { penaltiesSaved?: number }).penaltiesSaved ?? 0}
-              initialKeySaves={(match as unknown as { keySaves?: number }).keySaves ?? 0}
-              initialCleanSheet={match.cleanSheet}
-              initialNotes={match.notes ?? ""}
-              minutesLeft={minutesLeft}
-            />
           )}
         </PageContainer>
       </main>

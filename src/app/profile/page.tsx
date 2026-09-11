@@ -143,7 +143,7 @@ export default async function ProfilePage() {
     (a) => a.playerAchievements[0]?.unlockedAt
   ).length;
 
-  const visibleSeasons = isPro ? player.seasons : player.seasons.slice(0, 1);
+  const displaySeasons = player.seasons;
 
   const summaryRecent = (player.matches || []).map((m) => ({
     careerIndexChange: m.careerIndexChange,
@@ -448,7 +448,10 @@ export default async function ProfilePage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Achievement sbloccati</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Trophy size={18} className="text-amber-400" />
+                  Trofei
+                </CardTitle>
                 <p className="text-textMuted text-sm mt-1">
                   {unlockedCount} su {allAchievements.length} totali
                 </p>
@@ -502,84 +505,214 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className={isPro ? "" : "relative overflow-hidden border-2 border-amber-500/35 bg-gradient-to-br from-amber-500/[0.05] via-transparent to-amber-400/[0.03]"}>
+          {!isPro && (
+            <>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+              <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            </>
+          )}
+          <CardHeader className="pb-3 relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Storico stagioni</CardTitle>
+                <div className="flex items-center gap-2 mb-1">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <CalendarDays size={18} className={isPro ? "text-greenElectric" : "text-amber-400"} />
+                    Storico stagioni
+                  </CardTitle>
+                  {!isPro && (
+                    <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
+                      <Crown size={10} className="mr-1 text-amber-300" /> PRO
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-textMuted text-sm mt-1">
                   {isPro
-                    ? `Mostra ${visibleSeasons.length} ${visibleSeasons.length === 1 ? "stagione" : "stagioni"}`
-                    : "Solo stagione corrente · Passa a PRO per lo storico completo"}
+                    ? `Mostra ${displaySeasons.length} ${displaySeasons.length === 1 ? "stagione" : "stagioni"} · storico completo`
+                    : `Stagione corrente visibile · ${displaySeasons.length > 1 ? `${displaySeasons.length - 1} ${displaySeasons.length - 1 === 1 ? "stagione" : "stagioni"} bloccate` : "storico completo incluso in PRO"}`}
                 </p>
               </div>
               {!isPro && (
-                <Badge variant="grigio" className="flex items-center gap-1">
-                  <Lock size={12} /> LOCKED
+                <Badge variant="grigio" className="flex items-center gap-1 border-amber-400/30 bg-black/40 text-amber-300">
+                  <Lock size={12} className="text-amber-400" /> LOCKED
                 </Badge>
               )}
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="space-y-3">
-              {visibleSeasons.map((s) => {
-                const delta = s.endCareerIndex - s.startCareerIndex;
-                return (
-                  <div
-                    key={s.seasonKey}
-                    className="rounded-2xl bg-bgSecondary/60 border border-white/5 p-4 md:p-5"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
-                      <div className="md:w-36">
-                        <div className="font-black text-lg">{formatSeasonName(s.name)}</div>
-                        <div className="text-xs text-textMuted mt-0.5">
-                          {format(new Date(s.startDate), "MMM yy")} →{" "}
-                          {format(new Date(s.endDate), "MMM yy")}
+              {displaySeasons.length === 0 ? (
+                <div className="text-center py-8">
+                  <CalendarDays size={40} className="mx-auto text-textMuted/40 mb-3" />
+                  <p className="text-textMuted">Nessuna stagione ancora registrata.</p>
+                </div>
+              ) : (
+                displaySeasons.map((s, idx) => {
+                  const isLocked = !isPro && idx > 0;
+                  const delta = s.endCareerIndex - s.startCareerIndex;
+                  return (
+                    <div
+                      key={s.seasonKey}
+                      className={`relative rounded-2xl p-4 md:p-5 overflow-hidden ${
+                        isLocked
+                          ? "border-2 border-amber-500/40 bg-gradient-to-br from-black/85 via-[#0d0d12]/95 to-black/90 shadow-[0_0_30px_rgba(251,191,36,0.08)]"
+                          : "bg-bgSecondary/60 border border-white/5"
+                      }`}
+                    >
+                      {isLocked && (
+                        <>
+                          <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+                            <Badge variant="elettrico" className="text-[9px] border-amber-400/50 bg-amber-400/15 text-amber-200">
+                              <Crown size={8} className="mr-0.5" /> PRO
+                            </Badge>
+                            <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+                              <Lock size={14} className="text-amber-400" />
+                            </div>
+                          </div>
+                          <div className="absolute inset-0 z-10 backdrop-blur-[3px] bg-gradient-to-br from-black/40 via-transparent to-black/60 pointer-events-none" />
+                          <div className="absolute inset-x-0 bottom-0 h-24 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                          <div className="absolute top-4 left-4 z-20 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shadow-xl shadow-amber-500/25 border border-amber-300/30">
+                            <Crown size={18} className="text-amber-950" />
+                          </div>
+                        </>
+                      )}
+                      <div className={`flex flex-col md:flex-row md:items-center gap-3 md:gap-5 ${isLocked ? "relative z-[5]" : ""}`}>
+                        <div className={`md:w-36 ${isLocked ? "md:pl-14" : ""}`}>
+                          <div className={`font-black text-lg ${isLocked ? "text-[#FFF8E7]" : ""}`}>
+                            {isLocked ? "Stagione archiviata" : formatSeasonName(s.name)}
+                          </div>
+                          <div className={`text-xs mt-0.5 ${isLocked ? "text-amber-200/70" : "text-textMuted"}`}>
+                            {isLocked ? "Dati storici esclusivi PRO" : `${format(new Date(s.startDate), "MMM yy")} → ${format(new Date(s.endDate), "MMM yy")}`}
+                          </div>
+                        </div>
+                        <div className="flex-1 grid grid-cols-3 md:grid-cols-6 gap-3">
+                          <MiniStat
+                            label="Partite"
+                            value={isLocked ? <span className="text-[#FFF8E7]">•••</span> : `${s.matches}`}
+                          />
+                          <MiniStat
+                            label="V/P/S"
+                            value={
+                              isLocked ? (
+                                <span className="text-[#FFF8E7]">•••</span>
+                              ) : (
+                                <span>
+                                  <span className="text-greenPrimary">{s.wins}</span>/
+                                  <span className="text-textMuted">{s.draws}</span>/
+                                  <span className="text-danger">{s.losses}</span>
+                                </span>
+                              )
+                            }
+                          />
+                          <MiniStat
+                            label="Gol"
+                            value={isLocked ? <span className="text-[#FFF8E7]">•••</span> : `${s.goals}`}
+                          />
+                          <MiniStat
+                            label="Assist"
+                            value={isLocked ? <span className="text-[#FFF8E7]">•••</span> : `${s.assists}`}
+                          />
+                          <MiniStat
+                            label="CI Inizio"
+                            value={isLocked ? <span className="text-[#FFF8E7]">•••</span> : `${s.startCareerIndex}`}
+                          />
+                          <MiniStat
+                            label="CI Fine"
+                            value={
+                              isLocked ? (
+                                <span className="text-[#FFF8E7]">•••</span>
+                              ) : (
+                                <span className={delta >= 0 ? "text-greenPrimary" : "text-danger"}>
+                                  {s.endCareerIndex}
+                                  <span className="text-xs ml-1">
+                                    ({delta >= 0 ? "+" : ""}
+                                    {delta})
+                                  </span>
+                                </span>
+                              )
+                            }
+                          />
                         </div>
                       </div>
-                      <div className="flex-1 grid grid-cols-3 md:grid-cols-6 gap-3">
-                        <MiniStat label="Partite" value={`${s.matches}`} />
-                        <MiniStat
-                          label="V/P/S"
-                          value={
-                            <span>
-                              <span className="text-greenPrimary">{s.wins}</span>/
-                              <span className="text-textMuted">{s.draws}</span>/
-                              <span className="text-danger">{s.losses}</span>
-                            </span>
-                          }
-                        />
-                        <MiniStat label="Gol" value={`${s.goals}`} />
-                        <MiniStat label="Assist" value={`${s.assists}`} />
-                        <MiniStat label="CI Inizio" value={`${s.startCareerIndex}`} />
-                        <MiniStat
-                          label="CI Fine"
-                          value={
-                            <span className={delta >= 0 ? "text-greenPrimary" : "text-danger"}>
-                              {s.endCareerIndex}
-                              <span className="text-xs ml-1">
-                                ({delta >= 0 ? "+" : ""}
-                                {delta})
-                              </span>
-                            </span>
-                          }
-                        />
+                      {isLocked && (
+                        <div className="relative z-20 mt-4 pt-3 border-t border-amber-400/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-[13px] font-bold text-[#FFF8E7] flex items-center gap-1.5">
+                              <Star size={13} className="text-amber-400 shrink-0" />
+                              Sblocca lo storico completo
+                            </div>
+                            <p className="text-[11px] text-amber-200/60 mt-0.5 truncate">
+                              Tutta la tua carriera, andamenti CI, record e confronti tra stagioni
+                            </p>
+                          </div>
+                          <Link
+                            href="/pricing"
+                            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.2)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.35)] active:scale-[0.99]"
+                          >
+                            <Crown size={12} />
+                            <span>Sblocca</span>
+                            <ChevronRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+
+              {!isPro && displaySeasons.length > 0 && (
+                <div className="mt-5 rounded-2xl border-2 border-amber-500/35 bg-gradient-to-br from-black/75 via-[#0d0d12]/85 to-black/80 p-5 relative overflow-hidden shadow-[0_0_35px_rgba(251,191,36,0.1)]">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-amber-400/12 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative">
+                    <div className="flex flex-row-reverse md:flex-row md:items-start items-center gap-4 w-full">
+                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 flex items-center justify-center shrink-0 shadow-xl shadow-amber-500/25 border border-amber-300/30">
+                        <Crown size={26} className="md:w-[30px] md:h-[30px] text-amber-950" />
+                      </div>
+                      <div className="flex-1 min-w-0 md:order-2 order-1 w-full">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
+                            <Crown size={12} className="mr-1 text-amber-300" /> PRO
+                          </Badge>
+                          <h3 className="text-lg md:text-xl font-black text-[#FFF8E7]">
+                            Storico completo · Tutte le stagioni
+                          </h3>
+                        </div>
+                        <ul className="text-amber-100/80 text-xs md:text-sm mt-2 md:mt-3 space-y-1 md:space-y-1.5 grid md:grid-cols-2 gap-1">
+                          <li className="flex items-center gap-2 min-w-0">
+                            <CheckCircle2 size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                            <span className="truncate">Tutte le stagioni archiviate</span>
+                          </li>
+                          <li className="flex items-center gap-2 min-w-0">
+                            <CheckCircle2 size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                            <span className="truncate">Delta CI e progressioni complete</span>
+                          </li>
+                          <li className="flex items-center gap-2 min-w-0">
+                            <CheckCircle2 size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                            <span className="truncate">Gol, assist e risultati per stagione</span>
+                          </li>
+                          <li className="flex items-center gap-2 min-w-0">
+                            <CheckCircle2 size={13} className="md:w-[14px] md:h-[14px] text-amber-400 shrink-0" />
+                            <span className="truncate">Picchi Career Index e record personali</span>
+                          </li>
+                        </ul>
                       </div>
                     </div>
+                    <div className="flex md:ml-4 md:shrink-0 justify-center md:justify-end w-full md:w-auto">
+                      <Link href="/pricing" className="w-full md:w-auto">
+                        <div
+                          className="group inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-5 md:px-6 py-3 md:py-3.5 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.22)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.38)] active:scale-[0.99]"
+                        >
+                          <Crown size={15} />
+                          <span>Passa a PRO</span>
+                          <ChevronRight
+                            size={17}
+                            className="transition-transform group-hover:translate-x-0.5"
+                          />
+                        </div>
+                      </Link>
+                    </div>
                   </div>
-                );
-              })}
-              {!isPro && player.seasons.length > 1 && (
-                <Link href="/pricing">
-                  <div className="rounded-2xl border-2 border-dashed border-white/10 hover:border-greenElectric/40 p-4 text-center transition-colors cursor-pointer group">
-                    <p className="text-textMuted text-sm">
-                      <span className="text-greenElectric font-semibold group-hover:underline">
-                        Passa a PRO
-                      </span>{" "}
-                      per vedere altre {player.seasons.length - 1} stagioni
-                    </p>
-                  </div>
-                </Link>
+                </div>
               )}
             </div>
           </CardContent>

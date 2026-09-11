@@ -640,10 +640,10 @@ export default async function DashboardPage() {
 
         {/* 6) 4 METRICHE COMPATTE: Streak · Settimana · Stagione · Record (2x2 mobile, 4-col desktop, stessa altezza) */}
         <section className="w-full max-w-full">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4 w-full max-w-full">
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-fr gap-2.5 md:gap-4 w-full max-w-full">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-3 py-5 md:p-4 flex flex-col items-center justify-center text-center w-full min-h-[120px] h-full gap-2">
+                <div className="flex items-center justify-center gap-1.5 min-w-0 shrink-0">
                   <Flame
                     size={14}
                     className={
@@ -679,9 +679,9 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-3 py-5 md:p-4 flex flex-col items-center justify-center text-center w-full min-h-[120px] h-full gap-2">
+                <div className="flex items-center justify-center gap-1.5 min-w-0 shrink-0">
                   <Calendar size={14} className="text-blue-400" />
                   <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Settimana
@@ -698,9 +698,9 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-3 py-5 md:p-4 flex flex-col items-center justify-center text-center w-full min-h-[120px] h-full gap-2">
+                <div className="flex items-center justify-center gap-1.5 min-w-0 shrink-0">
                   <Trophy size={14} className="text-yellow-400" />
                   <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Stagione
@@ -715,9 +715,9 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-3 py-5 md:p-4 flex flex-col items-center justify-center text-center w-full min-h-[120px] h-full gap-2">
+                <div className="flex items-center justify-center gap-1.5 min-w-0 shrink-0">
                   <Crown
                     size={14}
                     className={
@@ -962,10 +962,10 @@ export default async function DashboardPage() {
 
         {/* 10) STATS 2x2 mobile + Win Rate full-width (2-col mobile, 3-col desktop, stessa altezza) */}
         <section className="w-full max-w-full">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-4 w-full max-w-full">
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
-                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+          <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-fr gap-2.5 md:gap-4 w-full max-w-full">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full h-full justify-center items-center text-center min-h-[96px]">
+                <div className="w-full flex items-center justify-center gap-1.5 mb-1.5 min-w-0">
                   <History size={11} className="text-textMuted shrink-0 md:hidden" />
                   <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider truncate">
                     Partite
@@ -976,9 +976,9 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
-                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full h-full justify-center items-center text-center min-h-[96px]">
+                <div className="w-full flex items-center justify-center gap-1.5 mb-1.5 min-w-0">
                   <Trophy size={11} className="text-greenPrimary shrink-0 md:hidden" />
                   <div className="text-[10px] font-semibold text-greenPrimary uppercase tracking-wider truncate">
                     Vittorie
@@ -989,9 +989,9 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
-                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full h-full justify-center items-center text-center min-h-[96px]">
+                <div className="w-full flex items-center justify-center gap-1.5 mb-1.5 min-w-0">
                   <Target size={11} className="text-yellow-400 shrink-0 md:hidden" />
                   <div className="text-[10px] font-semibold text-yellow-400 uppercase tracking-wider truncate">
                     Gol
@@ -1002,9 +1002,9 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full justify-center items-center md:items-start md:justify-start text-center md:text-left min-h-[96px] md:min-h-0">
-                <div className="w-full flex items-center justify-center md:justify-start gap-1.5 mb-1.5 min-w-0">
+            <Card className="flex flex-col w-full h-full">
+              <CardContent className="px-4 py-5 md:p-5 flex flex-1 flex-col w-full h-full justify-center items-center text-center min-h-[96px]">
+                <div className="w-full flex items-center justify-center gap-1.5 mb-1.5 min-w-0">
                   <Zap size={11} className="text-blue-400 shrink-0 md:hidden" />
                   <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider truncate">
                     Assist
@@ -1015,10 +1015,10 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-2 md:col-span-2 w-full max-w-full">
-              <CardContent className="px-4 py-4 md:p-5 w-full max-w-full flex flex-col justify-center min-h-[88px] md:min-h-0">
+            <Card className="col-span-2 md:col-span-2 w-full h-full max-w-full">
+              <CardContent className="px-4 py-4 md:p-5 w-full max-w-full flex flex-col justify-center h-full min-h-[88px]">
                 <div className="flex items-center justify-between mb-2.5 gap-2 w-full">
-                  <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0">
+                  <div className="flex items-center justify-center gap-1.5 min-w-0">
                     <Sparkles size={11} className="text-textMuted shrink-0" />
                     <div className="text-[10px] font-semibold text-textMuted uppercase tracking-wider min-w-0 truncate">
                       Win Rate
@@ -1045,7 +1045,7 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-2.5">
               <Award size={18} className="text-greenElectric" />
               <h2 className="text-sm font-bold text-textMuted uppercase tracking-wider">
-                Prossimo achievement
+                Prossimo trofeo
               </h2>
             </div>
           </div>
@@ -1056,7 +1056,7 @@ export default async function DashboardPage() {
               <CardContent className="p-5 text-center">
                 <Target size={32} className="mx-auto mb-3 text-textMuted" />
                 <p className="text-sm font-semibold text-textPrimary mb-1">
-                  Tutti gli achievement sbloccati!
+                  Tutti i trofei sbloccati!
                 </p>
                 <p className="text-xs text-textMuted">
                   Continua a giocare per ottenere nuovi trofei.

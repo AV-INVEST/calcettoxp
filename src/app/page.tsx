@@ -1235,7 +1235,7 @@ export default function LandingPage() {
                 </div>
                 <p className="text-textMuted leading-relaxed mb-8 text-lg">La tua carriera, le tue regole.</p>
                 <ul className="space-y-3 mb-9">
-                  {["Statistiche e CI illimitate","Evoluzione card completa","100% autonomia","Achievement sbloccabili"].map(item => (
+                  {["Statistiche e CI illimitate","Evoluzione card completa","100% autonomia","Trofei sbloccabili"].map(item => (
                     <li key={item} className="flex items-center gap-3 text-textPrimary text-lg">
                       <div className="w-5 h-5 shrink-0 rounded-full bg-greenElectric/20 border border-greenElectric/40 flex items-center justify-center">
                         <Check className="w-3 h-3 text-greenElectric" strokeWidth={3.5}/>

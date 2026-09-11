@@ -344,7 +344,7 @@ export default async function StatsPage() {
           </CardContent>
         </Card>
 
-        {currentSeason && (
+        {isPro && currentSeason && (
           <Card className="mb-6">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -404,6 +404,61 @@ export default async function StatsPage() {
                     )
                   )}
                 />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {!isPro && (
+          <Card className="mb-6 border-2 border-amber-500/25 relative overflow-hidden bg-gradient-to-br from-slate-900/40 via-bgCard to-bgCard">
+            <div className="absolute top-0 right-0 w-56 h-56 bg-amber-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+            <CardHeader className="pb-3 relative">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Stagione corrente</CardTitle>
+                  <p className="text-textMuted text-sm mt-1">Dati dettagliati della stagione in corso</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="grigio" className="flex items-center gap-1">
+                    <Lock size={12} /> LOCKED
+                  </Badge>
+                  <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
+                    <Crown size={12} className="mr-1 text-amber-300" /> PRO
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 py-2">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center shrink-0 border border-amber-400/20 shadow-lg">
+                  <Lock size={26} className="md:w-[30px] md:h-[30px] text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base md:text-lg font-black text-textPrimary mb-1">
+                    Analytics stagionali riservati a PRO
+                  </h3>
+                  <p className="text-textMuted text-sm mb-3">
+                    Andamento CI, picchi, V/P/S e progressi per ogni stagione. Passa a PRO per sbloccare la profondità completa della tua carriera.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="grigio" className="text-[11px]">Progressione CI</Badge>
+                    <Badge variant="grigio" className="text-[11px]">Picco stagione</Badge>
+                    <Badge variant="grigio" className="text-[11px]">V/P/S stagionale</Badge>
+                    <Badge variant="grigio" className="text-[11px]">Storico completo</Badge>
+                  </div>
+                </div>
+                <div className="flex md:ml-4 md:shrink-0 justify-center md:justify-end w-full md:w-auto">
+                  <Link href="/pricing" className="w-full md:w-auto">
+                    <div
+                      className="group inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-5 py-3 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.18)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.3)] active:scale-[0.99]"
+                    >
+                      <Crown size={15} />
+                      <span>Sblocca PRO</span>
+                      <ChevronRight size={17} className="transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

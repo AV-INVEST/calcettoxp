@@ -12,6 +12,8 @@ import {
   Home,
   Sparkles,
   Flame,
+  Crown,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -705,40 +707,67 @@ export default function MatchResultScreen({
 
       {/* FASE 5: Achievement sbloccati */}
       {showFinal && unlockedAchievements.length > 0 && (
-        <Card className="animate-[fadeInUp_0.5s_ease-out]">
-          <CardContent className="p-5">
+        <Card className="animate-[fadeInUp_0.5s_ease-out] border-white/[0.06] bg-gradient-to-br from-[#0b0c11] to-[#0a0b10]">
+          <CardContent className="p-4 sm:p-5">
             <div className="mb-4 flex items-center gap-2">
-              <Award size={20} className="text-yellow-400" />
-              <h3 className="font-bold text-textPrimary">
-                Achievement sbloccati ({unlockedAchievements.length})
+              <Sparkles size={18} className="text-greenElectric" />
+              <h3 className="font-black tracking-tight text-textPrimary">
+                Trofei sbloccati ({unlockedAchievements.length})
               </h3>
             </div>
-            <div className="space-y-2">
-              {unlockedAchievements.map((a) => (
-                <div
-                  key={a.id}
-                  className="flex items-center gap-3 rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-3"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-yellow-400/20 text-yellow-400">
-                    <Award size={20} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-textPrimary">
-                      {a.name}
-                    </p>
-                    {a.description && (
-                      <p className="truncate text-xs text-textMuted">
-                        {a.description}
-                      </p>
-                    )}
-                  </div>
-                  <Badge
-                    variant={a.tier === "PRO" ? "elettrico" : "verde"}
+            <div className="space-y-2.5">
+              {unlockedAchievements.map((a) => {
+                const isPro = a.tier === "PRO";
+                return (
+                  <div
+                    key={a.id}
+                    className={`relative overflow-hidden flex items-center gap-3 rounded-xl border p-3 ${
+                      isPro
+                        ? "bg-gradient-to-br from-[#18130a] via-[#120f0a] to-[#0b0906] border-amber-400/30 shadow-[0_0_24px_rgba(251,191,36,0.08)]"
+                        : "bg-gradient-to-br from-[#111914] via-[#0e1513] to-[#0a0e0c] border-[#7dff6b]/25 shadow-[0_0_22px_rgba(124,255,107,0.07)]"
+                    }`}
                   >
-                    {a.tier}
-                  </Badge>
-                </div>
-              ))}
+                    <div
+                      className={`pointer-events-none absolute inset-0 mix-blend-overlay opacity-20 ${
+                        isPro
+                          ? "bg-[radial-gradient(circle_at_0%_0%,rgba(251,191,36,0.4),transparent_55%)]"
+                          : "bg-[radial-gradient(circle_at_0%_0%,rgba(124,255,107,0.45),transparent_55%)]"
+                      }`}
+                      aria-hidden
+                    />
+                    <div
+                      className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${
+                        isPro
+                          ? "bg-gradient-to-br from-amber-400/25 via-amber-300/15 to-transparent border-amber-300/40 text-amber-300"
+                          : "bg-gradient-to-br from-greenPrimary/25 via-greenElectric/20 to-transparent border-greenElectric/35 text-greenElectric"
+                      }`}
+                    >
+                      <Award size={20} />
+                    </div>
+                    <div className="relative min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-black tracking-tight text-textPrimary break-words min-w-0">
+                          {a.name}
+                        </p>
+                        {isPro ? (
+                          <Badge className="h-5 text-[9.5px] uppercase tracking-[0.1em] border-amber-400/35 bg-amber-400/5 text-amber-300">
+                            <Crown size={8} className="mr-1" /> PRO
+                          </Badge>
+                        ) : (
+                          <Badge className="h-5 text-[9.5px] uppercase tracking-[0.1em] border-greenElectric/40 bg-greenElectric/5 text-greenElectric">
+                            <Check size={8} className="mr-1" /> FREE
+                          </Badge>
+                        )}
+                      </div>
+                      {a.description && (
+                        <p className="text-[11.5px] text-[#8a8f9c] leading-snug mt-0.5 line-clamp-2">
+                          {a.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

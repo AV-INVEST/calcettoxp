@@ -75,17 +75,48 @@ const ROLE_LABELS: Record<Role, string> = {
   ATT: "Attaccante",
 };
 
+function toLocalInputString(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
 export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultData, setResultData] = useState<ApiSuccessResponse | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  const today = new Date();
-  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-  const defaultDate = today.toISOString().slice(0, 16);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const [playedAt, setPlayedAt] = useState<string>(defaultDate);
+  const { minDateStr, maxDateStr, minDate, maxDate, initialDate } = useMemo(() => {
+    if (!mounted) {
+      return {
+        minDateStr: "",
+        maxDateStr: "",
+        minDate: new Date(0),
+        maxDate: new Date(0),
+        initialDate: "",
+      };
+    }
+    const now = new Date();
+    const min = new Date(now.getTime() - 72 * 60 * 60 * 1000);
+    return {
+      minDateStr: toLocalInputString(min),
+      maxDateStr: toLocalInputString(now),
+      minDate: min,
+      maxDate: now,
+      initialDate: toLocalInputString(now),
+    };
+  }, [mounted]);
+
+  const [playedAt, setPlayedAt] = useState<string>("");
   const [team1Score, setTeam1Score] = useState<number>(0);
   const [team2Score, setTeam2Score] = useState<number>(0);
   const [team, setTeam] = useState<Team>("T1");
@@ -95,6 +126,12 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   const [penaltiesSaved, setPenaltiesSaved] = useState<number>(0);
   const [keySaves, setKeySaves] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
+
+  useEffect(() => {
+    if (mounted && initialDate && !playedAt) {
+      setPlayedAt(initialDate);
+    }
+  }, [mounted, initialDate, playedAt]);
 
   const isGoalkeeper = role === "POR";
 
@@ -133,9 +170,10 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
   const resetForm = () => {
     setResultData(null);
     setError(null);
-    const t = new Date();
-    t.setMinutes(t.getMinutes() - t.getTimezoneOffset());
-    setPlayedAt(t.toISOString().slice(0, 16));
+    if (mounted) {
+      const now = new Date();
+      setPlayedAt(toLocalInputString(now));
+    }
     setTeam1Score(0);
     setTeam2Score(0);
     setTeam("T1");
@@ -167,8 +205,22 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
     setError(null);
 
     try {
+      const playedAtDate = new Date(playedAt);
+      if (mounted) {
+        if (playedAtDate < minDate) {
+          setError("Data partita non valida: puoi registrare solo partite delle ultime 72 ore.");
+          setLoading(false);
+          return;
+        }
+        if (playedAtDate.getTime() > maxDate.getTime() + 1500) {
+          setError("Data partita non valida: non puoi registrare partite con data futura.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const payload: Record<string, unknown> = {
-        playedAt: new Date(playedAt).toISOString(),
+        playedAt: playedAtDate.toISOString(),
         team1Score,
         team2Score,
         team,
@@ -248,11 +300,13 @@ export default function RegisterMatchForm({ defaultRole }: RegisterMatchFormProp
               type="datetime-local"
               value={playedAt}
               onChange={(e) => setPlayedAt(e.target.value)}
-              max={defaultDate}
+              min={mounted ? minDateStr : undefined}
+              max={mounted ? maxDateStr : undefined}
               required
+              disabled={!mounted}
             />
             <p className="mt-1 text-xs text-textMuted">
-              Solo partite delle ultime 72 ore
+              Solo partite delle ultime 72 ore. Nessuna data futura.
             </p>
           </div>
         </CardContent>

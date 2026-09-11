@@ -54,6 +54,16 @@ enum AchievementRequirementType {
   STREAK
 }
 
+enum ReferralStatus {
+  PENDING
+  CONFIRMED
+}
+
+enum ShareSource {
+  WEBSHARE
+  COPY
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -128,6 +138,7 @@ model PlayerProfile {
   goals                  Int                 @default(0)
   assists                Int                 @default(0)
   cleanSheets            Int                 @default(0)
+  referralCode           String?             @unique
   currentSeasonKey       String?
   lastPrimaryRoleChangeAt DateTime?
   lastUsernameChangeAt   DateTime?
@@ -141,6 +152,9 @@ model PlayerProfile {
   achievements           PlayerAchievement[]
   teamMembers            TeamMember[]
   matchParticipants      MatchParticipant[]
+  referralsAsReferrer    Referral[]          @relation("ReferrerProfile")
+  referralsAsReferred    Referral?           @relation("ReferredProfile")
+  shareRecords           ShareRecord[]
 
   @@index([username])
   @@index([isPublic])
@@ -231,9 +245,12 @@ model Achievement {
   name              String
   description       String
   icon              String?
+  category          String?
   requirementType   AchievementRequirementType
   requirementValue  Int
+  requirementMeta   Json?
   tier              AchievementTier             @default(FREE)
+  isActive          Boolean                     @default(true)
   createdAt         DateTime                    @default(now())
 
   playerAchievements PlayerAchievement[]
@@ -321,4 +338,34 @@ model MatchConfirmation {
   matchParticipant   MatchParticipant  @relation(fields: [matchParticipantId], references: [id], onDelete: Cascade)
 
   @@index([matchId])
+}
+
+model Referral {
+  id           String         @id @default(cuid())
+  referrerId   String
+  referredId   String         @unique
+  status       ReferralStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  confirmedAt  DateTime?
+
+  referrer     PlayerProfile  @relation("ReferrerProfile", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred     PlayerProfile  @relation("ReferredProfile", fields: [referredId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+  @@index([status])
+}
+
+model ShareRecord {
+  id              String      @id @default(cuid())
+  playerProfileId String
+  dayKey          String
+  shareCount      Int         @default(1)
+  source          ShareSource
+  createdAt       DateTime    @default(now())
+
+  playerProfile   PlayerProfile @relation(fields: [playerProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([playerProfileId, dayKey])
+  @@index([playerProfileId])
+  @@index([dayKey])
 }

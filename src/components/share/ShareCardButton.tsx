@@ -7,19 +7,41 @@ import { getAppBaseUrl } from '@/lib/app-url';
 
 interface ShareCardButtonProps {
   username: string;
+  referralCode?: string | null;
   label?: string;
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
 }
 
-function buildShareUrl(username: string): string {
+function buildShareUrl(username: string, referralCode?: string | null): string {
   const envBase = (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_APP_URL) || undefined;
   const base = (typeof window !== 'undefined' && window.location.origin) || envBase || getAppBaseUrl();
-  return `${base.replace(/\/$/, '')}/p/${encodeURIComponent(username)}`;
+  const baseUrl = `${base.replace(/\/$/, '')}/p/${encodeURIComponent(username)}`;
+  if (!referralCode) return baseUrl;
+  const sep = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${sep}ref=${encodeURIComponent(referralCode)}`;
+}
+
+async function trackShare(source: 'WEBSHARE' | 'COPY') {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 3500);
+    await fetch('/api/share/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source }),
+      signal: controller.signal,
+      credentials: 'same-origin',
+    });
+    clearTimeout(id);
+  } catch {
+    // ignore; UX-first
+  }
 }
 
 export function ShareCardButton({
   username,
+  referralCode,
   label = 'Condividi la mia card',
   variant = 'secondary',
   size = 'md',
@@ -27,7 +49,7 @@ export function ShareCardButton({
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const shareUrl = buildShareUrl(username);
+  const shareUrl = buildShareUrl(username, referralCode);
   const shareText = 'Guarda la mia carriera su CalcettoXP ⚽';
   const shareTitle = 'La mia carriera CalcettoXP';
 
@@ -40,6 +62,7 @@ export function ShareCardButton({
           text: shareText,
           url: shareUrl,
         });
+        void trackShare('WEBSHARE');
         return;
       }
       await handleCopy();
@@ -54,21 +77,26 @@ export function ShareCardButton({
   }
 
   async function handleCopy() {
+    let ok = false;
     try {
       if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(shareUrl);
+        ok = true;
       } else {
         const ta = document.createElement('textarea');
         ta.value = shareUrl;
         document.body.appendChild(ta);
         ta.select();
-        document.execCommand('copy');
+        ok = !!document.execCommand('copy');
         document.body.removeChild(ta);
       }
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2200);
     } catch (e) {
       console.error('copy failed', e);
+    }
+    if (ok) {
+      void trackShare('COPY');
     }
   }
 

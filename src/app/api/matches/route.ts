@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     const playedAtDate = new Date(parsed.playedAt);
     const nowUtc = new Date();
 
-    if (playedAtDate.getTime() > nowUtc.getTime() + 60_000) {
+    if (playedAtDate.getTime() > nowUtc.getTime()) {
       return NextResponse.json(
         { ok: false, error: "La data della partita non può essere nel futuro" },
         { status: 400 }

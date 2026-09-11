@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
@@ -6,6 +7,12 @@ import { careerIndexToOverall } from "@/lib/ovr";
 import { getSeasonKeyInfo } from "@/lib/seasons";
 import { Role, PreferredFoot } from "@prisma/client";
 import { USERNAME_REGEX, validateUsernameFormat } from "@/lib/username-config";
+import {
+  generateReferralCode,
+  REFERRAL_COOKIE_NAME,
+  normalizeReferralCode,
+} from "@/lib/referral";
+import { buildAggregatorContext, persistUnlocksForProfile } from "@/lib/achievement-engine";
 
 const onboardingSchema = z.object({
   nickname: z.string().min(2).max(20).optional(),
@@ -76,6 +83,12 @@ export async function POST(req: Request) {
     const initialOverall = careerIndexToOverall(initialCareerIndex);
     const season = getSeasonKeyInfo();
 
+    const cookieJar = await cookies();
+    const rawRef = cookieJar.get(REFERRAL_COOKIE_NAME)?.value ?? null;
+    const refCode = normalizeReferralCode(rawRef);
+
+    const referralCode = generateReferralCode();
+
     const result = await prisma.$transaction(async (tx) => {
       const playerProfile = await tx.playerProfile.create({
         data: {
@@ -96,6 +109,7 @@ export async function POST(req: Request) {
           careerIndex: initialCareerIndex,
           overall: initialOverall,
           currentSeasonKey: season.seasonKey,
+          referralCode,
         },
       });
 
@@ -127,7 +141,47 @@ export async function POST(req: Request) {
       return playerProfile;
     });
 
-    return NextResponse.json({ ok: true, playerId: result.id });
+    let referrerProcessed = false;
+    if (refCode && refCode !== result.referralCode) {
+      try {
+        const referrer = await prisma.playerProfile.findUnique({
+          where: { referralCode: refCode },
+          select: { id: true, userId: true, referralCode: true },
+        });
+        if (referrer && referrer.userId !== userId) {
+          const now = new Date();
+          try {
+            await prisma.referral.create({
+              data: {
+                referrerId: referrer.id,
+                referredId: result.id,
+                status: "CONFIRMED",
+                confirmedAt: now,
+              },
+            });
+            referrerProcessed = true;
+            cookieJar.delete(REFERRAL_COOKIE_NAME);
+          } catch {
+            // unique on referredId - if already present ignore
+          }
+          if (referrerProcessed) {
+            try {
+              const ctx = await buildAggregatorContext(referrer.id);
+              await persistUnlocksForProfile(referrer.id, ctx);
+            } catch {
+              // ignore unlock errors
+            }
+          }
+        }
+      } catch {
+        // ignore referral errors
+      }
+    }
+
+    return NextResponse.json(
+      { ok: true, playerId: result.id, referral: referrerProcessed },
+      { headers: referrerProcessed ? {} : {} }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

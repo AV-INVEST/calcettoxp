@@ -1,0 +1,19 @@
+
+=== TEST A: Stripe SANDBOX READ-ONLY ===
+⚠️  SK non è sk_test_ (sk=...) - SKIP Stripe LIVE per sicurezza
+
+=== TEST B: Neon DB read-only counts + profile fields ===
+Counts: User=3 Profile=3 Match=1 Achievement=0 PlayerAchievement=0 Subscription=1
+⚠️  PlayerProfile.referralCode column MISSING (migration 20260911110000 non ancora applicata): 
+Achievement columns (V2): [] -> ⚠️  MANCANO (migration 20260911150000 non applicata)
+Table Referral exists: ⚠️  NO (migration mancante)
+Table ShareRecord exists: ⚠️  NO (migration mancante)
+ReferralStatus/ShareSource enums on DB: []
+
+=== TEST C: Catalog count ===
+FREE=21 PRO=30 TOT=51 attesi 20/30/50 -> ❌ NO MATCH
+
+=== TEST D: PATCH match immutabilità (codice) ===
+✅ PATCH /api/matches/[id] ritorna 403 Partite non modificabili
+
+=== TEST DONE ===

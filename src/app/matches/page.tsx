@@ -10,7 +10,7 @@ import { getSeasonKeyInfo } from "@/lib/seasons";
 import { hasActivePro } from "@/lib/entitlements";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { Trophy, Lock, Pencil, Target, Zap, TrendingUp, TrendingDown, Minus, Calendar, Crown } from "lucide-react";
+import { Trophy, Lock, Target, Zap, TrendingUp, TrendingDown, Minus, Calendar, Crown } from "lucide-react";
 
 import type { Metadata } from "next";
 
@@ -181,7 +181,6 @@ export default async function MatchesListPage() {
                   <div className="space-y-2">
                     {dayMatches.map((m) => {
                       const r = RESULT_LABELS[m.result] ?? RESULT_LABELS.DRAW;
-                      const isLocked = !m.lockedAt || new Date() >= new Date(m.lockedAt);
                       const ciUp = m.careerIndexChange > 0;
                       const ciDown = m.careerIndexChange < 0;
                       return (
@@ -251,21 +250,12 @@ export default async function MatchesListPage() {
                                     +{m.xpEarned} XP
                                   </Badge>
                                   <div className="flex items-center gap-1">
-                                    {isLocked ? (
-                                      <span
-                                        title="Partita bloccata"
-                                        className="inline-flex items-center gap-1 text-[10px] text-textMuted"
-                                      >
-                                        <Lock size={10} />
-                                      </span>
-                                    ) : (
-                                      <span
-                                        title="Modifica disponibile"
-                                        className="inline-flex items-center gap-1 text-[10px] text-greenElectric"
-                                      >
-                                        <Pencil size={10} />
-                                      </span>
-                                    )}
+                                    <span
+                                      title="Partita registrata"
+                                      className="inline-flex items-center gap-1 text-[10px] text-textMuted"
+                                    >
+                                      <Lock size={10} />
+                                    </span>
                                     {m.isVerified ? (
                                       <Badge variant="elettrico" className="text-[9px] px-1.5 py-0.5">
                                         ✓
