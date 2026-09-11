@@ -1,6 +1,7 @@
 import type { Match, PlayerProfile, PlayerSeason } from '@prisma/client';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { formatSeasonName } from '@/lib/seasons';
 
 export type RecordTier = 'FREE' | 'PRO';
 
@@ -176,11 +177,11 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     {
       id: 'best-season',
       label: 'Stagione migliore (Career Index)',
-      value: bestSeason ? bestSeason.name : 'N/D',
+      value: bestSeason ? formatSeasonName(bestSeason.name) : 'N/D',
       sublabel: bestSeason
         ? bestSeasonGain > 0
           ? `+${bestSeasonGain.toFixed(0)} punti Career Index · ${bestSeason.matches ?? 0} partite`
-          : `${bestSeason.name} · ${bestSeason.matches ?? 0} partite`
+          : `${formatSeasonName(bestSeason.name)} · ${bestSeason.matches ?? 0} partite`
         : 'Nessuna stagione completata',
       icon: 'BEST_SEASON',
       tier: 'PRO',
@@ -188,9 +189,9 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     {
       id: 'most-goals-season',
       label: 'Stagione con più goal',
-      value: mostGoalsSeason ? mostGoalsSeason.name : 'N/D',
+      value: mostGoalsSeason ? formatSeasonName(mostGoalsSeason.name) : 'N/D',
       sublabel: mostGoalsSeason
-        ? `${mostGoalsSeason.goals ?? 0} goal · ${mostGoalsSeason.name}`
+        ? `${mostGoalsSeason.goals ?? 0} goal · ${formatSeasonName(mostGoalsSeason.name)}`
         : 'Nessun goal ancora',
       icon: 'MOST_GOALS_SEASON',
       tier: 'PRO',

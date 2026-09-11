@@ -31,6 +31,7 @@ import {
 import { format, subDays, differenceInDays } from "date-fns";
 import Link from "next/link";
 import { Role, MatchResult } from "@prisma/client";
+import { formatSeasonName } from "@/lib/seasons";
 
 export const metadata: Metadata = {
   title: "Statistiche | CalcettoXP",
@@ -348,7 +349,7 @@ export default async function StatsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">{currentSeason.name}</CardTitle>
+                  <CardTitle className="text-lg">{formatSeasonName(currentSeason.name)}</CardTitle>
                   <p className="text-textMuted text-sm mt-1">Stagione corrente</p>
                 </div>
                 <Badge variant="elettrico">
@@ -646,7 +647,7 @@ export default async function StatsPage() {
                     >
                       <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
                         <div className="md:w-36">
-                          <div className="font-black">{s.name}</div>
+                          <div className="font-black">{formatSeasonName(s.name)}</div>
                           <div className="text-xs text-textMuted">
                             {format(new Date(s.startDate), "MM/yy")} →{" "}
                             {format(new Date(s.endDate), "MM/yy")}
@@ -720,7 +721,7 @@ export default async function StatsPage() {
                           key={s.seasonKey}
                           className="border-b border-white/5 last:border-0"
                         >
-                          <td className="py-3 px-2 font-bold">{s.name}</td>
+                          <td className="py-3 px-2 font-bold">{formatSeasonName(s.name)}</td>
                           <td className="text-right py-3 px-2 tabular-nums">{s.matches}</td>
                           <td className="text-right py-3 px-2 tabular-nums">
                             <span className="text-greenPrimary">{s.wins}</span>/

@@ -8,6 +8,7 @@ import {
   Mountain,
   Calendar,
 } from "lucide-react";
+import { formatSeasonName } from "@/lib/seasons";
 
 interface CurrentSeasonCardProps {
   season: {
@@ -43,7 +44,7 @@ export default function CurrentSeasonCard({ season }: CurrentSeasonCardProps) {
               <Calendar size={20} className="text-greenPrimary" />
             </div>
             <div className="min-w-0">
-              <CardTitle className="text-base md:text-lg truncate">{season.name}</CardTitle>
+              <CardTitle className="text-base md:text-lg truncate">{formatSeasonName(season.name)}</CardTitle>
               <p className="text-xs text-textMuted mt-0.5">
                 Stagione corrente
               </p>

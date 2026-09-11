@@ -33,6 +33,7 @@ import {
 import { format, differenceInYears } from "date-fns";
 import Link from "next/link";
 import { Role, PreferredFoot } from "@prisma/client";
+import { formatSeasonName } from "@/lib/seasons";
 
 const ROLE_LABELS: Record<Role, string> = {
   POR: "Portiere",
@@ -331,8 +332,8 @@ export default async function ProfilePage() {
 
               {/* ========== MOBILE ONLY (<md) ========== */}
               <div className="md:hidden w-full">
-                <div className="grid grid-cols-3 gap-2 bg-bgSecondary/60 rounded-2xl px-4 py-4 border border-white/5 w-full">
-                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                <div className="grid grid-cols-3 gap-2 w-full">
+                  <div className="flex flex-col items-center justify-center text-center min-w-0 rounded-2xl bg-bgSecondary/60 border border-white/5 px-3 py-4">
                     <div className="flex items-center gap-1 mb-1">
                       <Star size={10} className="text-yellow-400 shrink-0" />
                       <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">LV</span>
@@ -341,7 +342,7 @@ export default async function ProfilePage() {
                       {player.level}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                  <div className="flex flex-col items-center justify-center text-center min-w-0 rounded-2xl bg-bgSecondary/60 border border-white/5 px-3 py-4">
                     <div className="flex items-center gap-1 mb-1">
                       <Award size={10} className="text-greenElectric shrink-0" />
                       <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">OVR</span>
@@ -350,7 +351,7 @@ export default async function ProfilePage() {
                       {player.overall}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center text-center min-w-0">
+                  <div className="flex flex-col items-center justify-center text-center min-w-0 rounded-2xl bg-bgSecondary/60 border border-white/5 px-3 py-4">
                     <div className="flex items-center gap-1 mb-1">
                       <TrendingUp size={10} className="text-greenPrimary shrink-0" />
                       <span className="text-[10px] font-black uppercase tracking-wider text-textMuted whitespace-nowrap">CI</span>
@@ -530,7 +531,7 @@ export default async function ProfilePage() {
                   >
                     <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
                       <div className="md:w-36">
-                        <div className="font-black text-lg">{s.name}</div>
+                        <div className="font-black text-lg">{formatSeasonName(s.name)}</div>
                         <div className="text-xs text-textMuted mt-0.5">
                           {format(new Date(s.startDate), "MMM yy")} →{" "}
                           {format(new Date(s.endDate), "MMM yy")}

@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateCardAttributes, type PlayerSummary } from "@/lib/card-attributes";
 import { hasActivePro } from "@/lib/entitlements";
-import { getSeasonKeyInfo } from "@/lib/seasons";
+import { getSeasonKeyInfo, formatSeasonName } from "@/lib/seasons";
 import {
   getLevelProgress,
   getStatusFromLevel,
@@ -454,8 +454,8 @@ export default async function DashboardPage() {
                   </div>
                 </div>
               </div>
-              <div className="md:hidden grid grid-cols-3 w-full max-w-full relative rounded-2xl bg-white/[0.025] border border-white/5">
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10">
+              <div className="md:hidden grid grid-cols-3 gap-2 w-full max-w-full">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
                   <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
                     OVR
                   </div>
@@ -466,7 +466,7 @@ export default async function DashboardPage() {
                     {playerProfile.overall}
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10 border-l border-r border-white/10">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
                   <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
                     CI
                   </div>
@@ -492,7 +492,7 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 relative z-10">
+                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
                   <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
                     LV
                   </div>
@@ -710,7 +710,7 @@ export default async function DashboardPage() {
                   {currentSeason.matches}
                 </div>
                 <p className="text-[11px] text-textMuted font-medium truncate leading-snug">
-                  {currentSeason.name}
+                  {formatSeasonName(currentSeason.name)}
                 </p>
               </CardContent>
             </Card>
@@ -1070,7 +1070,7 @@ export default async function DashboardPage() {
         <section>
           <CurrentSeasonCard
             season={{
-              name: currentSeason.name,
+              name: formatSeasonName(currentSeason.name),
               matches: currentSeason.matches,
               wins: currentSeason.wins,
               draws: currentSeason.draws,

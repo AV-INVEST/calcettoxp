@@ -14,11 +14,11 @@ export default function MultiplayerComingSoonCard() {
           }}
         />
       </div>
-      <CardContent className="px-5 py-5 md:p-6 relative w-full max-w-full">
+      <CardContent className="px-6 pt-6 pb-5 md:p-6 relative w-full max-w-full">
         {/* Header: su mobile [icona + titolo] con badge a destra sulla stessa riga */}
-        <div className="mb-4 md:mb-4 w-full max-w-full">
-          <div className="flex items-start justify-between gap-2 md:gap-3 w-full max-w-full">
-            <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+        <div className="mb-5 md:mb-4 w-full max-w-full">
+          <div className="flex items-start justify-between gap-2.5 md:gap-3 w-full max-w-full">
+            <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
               <div className="relative shrink-0">
                 <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                   <Users size={20} className="md:w-[24px] md:h-[24px] text-textMuted" />
@@ -44,7 +44,7 @@ export default function MultiplayerComingSoonCard() {
             </Badge>
           </div>
           {/* Descrizione a tutta larghezza sotto l'header (mobile), accanto su desktop */}
-          <p className="text-sm text-textMuted mt-3.5 md:mt-2 md:ml-[52px] md:pl-0 leading-relaxed w-full min-w-0">
+          <p className="text-sm text-textMuted mt-4 md:mt-2 md:ml-[52px] md:pl-0 leading-relaxed w-full min-w-0">
             Sfida altri giocatori, partecipa a partite verificate e scala il
             ranking della tua città.
           </p>

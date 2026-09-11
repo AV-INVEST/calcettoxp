@@ -14,6 +14,7 @@ import { formatCI } from '@/lib/career-index';
 import { getAppBaseUrl } from '@/lib/app-url';
 import { hasActivePro } from '@/lib/entitlements';
 import { CARD_THEMES, type CardTheme } from '@/lib/username-config';
+import { formatSeasonName } from '@/lib/seasons';
 
 const APP_URL = getAppBaseUrl();
 
@@ -420,7 +421,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                   <div key={s.seasonKey} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
                       <p className="text-xs uppercase tracking-wider text-textMuted">Stagione</p>
-                      <p className="font-bold text-textPrimary">{s.name}</p>
+                      <p className="font-bold text-textPrimary">{formatSeasonName(s.name)}</p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-wider text-textMuted">Partite</p>
