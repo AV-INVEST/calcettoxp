@@ -1285,22 +1285,22 @@ export default async function DashboardPage() {
           <section>
             <Card className="relative overflow-hidden border border-amber-500/30 bg-gradient-to-br from-[#15100a]/80 via-[#0d0a06]/95 to-[#0a0804]/90 shadow-[0_0_60px_rgba(251,191,36,0.06)]">
               <div className="pointer-events-none absolute inset-0 opacity-40" aria-hidden>
-                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-amber-400/10 blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-yellow-500/10 blur-3xl" />
+                <div className="absolute -top-20 -right-16 w-56 h-56 md:w-72 md:h-72 rounded-full bg-amber-400/10 blur-3xl" />
+                <div className="absolute -bottom-16 -left-16 w-52 h-52 md:w-64 md:h-64 rounded-full bg-yellow-500/10 blur-3xl" />
               </div>
-              <CardContent className="relative p-6 md:p-8">
-                <div className="flex items-start gap-4 md:gap-5">
+              <CardContent className="relative p-4 md:p-8">
+                <div className="flex flex-col md:flex-row md:items-start items-center gap-3 md:gap-5 text-center md:text-left">
                   <div className="relative shrink-0">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-amber-400/25 via-amber-500/20 to-yellow-300/10 border border-amber-400/40 flex items-center justify-center shadow-[0_0_30px_rgba(251,191,36,0.18)]">
+                    <div className="w-12 h-12 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-400/25 via-amber-500/20 to-yellow-300/10 border border-amber-400/40 flex items-center justify-center shadow-[0_0_25px_rgba(251,191,36,0.18)]">
                       <Crown
-                        size={34}
+                        size={24}
                         className="md:w-10 md:h-10 text-amber-300 drop-shadow"
                         strokeWidth={2}
                       />
                     </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <div className="min-w-0 flex-1 w-full md:w-auto flex flex-col items-center md:items-start">
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-1.5">
                       <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">
                         <Crown size={10} strokeWidth={2.5} />
                         PRO
@@ -1309,15 +1309,13 @@ export default async function DashboardPage() {
                         €3,90 / mese
                       </span>
                     </div>
-                    <h3 className="text-xl md:text-2xl font-black text-textPrimary tracking-tight mb-2">
+                    <h3 className="text-lg md:text-2xl font-black text-textPrimary tracking-tight mb-1.5 leading-tight">
                       Passa a PRO per statistiche avanzate
                     </h3>
-                    <p className="text-sm md:text-[13px] text-textMuted mb-4 md:mb-5 leading-relaxed">
-                      Trasforma la tua card in un centro comando completo.
-                      Analisi periodiche, performance per ruolo, storico illimitato,
-                      temi premium e tutti i record avanzati.
+                    <p className="text-[13px] md:text-[13px] text-textMuted mb-3 md:mb-5 leading-snug md:leading-relaxed max-w-md">
+                      Trasforma la tua card in un centro comando completo. Analisi periodiche, performance per ruolo, storico illimitato, temi premium e record avanzati.
                     </p>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 mb-5 md:mb-6">
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 mb-3.5 md:mb-6 w-full md:w-auto">
                       {[
                         "Analytics 7 / 30 / 90 giorni",
                         "Statistiche per ruolo",
@@ -1328,7 +1326,7 @@ export default async function DashboardPage() {
                       ].map((b, i) => (
                         <li
                           key={i}
-                          className="inline-flex items-center gap-2 text-xs md:text-[13px] font-semibold text-amber-100/90"
+                          className="inline-flex items-center gap-2 text-[12px] md:text-[13px] font-semibold text-amber-100/90 justify-center md:justify-start"
                         >
                           <span className="w-4 h-4 md:w-[18px] md:h-[18px] shrink-0 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center">
                             <Check
@@ -1337,13 +1335,13 @@ export default async function DashboardPage() {
                               className="text-amber-300"
                             />
                           </span>
-                          <span className="min-w-0">{b}</span>
+                          <span className="min-w-0 whitespace-nowrap">{b}</span>
                         </li>
                       ))}
                     </ul>
                     <Link
                       href="/pricing"
-                      className="group relative inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 md:px-7 md:py-3.5 font-black uppercase tracking-wider text-[#0b0904] shadow-[0_0_40px_rgba(251,191,36,0.25)] hover:shadow-[0_0_55px_rgba(251,191,36,0.45)] hover:-translate-y-0.5 active:scale-[0.99] transition-all"
+                      className="group relative inline-flex w-full max-w-[280px] md:w-auto md:max-w-none items-center justify-center gap-2.5 whitespace-nowrap rounded-2xl px-6 py-2.5 md:px-7 md:py-3.5 text-sm md:text-base font-black uppercase tracking-[0.14em] md:tracking-wider text-[#0b0904] shadow-[0_0_40px_rgba(251,191,36,0.25)] hover:shadow-[0_0_55px_rgba(251,191,36,0.45)] hover:-translate-y-0.5 active:scale-[0.99] transition-all"
                       style={{
                         background:
                           "linear-gradient(135deg, rgba(234,179,8,0.98) 0%, rgba(250,204,21,0.98) 55%, rgba(253,224,71,0.98) 100%)",
