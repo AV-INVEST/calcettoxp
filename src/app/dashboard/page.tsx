@@ -399,11 +399,11 @@ export default async function DashboardPage() {
           </Card>
         </section>
 
-        {/* 3) KEY METRICS: OVR · CI · LV (mobile singolo box compatto con divider, desktop invariato) */}
+        {/* 3) KEY METRICS: OVR · CI · LV (mobile 3 box separati, desktop invariato) */}
         <section className="w-full max-w-full">
-          <Card className="overflow-hidden w-full max-w-full">
-            <CardContent className="px-3 py-3 md:p-6 w-full max-w-full">
-              <div className="hidden md:block">
+          <div className="hidden md:block">
+            <Card className="overflow-hidden w-full max-w-full">
+              <CardContent className="md:p-6 w-full max-w-full">
                 <div className="grid grid-cols-3 gap-6 w-full max-w-full">
                   <div className="text-center min-w-0 flex flex-col justify-center items-center md:py-0">
                     <div className="text-[11px] font-semibold text-textMuted uppercase tracking-[0.15em] mb-2 truncate w-full">
@@ -453,58 +453,58 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="md:hidden grid grid-cols-3 gap-2 w-full max-w-full">
+            <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
+              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
+                OVR
               </div>
-              <div className="md:hidden grid grid-cols-3 gap-2 w-full max-w-full">
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
-                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
-                    OVR
-                  </div>
-                  <div
-                    className="text-[26px] font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_16px_rgba(124,255,107,0.18)] leading-none"
-                    style={{ letterSpacing: "-0.03em" }}
-                  >
-                    {playerProfile.overall}
-                  </div>
-                </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
-                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
-                    CI
-                  </div>
-                  <div
-                    className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 w-full leading-none"
-                    style={{ color: "#7CFF6B" }}
-                  >
-                    {playerProfile.careerIndex}
-                  </div>
-                  <div
-                    className={`mt-1.5 flex items-center justify-center gap-0.5 text-[10px] font-black tabular-nums whitespace-nowrap ${
-                      lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
-                    }`}
-                  >
-                    {lastCiChange >= 0 ? (
-                      <TrendingUp size={10} strokeWidth={2.5} className="shrink-0" />
-                    ) : (
-                      <TrendingDown size={10} strokeWidth={2.5} className="shrink-0" />
-                    )}
-                    <span>
-                      {lastCiChange >= 0 ? "+" : ""}
-                      {lastCiChange}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
-                  <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
-                    LV
-                  </div>
-                  <div className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full leading-none">
-                    <span className="text-blue-400">
-                      {levelProgress.currentLevel}
-                    </span>
-                  </div>
-                </div>
+              <div
+                className="text-[26px] font-black tabular-nums whitespace-nowrap min-w-0 bg-gradient-to-b from-greenElectric via-greenPrimary to-emerald-600 bg-clip-text text-transparent drop-shadow-[0_0_16px_rgba(124,255,107,0.18)] leading-none"
+                style={{ letterSpacing: "-0.03em" }}
+              >
+                {playerProfile.overall}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
+              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
+                CI
+              </div>
+              <div
+                className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 w-full leading-none"
+                style={{ color: "#7CFF6B" }}
+              >
+                {playerProfile.careerIndex}
+              </div>
+              <div
+                className={`mt-1.5 flex items-center justify-center gap-0.5 text-[10px] font-black tabular-nums whitespace-nowrap ${
+                  lastCiChange >= 0 ? "text-greenPrimary" : "text-danger"
+                }`}
+              >
+                {lastCiChange >= 0 ? (
+                  <TrendingUp size={10} strokeWidth={2.5} className="shrink-0" />
+                ) : (
+                  <TrendingDown size={10} strokeWidth={2.5} className="shrink-0" />
+                )}
+                <span>
+                  {lastCiChange >= 0 ? "+" : ""}
+                  {lastCiChange}
+                </span>
+              </div>
+            </div>
+            <div className="text-center min-w-0 flex flex-col justify-center items-center py-3.5 px-1 rounded-2xl bg-white/[0.025] border border-white/5">
+              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-[0.18em] mb-1.5 truncate w-full">
+                LV
+              </div>
+              <div className="text-[22px] font-black tabular-nums whitespace-nowrap min-w-0 text-textPrimary w-full leading-none">
+                <span className="text-blue-400">
+                  {levelProgress.currentLevel}
+                </span>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* 4) XP BAR CUMULATIVA + PROGRESSO LIVELLO */}
@@ -642,20 +642,20 @@ export default async function DashboardPage() {
         <section className="w-full max-w-full">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-4 w-full max-w-full">
             <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
+              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
                   <Flame
                     size={14}
                     className={
                       activeStreakPositive ? "text-orange-400" : "text-textMuted"
                     }
                   />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Streak
                   </span>
                 </div>
                 <div
-                  className={`text-lg md:text-xl font-black tabular-nums ${
+                  className={`text-lg md:text-xl font-black tabular-nums shrink-0 ${
                     activeStreakPositive
                       ? streaks.winStreak >= 2
                         ? "text-greenPrimary"
@@ -673,24 +673,24 @@ export default async function DashboardPage() {
                     ? `${streaks.lossStreak}L`
                     : "—"}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug shrink-0">
                   {activeStreakLabel}
                 </p>
               </CardContent>
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
+              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
                   <Calendar size={14} className="text-blue-400" />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Settimana
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-blue-400">
+                <div className="text-lg md:text-xl font-black tabular-nums text-blue-400 shrink-0">
                   {matchesThisWeek}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug shrink-0">
                   {matchesThisWeek === 1
                     ? "partita questa settimana"
                     : "partite questa settimana"}
@@ -699,39 +699,39 @@ export default async function DashboardPage() {
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
+              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
                   <Trophy size={14} className="text-yellow-400" />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Stagione
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary">
+                <div className="text-lg md:text-xl font-black tabular-nums text-textPrimary shrink-0">
                   {currentSeason.matches}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium truncate leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug shrink-0">
                   {formatSeasonName(currentSeason.name)}
                 </p>
               </CardContent>
             </Card>
 
             <Card className="flex flex-col w-full">
-              <CardContent className="px-4 py-5 md:p-4 md:py-4 md:py-4 space-y-2 md:space-y-1 flex flex-1 flex-col w-full text-center md:text-left items-center md:items-start justify-center min-h-[112px] md:min-h-0">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 w-full">
+              <CardContent className="px-3 py-5 md:p-4 md:py-4 md:py-4 flex flex-col items-center justify-center text-center md:text-left md:items-start w-full min-h-[120px] md:min-h-0 gap-2 md:gap-1">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 min-w-0 shrink-0">
                   <Crown
                     size={14}
                     className={
                       isPersonalBest ? "text-yellow-400" : "text-textMuted"
                     }
                   />
-                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] truncate">
+                  <span className="text-[10px] font-semibold text-textMuted uppercase tracking-[0.15em] whitespace-nowrap">
                     Miglior CI
                   </span>
                 </div>
-                <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400">
+                <div className="text-lg md:text-xl font-black tabular-nums text-yellow-400 shrink-0">
                   {bestCI}
                 </div>
-                <p className="text-[11px] text-textMuted font-medium leading-snug">
+                <p className="text-[11px] text-textMuted font-medium leading-snug shrink-0">
                   {isPersonalBest
                     ? "Record personale ora!"
                     : `Record: +${Math.max(0, bestCI - playerProfile.careerIndex)} da recuperare`}
