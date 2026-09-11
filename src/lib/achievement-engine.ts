@@ -68,16 +68,18 @@ export function calcStreaks(matches: Array<{ result: string }>): {
   unbeatenStreak: number;
 } {
   let win = 0;
-  let unbeaten = 0;
   for (const m of matches) {
     const r = String(m.result);
     if (r === "WIN") {
       win++;
-      unbeaten++;
       continue;
     }
-    if (r === "DRAW") {
-      win = 0;
+    break;
+  }
+  let unbeaten = 0;
+  for (const m of matches) {
+    const r = String(m.result);
+    if (r === "WIN" || r === "DRAW") {
       unbeaten++;
       continue;
     }
@@ -135,9 +137,9 @@ export async function buildAggregatorContext(
     where: { referrerId: profileId, status: "CONFIRMED" },
   });
 
-  const distinctSeasonsPlayed = await prisma.playerSeason
+  const distinctSeasonsPlayed = await prisma.match
     .findMany({
-      where: { playerProfileId: profileId },
+      where: { playerId: profileId, seasonKey: { not: null } },
       select: { seasonKey: true },
       distinct: ["seasonKey"],
     })
@@ -523,12 +525,159 @@ export async function persistUnlocksForProfile(
   return newly;
 }
 
+export type ReconcileReport = {
+  profileId: string;
+  dryRun: boolean;
+  newlyUnlocked: NewUnlockResult[];
+  completedButLockedPro: Array<{ key: string; name: string }>;
+  suspiciousUnlocked: Array<{
+    key: string;
+    unlockedAt: Date;
+    reason: string;
+  }>;
+  totalUnlockedBefore: number;
+  totalUnlockedAfter: number;
+};
+
+export async function reconcileAchievementsForProfile(
+  profileId: string,
+  opts?: { dryRun?: boolean; context?: AggregatorContext }
+): Promise<ReconcileReport> {
+  const dryRun = opts?.dryRun === true;
+  const ctx = opts?.context ?? (await buildAggregatorContext(profileId));
+
+  const unlockedRows = await prisma.playerAchievement.findMany({
+    where: { playerProfileId: profileId },
+    select: {
+      unlockedAt: true,
+      achievement: { select: { key: true, tier: true } },
+    },
+  });
+  const unlockedMap = new Map<string, Date>();
+  for (const r of unlockedRows) {
+    const k = r.achievement?.key;
+    if (k && r.unlockedAt) unlockedMap.set(k, r.unlockedAt);
+  }
+  const totalUnlockedBefore = unlockedMap.size;
+
+  const newlyUnlocked: NewUnlockResult[] = [];
+  const completedButLockedPro: Array<{ key: string; name: string }> = [];
+  const suspiciousUnlocked: ReconcileReport["suspiciousUnlocked"] = [];
+
+  const catalogEntriesByKey = new Map(ACHIEVEMENT_CATALOG.map((e) => [e.key, e]));
+
+  for (const [key, unlockedAt] of unlockedMap) {
+    const entry = catalogEntriesByKey.get(key);
+    if (!entry) continue;
+    const partial = progressForEntry(entry, ctx);
+    if (entry.tier === "FREE") {
+      if (!partial.requirementMet) {
+        suspiciousUnlocked.push({
+          key,
+          unlockedAt,
+          reason: "FREE achievement unlocked ma requirementMet=false",
+        });
+      }
+    } else {
+      if (!ctx.isPro || !partial.requirementMet) {
+        suspiciousUnlocked.push({
+          key,
+          unlockedAt,
+          reason:
+            "PRO achievement unlocked ma isPro=" +
+            ctx.isPro +
+            " o requirementMet=" +
+            partial.requirementMet,
+        });
+      }
+    }
+  }
+
+  const now = new Date();
+  for (const entry of ACHIEVEMENT_CATALOG) {
+    if (unlockedMap.has(entry.key)) continue;
+    const p = progressForEntry(entry, ctx);
+    if (!p.requirementMet) {
+      continue;
+    }
+    if (entry.tier === "PRO" && !ctx.isPro) {
+      completedButLockedPro.push({ key: entry.key, name: entry.name });
+      continue;
+    }
+    newlyUnlocked.push({
+      key: entry.key,
+      name: entry.name,
+      tier: entry.tier,
+      icon: entry.icon,
+    });
+    if (!dryRun) {
+      try {
+        const ach = await prisma.achievement.upsert({
+          where: { key: entry.key },
+          create: {
+            key: entry.key,
+            name: entry.name,
+            description: entry.description,
+            icon: entry.icon,
+            category: entry.category,
+            requirementType: "COUNT",
+            requirementValue: entry.requirement.target,
+            requirementMeta: {
+              kind: entry.requirement.kind,
+              target: entry.requirement.target,
+              rolePaths: entry.requirement.rolePaths ?? null,
+            } as Prisma.InputJsonValue,
+            tier: entry.tier,
+            isActive: true,
+          },
+          update: {
+            name: entry.name,
+            description: entry.description,
+            icon: entry.icon,
+            category: entry.category,
+            requirementType: "COUNT",
+            requirementValue: entry.requirement.target,
+            requirementMeta: {
+              kind: entry.requirement.kind,
+              target: entry.requirement.target,
+              rolePaths: entry.requirement.rolePaths ?? null,
+            } as Prisma.InputJsonValue,
+            tier: entry.tier,
+            isActive: true,
+          },
+          select: { id: true, key: true },
+        });
+        await prisma.playerAchievement.create({
+          data: {
+            playerProfileId: profileId,
+            achievementId: ach.id,
+            unlockedAt: now,
+          },
+        });
+      } catch {
+        // ignore single errors
+      }
+    }
+  }
+
+  return {
+    profileId,
+    dryRun,
+    newlyUnlocked,
+    completedButLockedPro,
+    suspiciousUnlocked,
+    totalUnlockedBefore,
+    totalUnlockedAfter: totalUnlockedBefore + newlyUnlocked.length,
+  };
+}
+
 export async function reconcileProUnlocks(
   profileId: string
 ): Promise<NewUnlockResult[]> {
   const ctx = await buildAggregatorContext(profileId);
   if (!ctx.isPro) return [];
-  return persistUnlocksForProfile(profileId, ctx);
+  const rep = await reconcileAchievementsForProfile(profileId, { context: ctx });
+  return rep.newlyUnlocked;
 }
 
 export async function checkAchievementsAfterMatchV2(
@@ -542,5 +691,8 @@ export async function checkAchievementsAfterMatchV2(
     profile: args.profile,
     primaryRole: args.profile.primaryRole ?? null,
   });
-  return persistUnlocksForProfile(args.profile.id, ctx);
+  const rep = await reconcileAchievementsForProfile(args.profile.id, {
+    context: ctx,
+  });
+  return rep.newlyUnlocked;
 }

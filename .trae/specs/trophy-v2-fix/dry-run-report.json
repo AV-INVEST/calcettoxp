@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-09-11T11:21:18.417Z",
+  "profilesCount": 3,
+  "aggregate": {
+    "newUnlocks": 2,
+    "suspicious": 0,
+    "completedButLockedPro": 0,
+    "mismatchesDelta": 0
+  },
+  "profiles": [
+    {
+      "profileId": "cmtvjkjky0001l204pa3lqpcb",
+      "username": "andreviva10",
+      "matchesPlayedOnProfile": 0,
+      "countMatchesDb": 0,
+      "distinctSeasonsFromMatch": 0,
+      "playerAchievementsUnlocked": 0,
+      "profileMatchesDbDelta": 0,
+      "dryRun": {
+        "profileId": "cmtvjkjky0001l204pa3lqpcb",
+        "dryRun": true,
+        "newlyUnlocked": [],
+        "completedButLockedPro": [],
+        "suspiciousUnlocked": [],
+        "totalUnlockedBefore": 0,
+        "totalUnlockedAfter": 0
+      }
+    },
+    {
+      "profileId": "cmtvrz5um0001i604z8i50tsg",
+      "username": "vivacinho",
+      "matchesPlayedOnProfile": 1,
+      "countMatchesDb": 1,
+      "distinctSeasonsFromMatch": 1,
+      "playerAchievementsUnlocked": 0,
+      "profileMatchesDbDelta": 0,
+      "dryRun": {
+        "profileId": "cmtvrz5um0001i604z8i50tsg",
+        "dryRun": true,
+        "newlyUnlocked": [
+          "PRIMO_PASSO",
+          "PRIMA_VITTORIA"
+        ],
+        "completedButLockedPro": [],
+        "suspiciousUnlocked": [],
+        "totalUnlockedBefore": 0,
+        "totalUnlockedAfter": 2
+      }
+    },
+    {
+      "profileId": "cmtvsayi90001jv04jvaqqwq6",
+      "username": "mesciu_mirko",
+      "matchesPlayedOnProfile": 0,
+      "countMatchesDb": 0,
+      "distinctSeasonsFromMatch": 0,
+      "playerAchievementsUnlocked": 0,
+      "profileMatchesDbDelta": 0,
+      "dryRun": {
+        "profileId": "cmtvsayi90001jv04jvaqqwq6",
+        "dryRun": true,
+        "newlyUnlocked": [],
+        "completedButLockedPro": [],
+        "suspiciousUnlocked": [],
+        "totalUnlockedBefore": 0,
+        "totalUnlockedAfter": 0
+      }
+    }
+  ]
+}

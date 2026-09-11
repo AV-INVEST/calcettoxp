@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import type { ShareSource } from "@prisma/client";
+import { reconcileAchievementsForProfile } from "@/lib/achievement-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,10 @@ export async function POST(req: Request) {
           shareCount: 1,
         },
       });
+    }
+
+    if (isNewDay) {
+      void reconcileAchievementsForProfile(profile.id);
     }
 
     return NextResponse.json({ ok: true, isNewDay, source, dayKey });

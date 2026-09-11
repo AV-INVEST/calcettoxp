@@ -249,19 +249,11 @@ export default async function MatchesListPage() {
                                   <Badge variant="elettrico" className="text-[10px] px-2 py-0.5">
                                     +{m.xpEarned} XP
                                   </Badge>
-                                  <div className="flex items-center gap-1">
-                                    <span
-                                      title="Partita registrata"
-                                      className="inline-flex items-center gap-1 text-[10px] text-textMuted"
-                                    >
-                                      <Lock size={10} />
-                                    </span>
-                                    {m.isVerified ? (
-                                      <Badge variant="elettrico" className="text-[9px] px-1.5 py-0.5">
-                                        ✓
-                                      </Badge>
-                                    ) : null}
-                                  </div>
+                                  {m.isVerified ? (
+                                    <Badge variant="elettrico" className="text-[9px] px-1.5 py-0.5">
+                                      ✓
+                                    </Badge>
+                                  ) : null}
                                 </div>
                               </div>
                             </CardContent>

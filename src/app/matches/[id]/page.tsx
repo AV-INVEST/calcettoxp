@@ -202,7 +202,7 @@ export default async function MatchDetailPage({
               <h3 className="text-sm font-bold text-textPrimary">
                 Progressi partita
               </h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div>
                   <p className="text-[11px] text-textMuted">XP Guadagnati</p>
                   <Badge variant="elettrico" className="mt-1 text-sm px-3 py-1">
@@ -225,9 +225,10 @@ export default async function MatchDetailPage({
                     {match.careerIndexChange}
                   </div>
                 </div>
-                <div>
+                <div className="col-span-2 md:col-span-1">
                   <p className="text-[11px] text-textMuted">CI Before → After</p>
-                  <p className="mt-1 text-sm font-bold tabular-nums text-textPrimary">
+                  <p className="mt-1 text-sm font-bold tabular-nums text-textPrimary whitespace-nowrap">
+                    <span className="text-textMuted mr-1">CI</span>
                     {match.careerIndexBefore}{" "}
                     <span className="text-textMuted">→</span>{" "}
                     {match.careerIndexAfter}

@@ -12,7 +12,7 @@ import {
   REFERRAL_COOKIE_NAME,
   normalizeReferralCode,
 } from "@/lib/referral";
-import { buildAggregatorContext, persistUnlocksForProfile } from "@/lib/achievement-engine";
+import { buildAggregatorContext, reconcileAchievementsForProfile } from "@/lib/achievement-engine";
 
 const onboardingSchema = z.object({
   nickname: z.string().min(2).max(20).optional(),
@@ -167,7 +167,7 @@ export async function POST(req: Request) {
           if (referrerProcessed) {
             try {
               const ctx = await buildAggregatorContext(referrer.id);
-              await persistUnlocksForProfile(referrer.id, ctx);
+              await reconcileAchievementsForProfile(referrer.id, { context: ctx });
             } catch {
               // ignore unlock errors
             }

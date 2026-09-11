@@ -811,35 +811,27 @@ export default async function DashboardPage() {
                       href={`/matches/${match.id}`}
                       className="block group"
                     >
-                      <div className="flex items-center gap-3 md:gap-4 rounded-xl p-3 md:p-4 bg-white/5 border border-transparent hover:border-greenPrimary/20 hover:bg-white/[0.07] transition-all duration-200">
-                        <div className="flex-shrink-0 w-14">
+                      <div className="flex flex-col gap-3 rounded-xl p-3 md:p-4 bg-white/5 border border-transparent hover:border-greenPrimary/20 hover:bg-white/[0.07] transition-all duration-200">
+                        <div className="flex items-center justify-between w-full gap-3">
                           <Badge
                             variant={style.variant}
-                            className="w-full justify-center py-1.5 text-[10px] font-black uppercase tracking-wider"
+                            className="justify-center px-3 py-1.5 text-[10px] font-black uppercase tracking-wider shrink-0"
                           >
                             {match.result === "LOSS" ? (
                               <ResIcon size={11} className="rotate-180" />
                             ) : (
                               <ResIcon size={11} />
                             )}
-                            {match.result}
+                            <span className="ml-1">{match.result}</span>
                           </Badge>
-                          <div className="text-[10px] text-textMuted text-center mt-1.5 font-medium">
-                            {format(
-                              new Date(match.playedAt),
-                              "dd/MM",
-                            )}
-                          </div>
-                        </div>
 
-                        <div className="flex-1 min-w-0 flex items-center gap-3 md:gap-4">
-                          <div className="text-center min-w-[60px]">
+                          <div className="shrink-0">
                             <div className="text-xl md:text-2xl font-black tabular-nums">
                               <span className="text-textPrimary">
                                 {match.goalsFor}
                               </span>
-                              <span className="text-textMuted font-medium">
-                                {" - "}
+                              <span className="text-textMuted font-medium mx-1">
+                                -
                               </span>
                               <span className="text-textMuted">
                                 {match.goalsAgainst}
@@ -847,7 +839,62 @@ export default async function DashboardPage() {
                             </div>
                           </div>
 
-                          <div className="flex-1 grid grid-cols-3 gap-2 md:gap-4 text-xs">
+                          <div
+                            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tabular-nums shrink-0 ${
+                              ciPos
+                                ? "bg-greenPrimary/10 text-greenPrimary border border-greenPrimary/20"
+                                : "bg-danger/10 text-danger border border-danger/20"
+                            }`}
+                          >
+                            {ciPos ? (
+                              <TrendingUp size={12} strokeWidth={2.5} />
+                            ) : (
+                              <TrendingDown size={12} strokeWidth={2.5} />
+                            )}
+                            <span className="whitespace-nowrap">
+                              {ciPos ? "+" : ""}
+                              {match.careerIndexChange} CI
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="md:hidden flex items-center justify-between w-full gap-2">
+                          <div className="text-[11px] text-textMuted font-medium shrink-0">
+                            {format(new Date(match.playedAt), "dd/MM")}
+                          </div>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="text-center">
+                              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-wider mb-0.5">
+                                Ruolo
+                              </div>
+                              <div className="text-xs font-bold text-textPrimary">
+                                {match.role}
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-wider mb-0.5">
+                                Gol
+                              </div>
+                              <div className="text-xs font-bold text-yellow-400 tabular-nums">
+                                {match.goals}
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-[9px] font-semibold text-textMuted uppercase tracking-wider mb-0.5">
+                                Ass
+                              </div>
+                              <div className="text-xs font-bold text-blue-400 tabular-nums">
+                                {match.assists}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-between w-full gap-4">
+                          <div className="text-[11px] text-textMuted font-medium shrink-0">
+                            {format(new Date(match.playedAt), "dd/MM/yyyy")}
+                          </div>
+                          <div className="flex-1 grid grid-cols-3 gap-4 text-xs">
                             <div>
                               <div className="text-[9px] font-semibold text-textMuted uppercase tracking-wider mb-0.5">
                                 Ruolo
@@ -873,24 +920,7 @@ export default async function DashboardPage() {
                               </div>
                             </div>
                           </div>
-
-                          <div
-                            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tabular-nums shrink-0 ${
-                              ciPos
-                                ? "bg-greenPrimary/10 text-greenPrimary border border-greenPrimary/20"
-                                : "bg-danger/10 text-danger border border-danger/20"
-                            }`}
-                          >
-                            {ciPos ? (
-                              <TrendingUp size={12} strokeWidth={2.5} />
-                            ) : (
-                              <TrendingDown size={12} strokeWidth={2.5} />
-                            )}
-                            <span>
-                              {ciPos ? "+" : ""}
-                              {match.careerIndexChange}
-                            </span>
-                          </div>
+                          <div className="w-[120px] shrink-0" />
                         </div>
                       </div>
                     </Link>

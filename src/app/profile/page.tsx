@@ -634,27 +634,7 @@ export default async function ProfilePage() {
                           />
                         </div>
                       </div>
-                      {isLocked && (
-                        <div className="relative z-20 mt-4 pt-3 border-t border-amber-400/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                          <div className="min-w-0">
-                            <div className="text-[13px] font-bold text-[#FFF8E7] flex items-center gap-1.5">
-                              <Star size={13} className="text-amber-400 shrink-0" />
-                              Sblocca lo storico completo
-                            </div>
-                            <p className="text-[11px] text-amber-200/60 mt-0.5 truncate">
-                              Tutta la tua carriera, andamenti CI, record e confronti tra stagioni
-                            </p>
-                          </div>
-                          <Link
-                            href="/pricing"
-                            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.2)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.35)] active:scale-[0.99]"
-                          >
-                            <Crown size={12} />
-                            <span>Sblocca</span>
-                            <ChevronRight size={13} className="transition-transform group-hover:translate-x-0.5" />
-                          </Link>
-                        </div>
-                      )}
+
                     </div>
                   );
                 })
