@@ -1,5 +1,14 @@
 export const LEGAL_CONFIG = {
   appName: "CalcettoXP" as const,
+  serviceName: "CalcettoXP" as const,
+  ownerName: "Andrea Vivace" as const,
+  legalAddress: {
+    street: "Via Per Alzate, 1" as const,
+    zip: "22063" as const,
+    city: "Cantù" as const,
+    province: "CO" as const,
+    country: "Italia" as const,
+  } as const,
   domain: "www.calcettoxp.com" as const,
   canonicalRoot: "https://www.calcettoxp.com" as const,
   tagline: "Trasforma ogni calcetto nella tua carriera." as const,
@@ -7,8 +16,8 @@ export const LEGAL_CONFIG = {
   contactEmail: "calcettoxp@gmail.com" as const,
   privacyContactEmail: "calcettoxp@gmail.com" as const,
 
-  lastUpdated: "2026-09-09" as const,
-  lastUpdatedHuman: "9 settembre 2026" as const,
+  lastUpdated: "2026-09-11" as const,
+  lastUpdatedHuman: "11 settembre 2026" as const,
 
   services: {
     auth: {
@@ -30,11 +39,6 @@ export const LEGAL_CONFIG = {
       name: "Stripe Payments" as const,
       provider: "Stripe, Inc." as const,
       privacyUrl: "https://stripe.com/privacy" as const,
-    },
-    storage: {
-      name: "Vercel Blob" as const,
-      provider: "Vercel Inc." as const,
-      privacyUrl: "https://vercel.com/legal/privacy-policy" as const,
     },
   },
 } as const;

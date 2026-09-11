@@ -44,13 +44,13 @@ export default function CookiePolicyPage() {
         </SubSection>
       </Section>
 
-      <Section title="2. Nessun blocco preventivo: solo cookie necessari">
+      <Section title="2. Strumenti analitici e di marketing">
         <Blockquote>
           <p className="font-bold text-textPrimary leading-snug">
-            Dato che {appName} carica solo cookie tecnici necessari, non è attivo un sistema di consenso preventivo per categorie non esistenti.
+            {appName} non carica attualmente strumenti analitici o di marketing.
           </p>
           <p className="text-textMuted leading-relaxed">
-            In ogni momento puoi cancellare tutti i cookie e i dati di sito direttamente dalle impostazioni del tuo browser. Nessuna categoria opzionale viene caricata in background.
+            Il pannello delle preferenze permette di consultare e gestire le categorie di cookie e sarà utilizzato qualora in futuro vengano introdotti strumenti opzionali nel rispetto della normativa applicabile. In ogni momento puoi comunque cancellare tutti i cookie e i dati di sito direttamente dalle impostazioni del tuo browser.
           </p>
         </Blockquote>
       </Section>
@@ -75,7 +75,7 @@ export default function CookiePolicyPage() {
 
       <Section title="5. Riferimenti normativi">
         <P>
-          La presente policy è ispirata alle Linee guida cookie e strumenti simili del Garante per la Protezione dei Dati Personali (Provv. 10/2020, 30/06/2020) e alle successive novità interpretative.
+          La presente policy è ispirata alle Linee guida cookie e altri strumenti di tracciamento del Garante per la Protezione dei Dati Personali, Provvedimento n. 231 del 10 giugno 2021, e alle successive novità interpretative.
         </P>
       </Section>
 
@@ -85,7 +85,7 @@ export default function CookiePolicyPage() {
           <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
           <li><strong>Sito web:</strong> <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
         </Ul>
-        <P>Per domande sulla Cookie Policy o sulle preferenze di tracciamento, contattaci all&apos;indirizzo email sopra indicato.</P>
+        <P>Per domande sulla Cookie Policy o sulle preferenze di tracciamento, contattaci all&apos;indirizzo email sopra indicato. I dati completi del titolare e le regole contrattuali sono disponibili rispettivamente nella <a href="/privacy" className="text-greenElectric underline">Privacy Policy</a> e nei <a href="/termini" className="text-greenElectric underline">Termini e condizioni d&apos;uso</a>.</P>
       </Section>
     </LegalLayout>
   );

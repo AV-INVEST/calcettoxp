@@ -40,17 +40,17 @@ const pricingFree = [
 
 const pricingPro = [
   "Tutto incluso nel piano FREE",
-  "Statistiche avanzate complete",
-  "Storico completo Career Index illimitato",
-  "Analisi 7 / 30 / 90 giorni",
-  "Statistiche per ruolo e per periodo",
-  "Record personali e migliori streak",
-  "Andamento e confronto stagioni",
-  "Card premium + personalizzazioni",
-  "Trofei esclusivi PRO",
-  "Insight sulla forma atletica",
-  "Badge PRO su profilo e classifiche",
-  "Tutte le novità in anteprima",
+  "Analytics 7 / 30 / 90 giorni",
+  "Statistiche dettagliate per ruolo",
+  "Storico completo Career Index",
+  "Storico partite completo",
+  "Storico completo delle stagioni",
+  "Record stagionali avanzati",
+  "Card premium Night, Elite e Neon",
+  "30 trofei PRO",
+  "Badge PRO su Card e profilo",
+  "Cambio username periodico",
+  "Progressi trofei PRO tracciati anche durante FREE",
 ];
 
 export default async function PricingPage() {
@@ -251,7 +251,7 @@ export default async function PricingPage() {
               </Badge>
             )}
             <p className="text-center text-[11px] text-textMuted mt-3">
-              14 giorni soddisfatti o rimborsati
+              Pagamento sicuro con Stripe
             </p>
           </Card>
         </div>
@@ -271,7 +271,7 @@ export default async function PricingPage() {
               <div className="space-y-5">
                 <Faq
                   q="Posso cancellare l'abbonamento in qualsiasi momento?"
-                  a="Sì. Nel piano mensile puoi disdire quando vuoi, senza penali. Nel piano annuale puoi disattivare il rinnovo automatico in qualsiasi momento."
+                  a="Sì. Puoi disattivare il rinnovo automatico in qualsiasi momento dal Customer Portal Stripe (Impostazioni → Abbonamento → Gestisci abbonamento), senza penali. La disattivazione non pregiudica l'utilizzo del periodo PRO già pagato fino alla sua scadenza naturale."
                 />
                 <Faq
                   q="Cosa succede al mio account se torno FREE?"
@@ -283,7 +283,7 @@ export default async function PricingPage() {
                 />
                 <Faq
                   q="C'è un periodo di prova?"
-                  a="Sì, il piano PRO include un periodo di prova. Inizia con FREE e vedi se PRO vale per te."
+                  a="Il piano PRO si attiva immediatamente al momento dell'abbonamento; non è attualmente previsto un periodo di prova tecnico. I diritti di recesso, rimborso e gli altri diritti del consumatore si applicano nei casi e secondo le modalità previste dalla normativa vigente."
                 />
               </div>
             </div>

@@ -1313,13 +1313,13 @@ export default async function DashboardPage() {
                       Passa a PRO per statistiche avanzate
                     </h3>
                     <p className="text-[13px] md:text-[13px] text-textMuted mb-3 md:mb-5 leading-snug md:leading-relaxed max-w-md">
-                      Trasforma la tua card in un centro comando completo. Analisi periodiche, performance per ruolo, storico illimitato, temi premium e record avanzati.
+                      Trasforma la tua card in un centro comando completo. Analisi periodiche, performance per ruolo, storico completo, temi premium e record avanzati.
                     </p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 mb-3.5 md:mb-6 w-full md:w-auto">
                       {[
                         "Analytics 7 / 30 / 90 giorni",
                         "Statistiche per ruolo",
-                        "Career Index illimitato",
+                        "Storico completo Career Index",
                         "Storico completo stagioni",
                         "Temi premium card",
                         "Record avanzati",

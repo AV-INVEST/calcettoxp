@@ -67,10 +67,15 @@ const pricingFree = [
   "XP e livelli", "Trofei base",
 ];
 const pricingPro = [
-  "Tutto incluso nel FREE", "Statistiche avanzate", "Storico completo illimitato",
-  "Grafici evoluti", "Analisi 7 / 30 / 90 giorni",
-  "Record personali e streak", "Card premium personalizzate",
-  "Trofei esclusivi PRO", "Badge PRO esclusivo", "Supporto prioritario",
+  "Tutto incluso nel piano FREE",
+  "Analytics 7 / 30 / 90 giorni",
+  "Statistiche dettagliate per ruolo",
+  "Storico completo Career Index",
+  "Storico partite completo",
+  "Record avanzati e grafici periodo",
+  "Card premium Night, Elite e Neon",
+  "Trofei esclusivi PRO",
+  "Badge PRO su Card e profilo",
 ];
 const ciSimpleSequence = [
   { label:"START", delta:0, value:1000, type:"start" as const },

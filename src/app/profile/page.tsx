@@ -528,8 +528,8 @@ export default async function ProfilePage() {
                 </p>
               </div>
               {!isPro && (
-                <Badge variant="grigio" className="flex items-center gap-1 border-amber-400/30 bg-black/40 text-amber-300">
-                  <Lock size={12} className="text-amber-400" /> LOCKED
+                <Badge variant="grigio" className="flex items-center justify-center border-amber-400/30 bg-black/40 text-amber-300 px-2">
+                  <Lock size={12} className="text-amber-400" />
                 </Badge>
               )}
             </div>

@@ -37,37 +37,27 @@ export default function DisclaimerPage() {
         <Ul>
           <li>statistiche ufficiali di federazioni sportive, Leghe o associazioni;</li>
           <li>misurazioni certificate o validate;</li>
-          <li>valutazioni di scouting professionistico;</li>
+          <li>valutazioni di scouting professionistico o canali di opportunità professionale;</li>
+          <li>valutazioni mediche, atletiche o sanitarie di alcun tipo;</li>
           <li>garanzie di prestazione, capacità calcistica o potenziale sportivo;</li>
           <li>indicatori di ranking competitivo verificato.</li>
         </Ul>
       </Section>
 
-      <Section title="3. Separazione rigorosa: Solo Career vs Multiplayer verificato">
-        <P>L&apos;architettura di {appName} prevede due contesti ben distinti, attivi o in via di sviluppo:</P>
-
-        <SubSection title="3.1 Solo Career (ATTIVO)">
-          <P>Modalità in esercizio oggi:</P>
+      <Section title="3. Natura attuale del Servizio: Solo Career">
+        <SubSection title="3.1 Solo Career">
+          <P>Oggi {appName} gestisce un solo flusso di registrazione, denominato <strong>Solo Career</strong>:</P>
           <Ul>
-            <li>Partite, risultati, goal, assist, note e ruolo inseriti direttamente dall&apos;Utente.</li>
-            <li>Nessun controllo terzi, nessun avversario conferma, nessun arbitro ufficiale.</li>
-            <li>Tutti i record personali, achievement, confronti e grafici si basano su questi dati.</li>
-            <li>Il profilo pubblico mostra solo i dati che l&apos;Utente decide volontariamente di condividere (profilo pubblico), ma la loro origine resta sempre auto-dichiarata.</li>
+            <li>Partite, risultati, goal, assist, note e ruolo sono inseriti direttamente dall&apos;Utente.</li>
+            <li>Non sono previsti controlli terzi, conferme da avversari o arbitri ufficiali.</li>
+            <li>Tutti i record personali, trofei, grafici e metriche si basano su questi dati auto-dichiarati.</li>
+            <li>Il profilo pubblico mostra solo i dati che l&apos;Utente decide volontariamente di condividere, ma la loro origine resta sempre auto-dichiarata.</li>
           </Ul>
         </SubSection>
 
-        <SubSection title="3.2 Multiplayer / Ranked / Verificato (FUTURO - NON ATTIVO)">
-          <P>È previsto un contesto separato per statistiche certificate tra più giocatori, ancora non implementato. Quando attivo:</P>
-          <Ul>
-            <li>Saranno necessarie conferme incrociate tra partecipanti (o arbitri designati), gestione delle contestazioni e un sistema di Trust Score.</li>
-            <li>Le metriche &ldquo;Ranked&rdquo; saranno calcolate in modo separato e NON erediteranno automaticamente i numeri della Solo Career.</li>
-            <li>Le due sezioni saranno chiaramente etichettate nell&apos;interfaccia per evitare equivoci tra dati auto-dichiarati e dati verificati.</li>
-          </Ul>
+        <SubSection title="3.2 Eventuali future modalità multiplayer o di verifica">
+          <P>Eventuali future modalità multiplayer o di verifica, se introdotte, saranno disciplinate separatamente e chiaramente distinte dai dati auto-dichiarati della Solo Career. Fino a quel momento tutte le metriche mostrate dal Servizio si riferiscono esclusivamente alla Solo Career auto-dichiarata a scopo ricreativo.</P>
         </SubSection>
-
-        <P className="pt-2">
-          Fino a data successiva all&apos;introduzione del multiplayer verificato, ogni numero, grafico, record, medaglia o ranking mostrato da {appName} si riferisce <strong>esclusivamente</strong> alla Solo Career auto-dichiarata.
-        </P>
       </Section>
 
       <Section title="4. Limiti di utilizzo">
@@ -93,6 +83,7 @@ export default function DisclaimerPage() {
           <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
           <li><strong>Sito web:</strong> <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
         </Ul>
+        <P>Informazioni complete sul trattamento dei dati personali e sulle condizioni contrattuali sono disponibili rispettivamente nella <a href="/privacy" className="text-greenElectric underline">Privacy Policy</a> e nei <a href="/termini" className="text-greenElectric underline">Termini e condizioni d&apos;uso</a>.</P>
       </Section>
     </LegalLayout>
   );

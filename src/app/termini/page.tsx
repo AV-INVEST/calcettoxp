@@ -6,9 +6,13 @@ export const metadata: Metadata = {
   ...legalMetaBase,
   title: `Termini e condizioni d'uso | ${LEGAL_CONFIG.appName}`,
   description: `Termini e condizioni generali di utilizzo del servizio ${LEGAL_CONFIG.appName}.`,
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
-const { appName, domain, canonicalRoot, territory, contactEmail, lastUpdatedHuman } = LEGAL_CONFIG;
+const { appName, serviceName, ownerName, legalAddress, domain, canonicalRoot, territory, contactEmail, lastUpdatedHuman } = LEGAL_CONFIG;
 
 export default function TermsPage() {
   return (
@@ -25,13 +29,14 @@ export default function TermsPage() {
       <P>L&apos;accesso al Servizio implica l&apos;accettazione integrale dei presenti Termini. Se non accetti, ti invitiamo a non utilizzare il Servizio.</P>
 
       <Section title="1. Oggetto del servizio">
-        <P>{appName} è un servizio web che permette agli Utenti di registrare autonomamente informazioni relative alle partite di calcetto giocate, visualizzare una progressione personale a fini ricreativi (XP, livello, Career Index, carta giocatore, achievement, stagioni) e, opzionalmente, condividere pubblicamente il proprio profilo. Il Servizio include anche una versione PRO a pagamento con funzionalità aggiuntive di analisi e personalizzazione visiva.</P>
+        <P>{appName} è un servizio web che permette agli Utenti di registrare autonomamente informazioni relative alle partite di calcetto giocate, visualizzare una progressione personale a fini ricreativi (XP, livello, Career Index, carta giocatore, trofei, stagioni) e, opzionalmente, condividere pubblicamente il proprio profilo. Il Servizio include anche una versione PRO a pagamento con funzionalità aggiuntive di analisi, storico e personalizzazione visiva.</P>
         <P>Il Servizio NON è:</P>
         <Ul>
-          <li>un prodotto federale ufficiale;</li>
-          <li>uno strumento di valutazione calcistica certificata;</li>
-          <li>un sistema di scommesse, gioco d&apos;azzardo o predittivo;</li>
-          <li>una banca di statistiche verificare professionalmente fino a quando non saranno attive le funzionalità multiplayer certificate.</li>
+          <li>un prodotto federale ufficiale o uno strumento di valutazione calcistica certificata;</li>
+          <li>una piattaforma di scommesse, gioco d&apos;azzardo o sistema predittivo finanziario;</li>
+          <li>un servizio medico o una valutazione atletica o sanitaria;</li>
+          <li>una federazione sportiva, un&apos;agenzia di scouting o un canale di opportunità professionale;</li>
+          <li>una banca di statistiche verificate.</li>
         </Ul>
       </Section>
 
@@ -49,28 +54,32 @@ export default function TermsPage() {
         <P>Al momento tutte le partite inserite nel Servizio sono classificate come <strong>Solo Career</strong>: statistiche, risultati, note e ruoli inseriti direttamente dall&apos;Utente, senza verifiche terze o conferme incrociate.</P>
         <P>Accetti espressamente che:</P>
         <Ul>
-          <li>Tutte le metriche derivate (XP, OVR, Career Index, attributi, achievement, record, grafici) hanno valore esclusivamente ludico-ricreativo;</li>
-          <li>Non possono essere usate come prova ufficiale in contesti agonistici, federali o professionali;</li>
-          <li>Il blocco di modifica dopo 15 minuti dalla registrazione e il limite di 3 partite giornaliere sono misure anti-manomissione a tutela dell&apos;esperienza ricreativa e non costituiscono una certificazione dei dati.</li>
+          <li>Tutte le metriche derivate (XP, OVR, Career Index, attributi, trofei, record, grafici) hanno valore esclusivamente ludico-ricreativo.</li>
+          <li>Non possono essere usate come prova ufficiale in contesti agonistici, federali o professionali.</li>
+          <li>Non sono certificazioni sportive, valutazioni mediche o atletiche, garanzie di abilità o opportunità professionali.</li>
+          <li>Le registrazioni delle partite devono rispettare la finestra temporale prevista dal sistema (attualmente ±72 ore rispetto alla data attuale) e non possono essere inserite nel futuro. Una volta registrate, le partite sono considerate definitive e non modificabili secondo la logica attuale del Servizio.</li>
+          <li>Sono applicati automaticamente limiti anti-abuso (attualmente massimo 2 partite registrabili per giorno solare) e controlli anti-duplicazione basati sulla finestra temporale della partita.</li>
+          <li>Tali misure sono strumenti di salvaguardia dell&apos;esperienza ricreativa e non costituiscono certificazione di veridicità dei dati.</li>
         </Ul>
       </Section>
 
       <Section title="4. Abbonamenti PRO (Stripe)">
         <SubSection title="4.1 Piani">
-          <P>Le funzionalità avanzate (statistiche avanzate, analisi 7/30/90 giorni, grafici estesi, record personali avanzati, confronti stagionali, insight di forma avanzati, personalizzazioni carta giocatore premium, achievement PRO) sono accessibili tramite abbonamento:</P>
+          <P>Le funzionalità PRO includono analytics su periodi 7 / 30 / 90 giorni, statistiche per ruolo, storico completo del Career Index e delle partite, storico completo delle stagioni, record stagionali avanzati, temi Card premium (Night, Elite, Neon), 30 trofei PRO, badge PRO su Card e profilo, cambio username periodico e tracciamento dei progressi dei trofei PRO anche durante il periodo FREE. Tutto il piano FREE è incluso nel PRO.</P>
           <Ul>
-            <li><strong>PRO Mensile</strong> &euro;3,90 / mese, IVA inclusa ove applicabile.</li>
-            <li><strong>PRO Annuale</strong> &euro;29,90 / anno, IVA inclusa ove applicabile.</li>
+            <li><strong>PRO Mensile</strong> &euro;3,90 / mese.</li>
+            <li><strong>PRO Annuale</strong> &euro;29,90 / anno.</li>
           </Ul>
+          <P>I prezzi indicati includono l&apos;IVA, ove applicabile secondo la normativa fiscale vigente.</P>
         </SubSection>
         <SubSection title="4.2 Pagamenti e rinnovi">
-          <P>I pagamenti sono processati da Stripe. Il rinnovo è automatico alla fine del periodo. Puoi annullare il rinnovo dal pannello Stripe accessibile tramite {appName} (Impostazioni &rarr; Abbonamento &rarr; Gestisci abbonamento). Le modifiche non sono retroattive.</P>
+          <P>I pagamenti sono processati da Stripe nella veste di processore di pagamento. Il rinnovo è automatico alla fine del periodo pagato e può essere disattivato in qualsiasi momento tramite il Customer Portal Stripe accessibile da {appName} (Impostazioni &rarr; Abbonamento &rarr; Gestisci abbonamento), senza penali. Le modifiche alla sottoscrizione non sono retroattive.</P>
         </SubSection>
         <SubSection title="4.3 Politica &ldquo;No pay-to-win&rdquo;">
-          <P>L&apos;abbonamento PRO non influisce in alcun modo su XP, OVR, Career Index, posizioni in classifiche future, risultati di partita o probabilità di sbloccare achievement. PRO concede solo funzionalità di analisi e personalizzazione visuale.</P>
+          <P>L&apos;abbonamento PRO non modifica in alcun modo XP, Career Index, OVR, formule di calcolo, risultati delle partite, ranking competitivi futuri o probabilità/prestazioni sportive. PRO offre esclusivamente funzionalità di analisi, consultazione dello storico, personalizzazione della Player Card, contenuti e trofei premium e prestigio visivo.</P>
         </SubSection>
-        <SubSection title="4.4 Rimborso">
-          <P>Eventuali richieste di rimborso sono valutate caso per caso secondo la normativa applicabile e le regole di Stripe. Scrivi a <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a> indicando l&apos;email dell&apos;account e l&apos;importo pagato.</P>
+        <SubSection title="4.4 Rimborso e recesso">
+          <P>I diritti di recesso, rimborso e gli altri diritti del consumatore si applicano nei casi e secondo le modalità previste dalla normativa vigente. La disattivazione del rinnovo automatico tramite il Customer Portal non equivale di per sé a rimborso per i periodi già goduti, fatti salvi i diritti inderogabili riconosciuti al consumatore. Per richieste puoi scrivere a <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a> indicando l&apos;email dell&apos;account.</P>
         </SubSection>
       </Section>
 
@@ -96,16 +105,20 @@ export default function TermsPage() {
       </Section>
 
       <Section title="8. Legge applicabile e foro">
-        <P>I presenti Termini sono regolati dalla legge {territory === 'Italia' ? 'italiana' : 'applicabile'}. Per ogni controversia relativa all&apos;interpretazione, esecuzione o violazione dei presenti Termini è competente in via esclusiva il Foro di {territory === 'Italia' ? 'Roma' : territory}, salvo diverse disposizioni inderogabili di legge.</P>
+        <P>I presenti Termini sono regolati dalla legge {territory === 'Italia' ? 'italiana' : 'applicabile'}. Per i consumatori restano ferme le disposizioni inderogabili previste dalla normativa applicabile, incluso il foro competente del consumatore ove previsto. Negli altri casi si applicano le regole di competenza previste dalla legge.</P>
       </Section>
 
-      <Section title="9. Dati del titolare e contatti">
-        <P>Servizio {appName}, operato sotto la giurisdizione italiana ({territory}).</P>
+      <Section title="9. Dati del gestore e contatti">
+        <P>Il servizio {serviceName} è gestito e fornito da:</P>
         <Ul>
+          <li><strong>{ownerName}</strong></li>
+          <li>{legalAddress.street}</li>
+          <li>{legalAddress.zip} {legalAddress.city} ({legalAddress.province})</li>
+          <li>{legalAddress.country}</li>
           <li><strong>Email:</strong> <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
           <li><strong>Sito web:</strong> <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
         </Ul>
-        <P>Per qualsiasi domanda relativa ai presenti Termini, scrivi all&apos;indirizzo email sopra indicato.</P>
+        <P>Per qualsiasi domanda relativa ai presenti Termini, scrivi all&apos;indirizzo email sopra indicato. Informazioni complete sul trattamento dei dati personali sono disponibili nella <a href="/privacy" className="text-greenElectric underline">Privacy Policy</a>.</P>
       </Section>
     </LegalLayout>
   );

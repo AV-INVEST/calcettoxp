@@ -6,11 +6,14 @@ export const metadata: Metadata = {
   ...legalMetaBase,
   title: `Privacy Policy | ${LEGAL_CONFIG.appName}`,
   description: `Informativa sulla privacy di ${LEGAL_CONFIG.appName}. Dati raccolti, finalità, diritti dell'interessato e servizi utilizzati.`,
+  robots: {
+    index: false,
+    follow: true,
+  },
 };
 
-const { appName, domain, canonicalRoot, territory, contactEmail, privacyContactEmail, lastUpdatedHuman, services } =
+const { appName, serviceName, ownerName, legalAddress, domain, canonicalRoot, territory, contactEmail, privacyContactEmail, lastUpdatedHuman, services } =
   LEGAL_CONFIG;
-
 export default function PrivacyPage() {
   return (
     <LegalLayout
@@ -36,14 +39,22 @@ export default function PrivacyPage() {
 
       <Section title="1. Titolare del trattamento">
         <P>
-          Servizio {appName}, operato sotto la giurisdizione italiana ({territory}). Email di contatto generale:{' '}
-          <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a>.
-          Per questioni privacy scrivere a{' '}
-          <a className="text-greenElectric" href={`mailto:${privacyContactEmail}`}>{privacyContactEmail}</a>.
-          Sito web:{' '}
-          <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">
-            {canonicalRoot}
-          </a>.
+          <strong>Titolare del trattamento dei dati personali:</strong> {ownerName}.
+        </P>
+        <P>
+          <strong>{serviceName}</strong> è il servizio gestito dal Titolare.
+        </P>
+        <Ul>
+          <li><strong>{ownerName}</strong></li>
+          <li>{legalAddress.street}</li>
+          <li>{legalAddress.zip} {legalAddress.city} ({legalAddress.province})</li>
+          <li>{legalAddress.country}</li>
+          <li>Email: <a className="text-greenElectric" href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+          <li>Email privacy: <a className="text-greenElectric" href={`mailto:${privacyContactEmail}`}>{privacyContactEmail}</a></li>
+          <li>Sito web: <a className="text-greenElectric underline" href={canonicalRoot} target="_blank" rel="noreferrer noopener">{canonicalRoot}</a></li>
+        </Ul>
+        <P>
+          Il Servizio è operato sotto la giurisdizione italiana ({territory}).
         </P>
       </Section>
 
@@ -55,7 +66,7 @@ export default function PrivacyPage() {
           <Ul>
             <li>Dati raccolti automaticamente all&apos;atto della prima autenticazione: identificatore interno Google (non pubblicamente esposto), nome visualizzato Google, indirizzo email, eventuale immagine del profilo Google.</li>
             <li>Finalità: autenticare l&apos;Utente, creare l&apos;account personale, associare i dati di carriera all&apos;account e inviare comunicazioni di servizio ove strettamente necessario.</li>
-            <li>Base giuridica: esecuzione di misure precontrattuali e contratto (art. 6.1.b GDPR) e consenso esplicito dell&apos;utente (art. 6.1.a GDPR) ove richiesto.</li>
+            <li>Base giuridica: esecuzione del contratto e misure precontrattuali (art. 6.1.b GDPR) per la creazione dell&apos;account e la fornitura del Servizio. Il consenso, quando richiesto per specifici trattamenti opzionali, viene raccolto separatamente secondo le modalità previste dalla normativa.</li>
             <li>Informativa Google: <a className="text-greenElectric underline" href={services.auth.privacyUrl} target="_blank" rel="noreferrer noopener">{services.auth.privacyUrl}</a></li>
           </Ul>
         </SubSection>
@@ -63,8 +74,8 @@ export default function PrivacyPage() {
         <SubSection title="2.2 Dati di carriera &ldquo;Solo Career&rdquo; forniti volontariamente dall&apos;Utente">
           <P>{appName} permette all&apos;Utente di registrare partite, risultati, statistiche e preferenze calcistiche auto-dichiarate.</P>
           <Ul>
-            <li>Dati: nickname, citt&agrave;, nazionalit&agrave;, ruolo, piede preferito, data di nascita (utilizzata solo lato server per statistiche demografiche aggregate ove abilitate e mai esposta pubblicamente), statistiche delle partite (es. risultato, goal, assist, ruolo ricoperto, note), username pubblico, preferenze di privacy, tema carta giocatore.</li>
-            <li>Finalità: visualizzazione della progressione personale (XP, Career Index, OVR, carta giocatore, achievement, stagioni), confronto stagionale, statistiche avanzate per abbonati PRO, condivisione pubblica facoltativa del profilo tramite username.</li>
+            <li>Dati: nickname, citt&agrave;, nazionalit&agrave;, ruolo, piede preferito, data di nascita (utilizzata solo lato server per statistiche demografiche aggregate ove abilitate e mai esposta pubblicamente), statistiche delle partite (es. risultato, goal, assist, ruolo ricoperto, note), username pubblico, preferenze di privacy, tema carta giocatore. L&apos;eventuale foto del profilo associata all&apos;account proviene esclusivamente dall&apos;immagine pubblica fornita da Google durante l&apos;autenticazione. {appName} non offre attualmente una funzionalit&agrave; di upload diretto di file o immagini da parte dell&apos;utente.</li>
+            <li>Finalità: visualizzazione della progressione personale (XP, Career Index, OVR, carta giocatore, achievement, stagioni), statistiche avanzate per abbonati PRO, condivisione pubblica facoltativa del profilo tramite username.</li>
             <li>Base giuridica: contratto ed esecuzione del servizio (art. 6.1.b GDPR).</li>
           </Ul>
         </SubSection>
@@ -80,23 +91,34 @@ export default function PrivacyPage() {
           </Ul>
         </SubSection>
 
-        <SubSection title="2.4 Database e infrastruttura (Neon PostgreSQL, Vercel Hosting, Vercel Blob)">
+        <SubSection title="2.4 Database e infrastruttura (Neon PostgreSQL, Vercel Hosting)">
           <P>I dati dell&apos;Utente sono memorizzati e gestiti tramite infrastrutture di terze parti conformi:</P>
           <Ul>
             <li><strong>{services.database.name}</strong> ({services.database.provider}): database relazionale principale per account, partite e preferenze.</li>
             <li><strong>{services.hosting.name}</strong> ({services.hosting.provider}): hosting dell&apos;applicazione web, rendering lato server e funzioni serverless.</li>
-            <li><strong>{services.storage.name}</strong> ({services.storage.provider}): storage di immagini del profilo e file caricati dall&apos;Utente.</li>
             <li>Base giuridica: contratto (art. 6.1.b GDPR) e interesse legittimo alla sicurezza e stabilità del Servizio (art. 6.1.f GDPR).</li>
             <li>Informativa Neon: <a className="text-greenElectric underline" href={services.database.privacyUrl} target="_blank" rel="noreferrer noopener">{services.database.privacyUrl}</a></li>
             <li>Informativa Vercel: <a className="text-greenElectric underline" href={services.hosting.privacyUrl} target="_blank" rel="noreferrer noopener">{services.hosting.privacyUrl}</a></li>
           </Ul>
         </SubSection>
 
-        <SubSection title="2.5 Cookie e preferenze">
+        <SubSection title="2.5 Referral e condivisioni social (referralCode, ShareRecord)">
+          <P>{appName} offre funzionalit&agrave; di invito (referral) e condivisione della Player Card. Per il loro funzionamento possono essere trattati i seguenti dati tecnici:</P>
+          <Ul>
+            <li><strong>referralCode</strong>: codice identificativo univoco associato al profilo dell&apos;utente per gli inviti.</li>
+            <li><strong>Relazione di attribuzione</strong>: collegamento tra l&apos;account di chi invita (invitante) e l&apos;eventuale nuovo account che completa l&apos;onboarding tramite codice o link di invito.</li>
+            <li><strong>Cookie tecnico `cxp_ref`</strong>: conserva l&apos;attribuzione referral per circa 60 giorni, salvo cancellazione manuale da parte dell&apos;utente.</li>
+            <li><strong>ShareRecord</strong>: tracciamento dell&apos;evento di condivisione valido e del giorno solare in cui avviene, ai fini di meccanismi anti-farming (max 1 condivisione valida per giorno). Pu&ograve; essere memorizzata anche l&apos;eventuale sorgente tecnica della condivisione (es. voce del menu).</li>
+            <li>{appName} <strong>non conosce n&eacute; registra</strong> il contenuto privato del messaggio condiviso dall&apos;utente, n&eacute; il gruppo o la persona WhatsApp/Social a cui la Card viene inoltrata. L&apos;utente sceglie autonomamente canale e destinatario.</li>
+            <li>Base giuridica: interesse legittimo al funzionamento tecnico corretto dei sistemi di invito e alla prevenzione di abusi (art. 6.1.f GDPR), oltre all&apos;esecuzione del servizio (art. 6.1.b GDPR).</li>
+          </Ul>
+        </SubSection>
+
+        <SubSection title="2.6 Cookie e preferenze">
           <P>Vedi sezione specifica <a href="/cookie-policy" className="text-greenElectric underline">Cookie Policy</a> e la pagina <a href="/settings" className="text-greenElectric underline">Impostazioni</a> per modificare le preferenze in qualsiasi momento.</P>
         </SubSection>
 
-        <SubSection title="2.6 Dati di log e sicurezza">
+        <SubSection title="2.7 Dati di log e sicurezza">
           <P>{services.hosting.provider} ({services.hosting.name}) e {services.database.provider} ({services.database.name}) possono raccogliere log tecnici (indirizzo IP anonimizzato ove possibile, tipo di browser, orario della richiesta) per motivi di sicurezza, anti-abuso e stabilità della piattaforma. Tali log sono trattati come strettamente necessari, con conservazione limitata nel tempo e non incrociati con dati personali degli Utenti salvo ove obbligatorio per legge o contrasto frodi.</P>
         </SubSection>
       </Section>
