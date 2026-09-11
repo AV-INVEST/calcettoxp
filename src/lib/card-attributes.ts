@@ -22,6 +22,17 @@ function clampInt(value: number, min: number, max: number): number {
   return Math.round(Math.max(min, Math.min(max, value)));
 }
 
+function withConfidence(
+  raw: number,
+  matchesPlayed: number,
+  baseline = 50,
+  fullConfidenceAt = 15
+): number {
+  if (matchesPlayed <= 0) return baseline;
+  const confidence = Math.min(1, matchesPlayed / fullConfidenceAt);
+  return clampInt(baseline + (raw - baseline) * confidence, 0, 99);
+}
+
 function getRoleWeights(role: string): { goalWeight: number; assistWeight: number; scoringFactor: number } {
   const r = role.toUpperCase();
   switch (r) {
@@ -38,18 +49,19 @@ function getRoleWeights(role: string): { goalWeight: number; assistWeight: numbe
   }
 }
 
-function calculateForm(recentMatches: PlayerSummary['recentMatches']): number {
+function calculateForm(recentMatches: PlayerSummary['recentMatches'], matchesPlayed: number): number {
   if (!recentMatches || recentMatches.length === 0) return 50;
   const last5 = recentMatches.slice(0, 5);
   const avg = last5.reduce((sum, m) => sum + m.careerIndexChange, 0) / last5.length;
   const mapped = ((avg + 20) / 60) * 99;
-  return clampInt(mapped, 0, 99);
+  return withConfidence(clampInt(mapped, 0, 99), matchesPlayed);
 }
 
 function calculateResults(matchesPlayed: number, wins: number): number {
   if (matchesPlayed === 0) return 50;
   const winRate = (wins / matchesPlayed) * 100;
-  return clampInt(winRate, 0, 99);
+  const raw = clampInt(winRate, 0, 99);
+  return withConfidence(raw, matchesPlayed);
 }
 
 function calculateImpact(matchesPlayed: number, goals: number, assists: number, role: string): number {
@@ -58,7 +70,8 @@ function calculateImpact(matchesPlayed: number, goals: number, assists: number, 
   const impactScore = (goals * weights.goalWeight + assists * weights.assistWeight) / matchesPlayed;
   const maxReference = 3.0;
   const mapped = (impactScore / maxReference) * 99;
-  return clampInt(mapped, 0, 99);
+  const raw = clampInt(mapped, 0, 99);
+  return withConfidence(raw, matchesPlayed);
 }
 
 function calculateScoring(matchesPlayed: number, goals: number, role: string): number {
@@ -66,7 +79,8 @@ function calculateScoring(matchesPlayed: number, goals: number, role: string): n
   const weights = getRoleWeights(role);
   const goalsPerMatch = (goals / matchesPlayed) * weights.scoringFactor;
   const mapped = (goalsPerMatch / 2) * 95;
-  return clampInt(mapped, 0, 99);
+  const raw = clampInt(mapped, 0, 99);
+  return withConfidence(raw, matchesPlayed);
 }
 
 function calculateExperience(matchesPlayed: number, level: number): number {
@@ -75,7 +89,7 @@ function calculateExperience(matchesPlayed: number, level: number): number {
   return clampInt(matchesPart + levelPart, 0, 99);
 }
 
-function calculateConsistency(recentMatches: PlayerSummary['recentMatches']): number {
+function calculateConsistency(recentMatches: PlayerSummary['recentMatches'], matchesPlayed: number): number {
   if (!recentMatches || recentMatches.length < 2) return 50;
   const last10 = recentMatches.slice(0, 10);
   const n = last10.length;
@@ -84,7 +98,8 @@ function calculateConsistency(recentMatches: PlayerSummary['recentMatches']): nu
   const stdDev = Math.sqrt(variance);
   const maxPossibleStdDev = 30;
   const consistency = 100 - (stdDev / maxPossibleStdDev) * 100;
-  return clampInt(consistency, 0, 99);
+  const raw = clampInt(consistency, 0, 99);
+  return withConfidence(raw, matchesPlayed);
 }
 
 export function calculateCardAttributes(summary: PlayerSummary): {
@@ -95,12 +110,13 @@ export function calculateCardAttributes(summary: PlayerSummary): {
   experience: number;
   consistency: number;
 } {
+  const mp = summary.matchesPlayed;
   return {
-    form: calculateForm(summary.recentMatches),
-    impact: calculateImpact(summary.matchesPlayed, summary.goals, summary.assists, summary.role),
-    results: calculateResults(summary.matchesPlayed, summary.wins),
-    scoring: calculateScoring(summary.matchesPlayed, summary.goals, summary.role),
-    experience: calculateExperience(summary.matchesPlayed, summary.level),
-    consistency: calculateConsistency(summary.recentMatches),
+    form: calculateForm(summary.recentMatches, mp),
+    impact: calculateImpact(mp, summary.goals, summary.assists, summary.role),
+    results: calculateResults(mp, summary.wins),
+    scoring: calculateScoring(mp, summary.goals, summary.role),
+    experience: calculateExperience(mp, summary.level),
+    consistency: calculateConsistency(summary.recentMatches, mp),
   };
 }

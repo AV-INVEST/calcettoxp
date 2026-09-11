@@ -628,7 +628,7 @@ export default function PlayerCard({
                     {careerIndexChange > 0
                       ? careerIndexChange.toFixed(1)
                       : Math.abs(careerIndexChange).toFixed(1)}
-                    %
+                    {" "}CI
                   </span>
                 </div>
               )}

@@ -27,6 +27,7 @@ export interface SmartCTAProps {
   className?: string;
   fullWidth?: boolean;
   loggedInLabel?: string;
+  loggedInIcon?: LucideIcon;
 }
 
 function getDestination(callbackPath: string | undefined, onboarding: OnboardingStatus | null) {
@@ -48,6 +49,7 @@ export function SmartCTA({
   className,
   fullWidth = false,
   loggedInLabel,
+  loggedInIcon: LoggedInIconProp,
 }: SmartCTAProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -121,11 +123,11 @@ export function SmartCTA({
     }
   }, [loading, isAuthenticated, onboarding, onboardingFetched, callbackPath, router]);
 
-  const Icon = IconProp;
+  const EffectiveIcon = isAuthenticated && LoggedInIconProp ? LoggedInIconProp : IconProp;
   const iconEl = loading ? (
     <Loader2 size={size === "sm" ? 14 : size === "md" ? 16 : 18} className="animate-spin shrink-0" />
-  ) : Icon ? (
-    <Icon size={size === "sm" ? 14 : size === "md" ? 16 : 18} className="shrink-0" strokeWidth={2.2} />
+  ) : EffectiveIcon ? (
+    <EffectiveIcon size={size === "sm" ? 14 : size === "md" ? 16 : 18} className="shrink-0" strokeWidth={2.2} />
   ) : null;
 
   if (variant === "yearly-gold") {

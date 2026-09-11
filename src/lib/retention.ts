@@ -13,24 +13,30 @@ export function computeActiveStreaks(
   matchesOrderedNewestFirst: MatchLite[]
 ): ActiveStreaks {
   let winStreak = 0;
-  let unbeatenStreak = 0;
-  let lossStreak = 0;
+  for (const m of matchesOrderedNewestFirst) {
+    if (m.result === "WIN") {
+      winStreak++;
+      continue;
+    }
+    break;
+  }
 
-  for (let i = 0; i < matchesOrderedNewestFirst.length; i++) {
-    const r = matchesOrderedNewestFirst[i].result;
-    if (r === "WIN") {
-      if (winStreak === i) winStreak++;
-      if (unbeatenStreak === i) unbeatenStreak++;
-      break;
+  let unbeatenStreak = 0;
+  for (const m of matchesOrderedNewestFirst) {
+    if (m.result === "WIN" || m.result === "DRAW") {
+      unbeatenStreak++;
+      continue;
     }
-    if (r === "DRAW") {
-      if (unbeatenStreak === i) unbeatenStreak++;
-      break;
+    break;
+  }
+
+  let lossStreak = 0;
+  for (const m of matchesOrderedNewestFirst) {
+    if (m.result === "LOSS") {
+      lossStreak++;
+      continue;
     }
-    if (r === "LOSS") {
-      if (lossStreak === i) lossStreak++;
-      break;
-    }
+    break;
   }
 
   return { winStreak, unbeatenStreak, lossStreak };

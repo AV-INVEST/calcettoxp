@@ -520,11 +520,6 @@ export default async function ProfilePage() {
                     <CalendarDays size={18} className={isPro ? "text-greenElectric" : "text-amber-400"} />
                     Storico stagioni
                   </CardTitle>
-                  {!isPro && (
-                    <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
-                      <Crown size={10} className="mr-1 text-amber-300" /> PRO
-                    </Badge>
-                  )}
                 </div>
                 <p className="text-textMuted text-sm mt-1">
                   {isPro
@@ -561,10 +556,7 @@ export default async function ProfilePage() {
                     >
                       {isLocked && (
                         <>
-                          <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
-                            <Badge variant="elettrico" className="text-[9px] border-amber-400/50 bg-amber-400/15 text-amber-200">
-                              <Crown size={8} className="mr-0.5" /> PRO
-                            </Badge>
+                          <div className="absolute top-3 right-3 z-20">
                             <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.15)]">
                               <Lock size={14} className="text-amber-400" />
                             </div>
@@ -650,9 +642,6 @@ export default async function ProfilePage() {
                       </div>
                       <div className="flex-1 min-w-0 md:order-2 order-1 w-full">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <Badge variant="elettrico" className="border-amber-400/40 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.12)]">
-                            <Crown size={12} className="mr-1 text-amber-300" /> PRO
-                          </Badge>
                           <h3 className="text-lg md:text-xl font-black text-[#FFF8E7]">
                             Storico completo · Tutte le stagioni
                           </h3>
@@ -797,12 +786,6 @@ export default async function ProfilePage() {
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-                  <Link
-                    href="/pricing"
-                    className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-3 text-sm font-black uppercase tracking-wider text-amber-950 shadow-[0_0_25px_rgba(250,204,21,0.18)] transition hover:shadow-[0_0_40px_rgba(250,204,21,0.32)] active:scale-[0.99]"
-                  >
-                    <Crown size={15} /> Scopri PRO
-                  </Link>
                 </div>
               </div>
             )}
@@ -815,7 +798,7 @@ export default async function ProfilePage() {
             className="group inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-bgSecondary/60 border border-white/5 hover:border-greenElectric/25 hover:bg-greenElectric/5 transition-all text-textMuted hover:text-textPrimary font-semibold"
           >
             <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
-            Torna alla dashboard
+            Torna alla Card
           </Link>
         </div>
       </div>

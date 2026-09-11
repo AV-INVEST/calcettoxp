@@ -212,18 +212,6 @@ function LockedProCardPreview(props: {
           }}
         >
           <Crown size={9} style={{ color: champagne }} />
-          <span
-            className="text-[9px] font-black uppercase tracking-[0.18em]"
-            style={{ color: champagne }}
-          >
-            PRO
-          </span>
-          <span
-            className="text-[9px] font-black uppercase tracking-[0.18em]"
-            style={{ color: `${ivory}66` }}
-          >
-            ·
-          </span>
           <Lock size={8} style={{ color: `${champagne}99` }} />
           <span
             className="text-[9px] font-black uppercase tracking-[0.18em]"
@@ -415,7 +403,7 @@ function LockedProCardPreview(props: {
                   {careerIndexChange > 0
                     ? careerIndexChange.toFixed(1)
                     : Math.abs(careerIndexChange).toFixed(1)}
-                  %
+                  {" "}CI
                 </span>
               </div>
             )}

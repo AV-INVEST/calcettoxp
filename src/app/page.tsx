@@ -6,7 +6,7 @@ import {
   PlaySquare, ClipboardList, TrendingUp, Trophy, Flame, ShieldCheck,
   Target, Zap, Award, Crown, Star, ChevronRight, Check, Users,
   Hand, Compass, Dices, Medal, Rocket, Mountain, Sparkles, ArrowRight,
-  Goal, Swords, Minus, TrendingDown, Lock,
+  Goal, Swords, Minus, TrendingDown, Lock, IdCard,
 } from "lucide-react";
 import {
   LineChart, Line, ResponsiveContainer, AreaChart, Area, XAxis, Tooltip,
@@ -691,9 +691,15 @@ export default function LandingPage() {
                 Trasforma il tuo calcetto settimanale in una carriera vera. Registra, cresci, colleziona trofei.
               </p>
               <div className="mt-6 md:mt-11 flex flex-col sm:flex-row gap-3">
-                <SmartCTA label="INIZIA GRATIS" icon={PlaySquare} variant="primary" size="lg" fullWidth
-                  className="shadow-xl shadow-greenElectric/25 hover:shadow-greenElectric/40 !min-h-[56px]"
-                  loggedInLabel="VAI ALLA DASHBOARD"/>
+                <div
+                  className="w-full rounded-2xl"
+                  style={{ animation: "breathing-glow 3s ease-in-out infinite" }}
+                >
+                  <SmartCTA label="INIZIA GRATIS" icon={PlaySquare} variant="primary" size="lg" fullWidth
+                    className="shadow-xl shadow-greenElectric/25 hover:shadow-greenElectric/40 !min-h-[56px]"
+                    loggedInLabel="LA MIA CARD"
+                    loggedInIcon={IdCard}/>
+                </div>
                 <button type="button" onClick={() => scrollTo("come-funziona")}
                   className="inline-flex items-center justify-center px-6 md:px-7 min-h-[56px] rounded-2xl border border-textPrimary/20 text-textPrimary font-black text-sm md:text-base tracking-wider hover:border-greenElectric/50 hover:text-greenElectric hover:bg-greenElectric/5 transition-all group">
                   SCOPRI

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Trophy, CirclePlus, BarChart2, User } from "lucide-react";
+import { Trophy, CirclePlus, IdCard, User } from "lucide-react";
 
 interface NavItem {
   href: string;
@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   { href: "/profile", icon: <User size={22} strokeWidth={2} />, label: "Profilo" },
   { href: "/matches", icon: <SoccerBallIcon size={22} strokeWidth={2} />, label: "Partite" },
   { href: "/achievements", icon: <Trophy size={22} strokeWidth={2} />, label: "Trofei" },
-  { href: "/stats", icon: <BarChart2 size={22} strokeWidth={2} />, label: "Statistiche" },
+  { href: "/dashboard", icon: <IdCard size={22} strokeWidth={2} />, label: "Card" },
 ];
 
 export default function MobileBottomNav() {
