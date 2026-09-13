@@ -342,68 +342,10 @@ export async function POST(req: Request) {
         });
       }
 
-      const achievementsUnlocked = await checkAchievementsAfterMatch(updatedPlayer, match, tx);
-
-      const savedAchievements = [];
-      for (const ach of achievementsUnlocked) {
-        const achievementInDb = await tx.achievement.findUnique({
-          where: { key: ach.key },
-        });
-
-        if (achievementInDb) {
-          const alreadyOwned = await tx.playerAchievement.findUnique({
-            where: {
-              playerProfileId_achievementId: {
-                playerProfileId: player.id,
-                achievementId: achievementInDb.id,
-              },
-            },
-          });
-
-          const saved = await tx.playerAchievement.upsert({
-            where: {
-              playerProfileId_achievementId: {
-                playerProfileId: player.id,
-                achievementId: achievementInDb.id,
-              },
-            },
-            create: {
-              playerProfileId: player.id,
-              achievementId: achievementInDb.id,
-              unlockedAt: new Date(),
-              progress: achievementInDb.requirementValue,
-              progressTarget: achievementInDb.requirementValue,
-            },
-            update: {},
-            include: { achievement: true },
-          });
-          savedAchievements.push({
-            id: saved.achievementId,
-            key: ach.key,
-            name: saved.achievement.name,
-            description: saved.achievement.description,
-            icon: saved.achievement.icon,
-            tier: saved.achievement.tier,
-            unlockedAt: saved.unlockedAt,
-          });
-        } else {
-          savedAchievements.push({
-            id: ach.achievementId,
-            key: ach.key,
-            name: ach.name,
-            description: "",
-            icon: null,
-            tier: "FREE",
-            unlockedAt: new Date(),
-          });
-        }
-      }
-
       return {
         type: 'ok' as const,
         match,
-        updatedPlayer,
-        savedAchievements,
+        updatedPlayer: updatedPlayer ?? undefined,
         xpEarned,
         freshXp,
         newTotalXp,
@@ -418,7 +360,32 @@ export async function POST(req: Request) {
         newCI,
         seasonKey: seasonInfo.seasonKey,
       };
-    });
+    }, { timeout: 10000 });
+
+    let unlockedAchievements: any[] = [];
+    try {
+      const playerForAchievements = txResult.updatedPlayer
+        ? txResult.updatedPlayer
+        : undefined;
+      if (playerForAchievements && txResult.match) {
+        const achievementsUnlocked = await checkAchievementsAfterMatch(
+          playerForAchievements as any,
+          txResult.match as any
+        );
+        unlockedAchievements = (achievementsUnlocked ?? []).map((ach: any) => ({
+          id: ach.achievementId ?? null,
+          key: ach.key ?? null,
+          name: ach.name ?? "",
+          description: ach.description ?? "",
+          icon: ach.icon ?? null,
+          tier: ach.tier ?? "FREE",
+          unlockedAt: new Date(),
+        }));
+      }
+    } catch (trophyErr) {
+      console.warn('[matches-post] trophy engine failed (ignored, match saved):', trophyErr instanceof Error ? trophyErr.message : trophyErr);
+      unlockedAchievements = [];
+    }
 
     if (txResult.type === 'error') {
       return NextResponse.json(
@@ -443,7 +410,7 @@ export async function POST(req: Request) {
       newOverall: txResult.newOverall,
       oldCI: txResult.freshCI,
       newCI: txResult.newCI,
-      unlockedAchievements: txResult.savedAchievements,
+      unlockedAchievements: unlockedAchievements,
       seasonKey: txResult.seasonKey,
     });
   } catch (error) {

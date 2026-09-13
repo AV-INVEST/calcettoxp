@@ -31,6 +31,52 @@ function useResetOnReturn(reset: ResetFn) {
   }, [reset]);
 }
 
+type ProStatus = {
+  isPro: boolean;
+  plan: "monthly" | "yearly" | null;
+  loading: boolean;
+};
+
+function useIsProActive(sessionUserId?: string | null): ProStatus {
+  const [isPro, setIsPro] = useState(false);
+  const [plan, setPlan] = useState<"monthly" | "yearly" | null>(null);
+  const [loading, setLoading] = useState(!!sessionUserId);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!sessionUserId) {
+      setLoading(false);
+      setIsPro(false);
+      setPlan(null);
+      return;
+    }
+    setLoading(true);
+    fetch("/api/me/subscription", { method: "GET" })
+      .then(async (r) => {
+        if (!r.ok) return { ok: false, isPro: false, plan: null };
+        return await r.json();
+      })
+      .then((payload) => {
+        if (cancelled) return;
+        setIsPro(!!payload?.isPro);
+        setPlan(payload?.plan ?? null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIsPro(false);
+        setPlan(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionUserId]);
+
+  return { isPro, plan, loading };
+}
+
 export function FreeCTAButton({ className }: { className?: string }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -82,6 +128,8 @@ export function ProCheckoutButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const userId = session?.user?.userId ?? null;
+  const pro = useIsProActive(userId);
 
   useResetOnReturn(() => {
     setLoading(false);
@@ -92,8 +140,12 @@ export function ProCheckoutButton({
     setLoading(true);
     setError(null);
     try {
-      if (!session?.user?.userId) {
+      if (!userId) {
         router.push("/api/auth/signin?callbackUrl=/pricing");
+        return;
+      }
+      if (pro.isPro) {
+        router.push("/dashboard");
         return;
       }
       const res = await fetch("/api/stripe/checkout", {
@@ -117,16 +169,44 @@ export function ProCheckoutButton({
     }
   }
 
+  const variantOrFallback = variant;
+
+  if (userId && pro.isPro && !pro.loading) {
+    return (
+      <div className={className}>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={() => router.push("/dashboard")}
+          className="w-full whitespace-nowrap"
+          aria-label="Apri dashboard - PRO attivo"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(34,197,94,0.95) 0%, rgba(124,255,107,0.95) 100%)",
+            color: "#031409",
+            boxShadow:
+              "0 8px 24px -8px rgba(34,197,94,0.55), inset 0 1px 0 rgba(255,255,255,0.25)",
+          }}
+        >
+          <Crown size={16} className="mr-1" />
+          PRO ATTIVO
+          <ArrowRight size={16} className="ml-1" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <Button
-        variant={variant}
+        variant={variantOrFallback}
         size="lg"
         onClick={handleClick}
-        disabled={loading}
+        disabled={loading || pro.loading}
+        aria-disabled={loading || pro.loading}
         className="w-full whitespace-nowrap"
       >
-        {loading ? (
+        {loading || pro.loading ? (
           <Loader2 size={18} className="animate-spin mr-2" />
         ) : null}
         {children ?? (
@@ -314,6 +394,8 @@ export function YearlyCheckoutButton({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const userId = session?.user?.userId ?? null;
+  const pro = useIsProActive(userId);
 
   useResetOnReturn(() => {
     setLoading(false);
@@ -324,8 +406,12 @@ export function YearlyCheckoutButton({
     setLoading(true);
     setError(null);
     try {
-      if (!session?.user?.userId) {
+      if (!userId) {
         router.push("/api/auth/signin?callbackUrl=/pricing");
+        return;
+      }
+      if (pro.isPro) {
+        router.push("/dashboard");
         return;
       }
       const res = await fetch("/api/stripe/checkout", {
@@ -349,11 +435,35 @@ export function YearlyCheckoutButton({
     }
   }
 
+  const isLoading = loading || pro.loading;
+  if (pro.isPro) {
+    return (
+      <div className={className}>
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard")}
+          className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-lg font-bold whitespace-nowrap transition-all duration-150 active:scale-[0.98] shadow-lg shadow-greenElectric/30 disabled:opacity-50 disabled:pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(124,255,107,0.95))",
+            color: "#031409",
+          }}
+        >
+          <Crown size={16} className="mr-1.5" />
+          PRO ATTIVO
+          <ArrowRight size={16} className="ml-1.5" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <button
+        type="button"
         onClick={handleClick}
-        disabled={loading}
+        disabled={isLoading}
+        aria-disabled={isLoading}
         className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-lg font-bold whitespace-nowrap transition-all duration-150 active:scale-[0.98] shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:pointer-events-none"
         style={{
           background:
@@ -361,7 +471,7 @@ export function YearlyCheckoutButton({
           color: "#070A08",
         }}
       >
-        {loading ? (
+        {isLoading ? (
           <Loader2 size={18} className="animate-spin mr-2" />
         ) : (
           <Crown size={16} className="mr-1.5" />
