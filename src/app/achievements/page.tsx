@@ -21,6 +21,7 @@ import {
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { IconByName } from "@/components/achievements/AchievementIcon";
 import {
   Trophy,
   Crown,
@@ -65,7 +66,6 @@ import {
   Briefcase,
   BadgePlus,
   Goal,
-  type LucideIcon,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -73,54 +73,6 @@ export const metadata: Metadata = {
   description:
     "La tua collezione di trofei CalcettoXP. 50 obiettivi tra FREE e PRO da sbloccare durante la carriera.",
 };
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Footprints,
-  Trophy,
-  Sparkles,
-  Share2,
-  MessageCircle,
-  UserPlus,
-  Users,
-  UsersRound,
-  Crown,
-  Search,
-  Megaphone,
-  Zap,
-  Flame,
-  CalendarDays,
-  Car,
-  Medal,
-  Target,
-  BatteryFull,
-  Leaf,
-  Swords,
-  Award,
-  Repeat,
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
-  Bot,
-  TrendingUp,
-  ArrowUpRight,
-  Star,
-  Milestone,
-  Briefcase,
-  BadgePlus,
-  Gem,
-  BookOpen,
-  BookMarked,
-  Infinity,
-  Diamond,
-  Globe,
-  Rocket,
-  Goal,
-};
-
-function IconByName({ name, className }: { name: string; className?: string }) {
-  const Ic = ICON_MAP[name] ?? Award;
-  return <Ic className={className} aria-hidden />;
-}
 
 function ProgressBar({
   value,

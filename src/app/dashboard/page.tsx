@@ -1136,13 +1136,18 @@ export default async function DashboardPage() {
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-400/10 border border-amber-400/30 flex items-center justify-center">
                       <BarChart3 size={20} className="text-amber-300" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        Periodi
-                      </CardTitle>
-                      <p className="text-xs text-textMuted mt-0.5">
-                        La tua performance su finestre temporali
-                      </p>
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <div>
+                        <CardTitle className="text-lg">
+                          Periodi
+                        </CardTitle>
+                        <p className="text-xs text-textMuted mt-0.5">
+                          La tua performance su finestre temporali
+                        </p>
+                      </div>
+                      <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] md:text-xs font-bold border bg-amber-400/15 border-amber-400/35 text-amber-300 whitespace-nowrap shrink-0">
+                        <Crown className="w-3 h-3" aria-hidden /> PRO
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1405,7 +1410,10 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <InstallPWAButton />
+      <InstallPWAButton
+        variant="soft"
+        forceStrong={playerProfile.matchesPlayed === 1}
+      />
       <MobileBottomNav />
     </main>
   );

@@ -12,6 +12,22 @@ export type SubscriptionShape = {
   currentPeriodEnd?: Date | string | null | undefined;
 };
 
+export type PlanKey = 'monthly' | 'yearly' | null;
+
+export function detectPlanFromPriceId(
+  priceId: string | null | undefined,
+  envMonthly?: string,
+  envYearly?: string
+): PlanKey {
+  if (!priceId) return null;
+  if (envMonthly && priceId === envMonthly) return 'monthly';
+  if (envYearly && priceId === envYearly) return 'yearly';
+  const lower = priceId.toLowerCase();
+  if (lower.includes('year') || lower.includes('annual')) return 'yearly';
+  if (lower.includes('month')) return 'monthly';
+  return null;
+}
+
 export function hasActivePro(
   sub: SubscriptionShape | null | undefined
 ): boolean {

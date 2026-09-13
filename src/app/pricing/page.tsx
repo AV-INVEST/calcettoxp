@@ -1,8 +1,10 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { hasActivePro } from "@/lib/entitlements";
+import { hasActivePro, detectPlanFromPriceId, PlanKey } from "@/lib/entitlements";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
 import {
   Crown,
   Check,
@@ -25,6 +27,7 @@ import {
   ProCheckoutButton,
   AlreadyProBanner,
   YearlyCheckoutButton,
+  ChangePlanPortalButton,
 } from "@/components/pricing/StripeButtons";
 import FaqAccordion from "@/components/pricing/FaqAccordion";
 
@@ -57,13 +60,48 @@ const pricingPro = [
 export default async function PricingPage() {
   const session = await auth();
   let isPro = false;
+  let activePlan: PlanKey = null;
+  let cancelAtPeriodEnd = false;
+  let periodEndFormatted: string | null = null;
 
   if (session?.user?.userId) {
     const subscription = await prisma.subscription.findUnique({
       where: { userId: session.user.userId },
+      select: {
+        subscriptionStatus: true,
+        currentPeriodEnd: true,
+        stripePriceId: true,
+        cancelAtPeriodEnd: true,
+      },
     });
     isPro = hasActivePro(subscription);
+    if (subscription?.stripePriceId) {
+      activePlan = detectPlanFromPriceId(
+        subscription.stripePriceId,
+        process.env.STRIPE_PRICE_PRO_MONTHLY,
+        process.env.STRIPE_PRICE_PRO_YEARLY
+      );
+    }
+    cancelAtPeriodEnd = !!subscription?.cancelAtPeriodEnd;
+    if (subscription?.currentPeriodEnd) {
+      try {
+        periodEndFormatted = format(
+          new Date(subscription.currentPeriodEnd),
+          "dd/MM/yyyy",
+          { locale: it }
+        );
+      } catch {
+        periodEndFormatted = null;
+      }
+    }
   }
+
+  const planLabelForBanner = activePlan === "monthly" ? "Mensile" : activePlan === "yearly" ? "Annuale" : null;
+  const isCanceledBanner = isPro && cancelAtPeriodEnd;
+
+  const monthlyActive = isPro && activePlan === "monthly";
+  const yearlyActive = isPro && activePlan === "yearly";
+  const anyPro = isPro;
 
   return (
     <main className="min-h-screen bg-bgPrimary text-textPrimary">
@@ -81,9 +119,13 @@ export default async function PricingPage() {
           </p>
         </div>
 
-        {isPro && (
+        {anyPro && (
           <div className="max-w-4xl mx-auto mb-10">
-            <AlreadyProBanner />
+            <AlreadyProBanner
+              planLabel={planLabelForBanner}
+              canceled={isCanceledBanner}
+              periodEndText={periodEndFormatted ?? undefined}
+            />
           </div>
         )}
 
@@ -169,15 +211,31 @@ export default async function PricingPage() {
                 </li>
               ))}
             </ul>
-            {!isPro ? (
+            {!anyPro ? (
               <ProCheckoutButton plan="monthly">
                 <Crown size={16} className="mr-1" />
                 SBLOCCA ORA
               </ProCheckoutButton>
-            ) : (
-                <Badge variant="elettrico" className="w-full justify-center py-2.5 rounded-xl text-xs">
-                  <Check size={14} className="mr-1.5" /> HAI GIÀ ATTIVO
+            ) : monthlyActive ? (
+              cancelAtPeriodEnd ? (
+                <div
+                  className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-base font-bold whitespace-nowrap"
+                  style={{
+                    background: "rgba(234,179,8,0.15)",
+                    border: "1px solid rgba(234,179,8,0.4)",
+                    color: "#FACC15",
+                  }}
+                >
+                  <Calendar size={16} className="mr-1.5" />
+                  DISDETTO · Attivo fino {periodEndFormatted ?? "fine periodo"}
+                </div>
+              ) : (
+                <Badge variant="elettrico" className="w-full justify-center py-3 h-14 rounded-2xl text-sm whitespace-nowrap">
+                  <Check size={16} className="mr-1.5" /> PIANO ATTIVO
                 </Badge>
+              )
+            ) : (
+              <ChangePlanPortalButton variant="green" />
             )}
             <p className="text-center text-[11px] text-textMuted mt-3">
               Pagamento sicuro con Stripe
@@ -244,12 +302,36 @@ export default async function PricingPage() {
                 <span>Bonus esclusivo: 2 mesi gratis ogni anno</span>
               </li>
             </ul>
-            {!isPro ? (
+            {!anyPro ? (
               <YearlyCheckoutButton plan="yearly" />
+            ) : yearlyActive ? (
+              cancelAtPeriodEnd ? (
+                <div
+                  className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-base font-bold whitespace-nowrap"
+                  style={{
+                    background: "rgba(234,179,8,0.25)",
+                    border: "1px solid rgba(234,179,8,0.55)",
+                    color: "#FEF08A",
+                  }}
+                >
+                  <Calendar size={16} className="mr-1.5" />
+                  DISDETTO · Attivo fino {periodEndFormatted ?? "fine periodo"}
+                </div>
+              ) : (
+                <div
+                  className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-base font-bold whitespace-nowrap shadow-lg shadow-yellow-500/25"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(234,179,8,0.35), rgba(250,204,21,0.3))",
+                    border: "1px solid rgba(234,179,8,0.6)",
+                    color: "#052e16",
+                  }}
+                >
+                  <Check size={16} className="mr-1.5" /> PIANO ATTIVO
+                </div>
+              )
             ) : (
-              <Badge variant="elettrico" className="w-full justify-center py-2.5 rounded-xl text-xs">
-                <Check size={14} className="mr-1.5" /> HAI GIÀ ATTIVO
-              </Badge>
+              <ChangePlanPortalButton variant="gold" />
             )}
             <p className="text-center text-[11px] text-textMuted mt-3">
               Pagamento sicuro con Stripe

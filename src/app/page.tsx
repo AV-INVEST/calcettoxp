@@ -1511,7 +1511,7 @@ export default function LandingPage() {
       </section>
 
       <AppFooter/>
-      <InstallPWAButton/>
+      <InstallPWAButton variant="soft" />
     </main>
   );
 }

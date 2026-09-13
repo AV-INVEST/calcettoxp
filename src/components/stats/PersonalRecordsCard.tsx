@@ -11,6 +11,10 @@ import {
   Zap,
   Award,
   Lock,
+  Calendar,
+  Percent,
+  Crosshair,
+  Play,
 } from 'lucide-react';
 
 const ICONS: Record<PersonalRecord['icon'], React.ComponentType<{ className?: string }>> = {
@@ -22,12 +26,17 @@ const ICONS: Record<PersonalRecord['icon'], React.ComponentType<{ className?: st
   ASSISTS_MATCH: Zap,
   BEST_SEASON: Award,
   MOST_GOALS_SEASON: Target,
+  BEST_SEASON_WINS: Trophy,
+  BEST_SEASON_MATCHES: Play,
+  WINRATE_7D: Percent,
+  WINRATE_30D: Percent,
+  WINRATE_90D: Percent,
+  GOALS_7D: Crosshair,
+  GOALS_30D: Crosshair,
+  GOALS_90D: Crosshair,
 };
 
-const TIER_LABEL: Record<RecordTier, { label: string; variant: 'primary' | 'outline' }> = {
-  FREE: { label: 'FREE', variant: 'outline' },
-  PRO: { label: 'PRO', variant: 'primary' },
-};
+const TIER_FREE_LABEL = 'FREE';
 
 interface Props {
   input: Parameters<typeof computePersonalRecords>[0];
@@ -64,13 +73,16 @@ export function PersonalRecordsCard({ input, isPro = false }: Props) {
             {records.map((r) => {
               const Icon = ICONS[r.icon];
               const locked = r.tier === 'PRO' && !isPro;
+              const pro = r.tier === 'PRO' && isPro;
               return (
                 <div
                   key={r.id}
                   className={`w-full max-w-full rounded-2xl p-3 md:p-4 border bg-bgSecondary/40 transition ${
                     locked
                       ? 'border-white/5 opacity-80'
-                      : 'border-white/10 shadow-sm hover:border-greenPrimary/30'
+                      : pro
+                        ? 'border-amber-400/15 shadow-sm hover:border-amber-400/30'
+                        : 'border-white/10 shadow-sm hover:border-greenPrimary/30'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 md:gap-3 w-full max-w-full">
@@ -79,7 +91,9 @@ export function PersonalRecordsCard({ input, isPro = false }: Props) {
                         className={`w-9 h-9 md:w-10 md:h-10 shrink-0 rounded-xl flex items-center justify-center ${
                           locked
                             ? 'bg-white/5 border border-white/5 text-textMuted'
-                            : 'bg-greenPrimary/10 border border-greenPrimary/20 text-greenElectric'
+                            : pro
+                              ? 'bg-amber-400/10 border border-amber-400/20 text-amber-300'
+                              : 'bg-greenPrimary/10 border border-greenPrimary/20 text-greenElectric'
                         }`}
                       >
                         {locked ? (
@@ -98,15 +112,21 @@ export function PersonalRecordsCard({ input, isPro = false }: Props) {
                         )}
                       </div>
                     </div>
-                    <Badge variant={TIER_LABEL[r.tier].variant} size="xs" className="shrink-0 text-[9px] md:text-[10px]">
-                      {r.tier === 'PRO' ? (
-                        <span className="inline-flex items-center gap-1">
-                          <Crown className="w-2.5 h-2.5 md:w-3 md:h-3" aria-hidden /> PRO
-                        </span>
-                      ) : (
-                        TIER_LABEL[r.tier].label
-                      )}
-                    </Badge>
+                    {r.tier === 'PRO' ? (
+                      <div
+                        className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] md:text-[10px] font-bold border whitespace-nowrap ${
+                          pro
+                            ? 'bg-amber-400/15 border-amber-400/35 text-amber-300'
+                            : 'bg-white/5 border-white/10 text-textMuted'
+                        }`}
+                      >
+                        <Crown className="w-2.5 h-2.5 md:w-3 md:h-3" aria-hidden /> PRO
+                      </div>
+                    ) : (
+                      <Badge variant="outline" size="xs" className="shrink-0 text-[9px] md:text-[10px]">
+                        {TIER_FREE_LABEL}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               );

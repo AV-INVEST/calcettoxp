@@ -11,7 +11,23 @@ export interface PersonalRecord {
   value: string | number;
   sublabel?: string | null;
   tier: RecordTier;
-  icon: 'CI' | 'OVR' | 'W_STREAK' | 'U_STREAK' | 'GOALS_MATCH' | 'ASSISTS_MATCH' | 'BEST_SEASON' | 'MOST_GOALS_SEASON';
+  icon:
+    | 'CI'
+    | 'OVR'
+    | 'W_STREAK'
+    | 'U_STREAK'
+    | 'GOALS_MATCH'
+    | 'ASSISTS_MATCH'
+    | 'BEST_SEASON'
+    | 'MOST_GOALS_SEASON'
+    | 'WINRATE_7D'
+    | 'WINRATE_30D'
+    | 'WINRATE_90D'
+    | 'GOALS_7D'
+    | 'GOALS_30D'
+    | 'GOALS_90D'
+    | 'BEST_SEASON_WINS'
+    | 'BEST_SEASON_MATCHES';
 }
 
 export interface RecordsInput {
@@ -96,6 +112,8 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
   let bestSeasonGain = -Infinity;
   let mostGoalsSeason: (typeof seasons)[number] | null = null;
   let highestSeasonPeak = -Infinity;
+  let bestSeasonWins: (typeof seasons)[number] | null = null;
+  let bestSeasonMatches: (typeof seasons)[number] | null = null;
   for (const s of seasons) {
     const start = s.startCareerIndex ?? 1000;
     const end = s.endCareerIndex ?? start;
@@ -110,6 +128,47 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     if (!mostGoalsSeason || (s.goals ?? 0) > (mostGoalsSeason.goals ?? 0)) {
       mostGoalsSeason = s;
     }
+    if (!bestSeasonWins || (s.wins ?? 0) > (bestSeasonWins.wins ?? 0)) {
+      bestSeasonWins = s;
+    }
+    if (!bestSeasonMatches || (s.matches ?? 0) > (bestSeasonMatches.matches ?? 0)) {
+      bestSeasonMatches = s;
+    }
+  }
+
+  function statsForWindow(daysMs: number) {
+    const now = Date.now();
+    const cutoff = now - daysMs;
+    let total = 0;
+    let wins = 0;
+    let goals = 0;
+    for (const m of matches) {
+      const t = new Date(m.playedAt).getTime();
+      if (t < cutoff) continue;
+      total += 1;
+      if (m.result === 'WIN') wins += 1;
+      goals += m.goals ?? 0;
+    }
+    const winRate = total > 0 ? (wins / total) * 100 : 0;
+    return { total, wins, goals, winRate };
+  }
+  const w7 = statsForWindow(7 * 24 * 60 * 60 * 1000);
+  const w30 = statsForWindow(30 * 24 * 60 * 60 * 1000);
+  const w90 = statsForWindow(90 * 24 * 60 * 60 * 1000);
+
+  function fmtWinRate(winRate: number, total: number, days: number): [string, string | null] {
+    if (total === 0) return ['N/D', `Nessuna partita negli ultimi ${days} giorni`];
+    return [
+      `${winRate.toFixed(0)}%`,
+      `${total} partite · vinte ${Math.round((winRate / 100) * total)}`,
+    ];
+  }
+  function fmtGoalsWindow(goals: number, matches: number, days: number): [number, string | null] {
+    if (matches === 0) return [0, `Nessuna partita negli ultimi ${days} giorni`];
+    return [
+      goals,
+      `${matches} partite · ${((goals / matches) * 10).toFixed(1)}/partita x10`,
+    ];
   }
 
   function fmtMatchInfo(info: { playedAt?: Date | string } | null): string | null {
@@ -194,6 +253,74 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
         ? `${mostGoalsSeason.goals ?? 0} goal · ${formatSeasonName(mostGoalsSeason.name)}`
         : 'Nessun goal ancora',
       icon: 'MOST_GOALS_SEASON',
+      tier: 'PRO',
+    },
+    {
+      id: 'best-season-wins',
+      label: 'Stagione con più vittorie',
+      value: bestSeasonWins ? formatSeasonName(bestSeasonWins.name) : 'N/D',
+      sublabel: bestSeasonWins
+        ? `${bestSeasonWins.wins ?? 0} vittorie · ${bestSeasonWins.matches ?? 0} partite`
+        : 'Nessuna vittoria in stagione',
+      icon: 'BEST_SEASON_WINS',
+      tier: 'PRO',
+    },
+    {
+      id: 'best-season-matches',
+      label: 'Stagione più giocata',
+      value: bestSeasonMatches ? formatSeasonName(bestSeasonMatches.name) : 'N/D',
+      sublabel: bestSeasonMatches
+        ? `${bestSeasonMatches.matches ?? 0} partite · ${formatSeasonName(bestSeasonMatches.name)}`
+        : 'Nessuna partita in stagione',
+      icon: 'BEST_SEASON_MATCHES',
+      tier: 'PRO',
+    },
+    {
+      id: 'winrate-7d',
+      label: 'Win rate ultimi 7 giorni',
+      value: fmtWinRate(w7.winRate, w7.total, 7)[0],
+      sublabel: fmtWinRate(w7.winRate, w7.total, 7)[1],
+      icon: 'WINRATE_7D',
+      tier: 'PRO',
+    },
+    {
+      id: 'winrate-30d',
+      label: 'Win rate ultimi 30 giorni',
+      value: fmtWinRate(w30.winRate, w30.total, 30)[0],
+      sublabel: fmtWinRate(w30.winRate, w30.total, 30)[1],
+      icon: 'WINRATE_30D',
+      tier: 'PRO',
+    },
+    {
+      id: 'winrate-90d',
+      label: 'Win rate ultimi 90 giorni',
+      value: fmtWinRate(w90.winRate, w90.total, 90)[0],
+      sublabel: fmtWinRate(w90.winRate, w90.total, 90)[1],
+      icon: 'WINRATE_90D',
+      tier: 'PRO',
+    },
+    {
+      id: 'goals-7d',
+      label: 'Goal ultimi 7 giorni',
+      value: fmtGoalsWindow(w7.goals, w7.total, 7)[0],
+      sublabel: fmtGoalsWindow(w7.goals, w7.total, 7)[1],
+      icon: 'GOALS_7D',
+      tier: 'PRO',
+    },
+    {
+      id: 'goals-30d',
+      label: 'Goal ultimi 30 giorni',
+      value: fmtGoalsWindow(w30.goals, w30.total, 30)[0],
+      sublabel: fmtGoalsWindow(w30.goals, w30.total, 30)[1],
+      icon: 'GOALS_30D',
+      tier: 'PRO',
+    },
+    {
+      id: 'goals-90d',
+      label: 'Goal ultimi 90 giorni',
+      value: fmtGoalsWindow(w90.goals, w90.total, 90)[0],
+      sublabel: fmtGoalsWindow(w90.goals, w90.total, 90)[1],
+      icon: 'GOALS_90D',
       tier: 'PRO',
     },
   ];

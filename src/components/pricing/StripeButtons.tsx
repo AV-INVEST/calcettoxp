@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2, Crown, ArrowRight } from "lucide-react";
+import { Loader2, Crown, ArrowRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
@@ -53,7 +53,7 @@ export function FreeCTAButton({ className }: { className?: string }) {
       size="lg"
       onClick={handleClick}
       disabled={loading}
-      className={className}
+      className={`whitespace-nowrap ${className ?? ""}`}
     >
       {loading ? (
         <Loader2 size={18} className="animate-spin" />
@@ -124,7 +124,7 @@ export function ProCheckoutButton({
         size="lg"
         onClick={handleClick}
         disabled={loading}
-        className="w-full"
+        className="w-full whitespace-nowrap"
       >
         {loading ? (
           <Loader2 size={18} className="animate-spin mr-2" />
@@ -138,6 +138,112 @@ export function ProCheckoutButton({
       </Button>
       {error && (
         <p className="text-danger text-xs mt-2 text-center">{error}</p>
+      )}
+    </div>
+  );
+}
+
+export function ChangePlanPortalButton({
+  className,
+  variant = "gold",
+}: {
+  className?: string;
+  variant?: "green" | "gold";
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useResetOnReturn(() => {
+    setLoading(false);
+    setError(null);
+  });
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.url) {
+        setError(data?.error ?? "Errore nell'apertura del portale");
+        setLoading(false);
+        return;
+      }
+      if (typeof window !== "undefined") {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Errore di rete. Riprova.");
+      setLoading(false);
+    }
+  }
+
+  const baseBtn =
+    variant === "gold"
+      ? {
+          style: {
+            background:
+              "linear-gradient(135deg, rgba(234,179,8,0.95), rgba(250,204,21,0.95))",
+            color: "#070A08",
+          } as React.CSSProperties,
+          classNameBase:
+            "w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-lg font-bold whitespace-nowrap transition-all duration-150 active:scale-[0.98] shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:pointer-events-none",
+        }
+      : {
+          style: undefined,
+          classNameBase: "",
+        };
+
+  if (variant === "gold") {
+    return (
+      <div className={className}>
+        <button
+          onClick={handleClick}
+          disabled={loading}
+          className={baseBtn.classNameBase}
+          style={baseBtn.style}
+        >
+          {loading ? (
+            <Loader2 size={18} className="animate-spin mr-2" />
+          ) : (
+            <ArrowRight size={16} className="mr-1.5" />
+          )}
+          CAMBIA PIANO
+        </button>
+        {error && (
+          <p className="text-danger text-xs mt-2 text-center whitespace-nowrap">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={className}>
+      <Button
+        variant="primary"
+        size="lg"
+        onClick={handleClick}
+        disabled={loading}
+        className="w-full whitespace-nowrap"
+      >
+        {loading ? (
+          <Loader2 size={18} className="animate-spin mr-2" />
+        ) : (
+          <ArrowRight size={16} className="mr-1" />
+        )}
+        CAMBIA PIANO
+      </Button>
+      {error && (
+        <p className="text-danger text-xs mt-2 text-center whitespace-nowrap">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -248,7 +354,7 @@ export function YearlyCheckoutButton({
       <button
         onClick={handleClick}
         disabled={loading}
-        className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-lg font-bold transition-all duration-150 active:scale-[0.98] shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:pointer-events-none"
+        className="w-full inline-flex items-center justify-center h-14 px-7 rounded-2xl text-lg font-bold whitespace-nowrap transition-all duration-150 active:scale-[0.98] shadow-lg shadow-yellow-500/25 disabled:opacity-50 disabled:pointer-events-none"
         style={{
           background:
             "linear-gradient(135deg, rgba(234,179,8,0.95), rgba(250,204,21,0.95))",
@@ -267,7 +373,17 @@ export function YearlyCheckoutButton({
   );
 }
 
-export function AlreadyProBanner({ className }: { className?: string }) {
+export function AlreadyProBanner({
+  className,
+  planLabel,
+  canceled,
+  periodEndText,
+}: {
+  className?: string;
+  planLabel?: "Mensile" | "Annuale" | null;
+  canceled?: boolean;
+  periodEndText?: string;
+}) {
   return (
     <div
       className={`rounded-2xl bg-gradient-to-br from-greenElectric/15 via-greenPrimary/10 to-transparent border border-greenElectric/30 p-5 flex flex-col sm:flex-row sm:items-center gap-4 ${
@@ -279,11 +395,31 @@ export function AlreadyProBanner({ className }: { className?: string }) {
           <Crown size={22} className="text-greenElectric" />
         </div>
         <div>
+          {canceled ? (
+            <Badge
+            variant="outline"
+            style={{
+              background: "rgba(234,179,8,0.15)",
+              border: "1px solid rgba(234,179,8,0.4)",
+              color: "#FACC15",
+            }}
+            className="mb-1 text-[10px]"
+          >
+            <Calendar size={10} className="mr-0.5" /> DISDETTO
+          </Badge>
+          ) : (
           <Badge variant="elettrico" className="mb-1 text-[10px]">
             <Crown size={10} className="mr-0.5" /> HAI GIÀ PRO
+            {planLabel ? ` · ${planLabel}` : ""}
           </Badge>
-          <div className="font-black text-lg">Abbonamento attivo</div>
-          <div className="text-textMuted text-xs">
+          )}
+          <div className="font-black text-lg whitespace-nowrap">
+            {canceled ? "Abbonamento ancora attivo fino a fine periodo" : "Abbonamento attivo"}
+            {canceled && periodEndText ? (
+              <span className="text-amber-300 font-bold"> · {periodEndText}</span>
+            ) : null}
+          </div>
+          <div className="text-textMuted text-xs whitespace-nowrap">
             Gestisci fatturazione, metodo di pagamento o annulla.
           </div>
         </div>

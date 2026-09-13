@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 import { calculateCardAttributes } from '@/lib/card-attributes';
 import PlayerCard from '@/components/player/PlayerCard';
 import CareerIndexChart from '@/components/charts/CareerIndexChart';
+import { IconByName } from '@/components/achievements/AchievementIcon';
 import Link from 'next/link';
 import { Trophy, TrendingUp, Target, Users, Zap, Sparkles, ArrowRight, Crown, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -482,8 +483,12 @@ export default async function PublicProfilePage({ params, searchParams }: Public
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {profile.achievements.map((pa, i) => (
                     <div key={i} className="flex items-start gap-3 bg-bgSecondary/60 rounded-xl p-3 border border-white/5">
-                      <div className="w-10 h-10 shrink-0 rounded-full bg-greenPrimary/15 border border-greenPrimary/30 flex items-center justify-center text-greenElectric text-lg">
-                        {pa.achievement.icon || '★'}
+                      <div className="w-10 h-10 shrink-0 rounded-full bg-greenPrimary/15 border border-greenPrimary/30 flex items-center justify-center text-greenElectric">
+                        <IconByName
+                          name={pa.achievement.icon || 'Award'}
+                          className="w-5 h-5 text-greenElectric"
+                          aria-hidden
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">

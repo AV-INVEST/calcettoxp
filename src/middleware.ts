@@ -10,6 +10,7 @@ const PUBLIC_PATHS = [
   "/manifest.json",
   "/favicon.ico",
   "/signin",
+  "/sw.js",
 ];
 
 const PUBLIC_PREFIXES = [
@@ -22,6 +23,7 @@ function isPublic(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true;
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return true;
   if (/^\/icon-.*\.png$/.test(pathname)) return true;
+  if (/^\/workbox-.*\.js$/.test(pathname)) return true;
   return false;
 }
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { hasActivePro } from "@/lib/entitlements";
+import { hasActivePro, detectPlanFromPriceId, PlanKey } from "@/lib/entitlements";
 import { filterVisibleAchievements } from "@/lib/achievements";
 import { calculateCardAttributes } from "@/lib/card-attributes";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -52,20 +52,6 @@ const PLAN_LABEL: Record<string, { label: string; price: string }> = {
   monthly: { label: "Mensile", price: "€3,90/mese" },
   yearly: { label: "Annuale", price: "€29,90/anno" },
 };
-
-function detectPlanFromPriceId(
-  priceId: string | null | undefined,
-  envMonthly?: string,
-  envYearly?: string
-): "monthly" | "yearly" | null {
-  if (!priceId) return null;
-  if (envMonthly && priceId === envMonthly) return "monthly";
-  if (envYearly && priceId === envYearly) return "yearly";
-  const lower = priceId.toLowerCase();
-  if (lower.includes("year") || lower.includes("annual")) return "yearly";
-  if (lower.includes("month")) return "monthly";
-  return null;
-}
 
 function countryFlagEmoji(country?: string | null): string {
   if (!country) return "🌍";

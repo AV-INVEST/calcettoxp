@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       }),
       prisma.playerProfile.findUnique({
         where: { userId },
-        select: { id: true, nickname: true },
+        select: { id: true, nickname: true, username: true },
       }),
       prisma.subscription.findUnique({
         where: { userId },
@@ -100,19 +100,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const customerEmail = user.email ?? undefined;
+    const customerName =
+      user.name ?? playerProfile?.nickname ?? `Utente ${userId}`;
+    const customerUsername =
+      playerProfile?.username ?? playerProfile?.nickname ?? undefined;
+    const planLabel = requestedPlan;
+
+    const enrichedMetadata = {
+      userId,
+      name: customerName,
+      email: customerEmail ?? '',
+      username: customerUsername ?? '',
+      plan: planLabel,
+    };
+
     let stripeCustomerId = existingSubscription?.stripeCustomerId ?? null;
 
     if (!stripeCustomerId) {
-      const customerEmail = user.email ?? undefined;
-      const customerName =
-        user.name ?? playerProfile?.nickname ?? `Utente ${userId}`;
-
       const customer = await stripe.customers.create({
         email: customerEmail,
         name: customerName,
-        metadata: {
-          userId,
-        },
+        metadata: enrichedMetadata,
       });
 
       stripeCustomerId = customer.id;
@@ -129,25 +138,133 @@ export async function POST(req: Request) {
       });
     }
 
-    const successUrl = `${APP_URL}/dashboard?pro=success`;
-    const cancelUrl = `${APP_URL}/pricing?canceled=1`;
+    const checkoutSessionOrConflict = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        `SELECT "id" FROM "User" WHERE "id" = $1::uuid FOR UPDATE`,
+        userId as any
+      );
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      customer: stripeCustomerId,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+      try {
+        const remoteSubs = await stripe.subscriptions.list({
+          customer: stripeCustomerId,
+          status: 'active',
+          limit: 10,
+        });
+        if (remoteSubs.data.length > 0) {
+          console.warn('[CHECKOUT] 409 remote_active_sub_stripe', JSON.stringify({
+            stage: 'stripe_remote_check_tx',
+            userIdPrefix: userId.slice(0, 8) + '…',
+            stripeCustomerIdPrefix: stripeCustomerId.slice(0, 10) + '…',
+            activeCount: remoteSubs.data.length,
+            activeIds: remoteSubs.data.map((s) => s.id.slice(0, 14) + '…'),
+          }));
+          return { type: 'conflict' as const };
+        }
+      } catch (remoteErr) {
+        const rErr = remoteErr as { message?: string };
+        console.warn('[CHECKOUT] remote_sub_list_warn', JSON.stringify({
+          stage: 'stripe_remote_check_tx',
+          userIdPrefix: userId.slice(0, 8) + '…',
+          message: rErr.message,
+        }));
+      }
+      try {
+        await stripe.customers.update(stripeCustomerId, {
+          metadata: enrichedMetadata,
+        });
+      } catch (updErr) {
+        const uErr = updErr as { message?: string };
+        console.warn('[CHECKOUT] customer_update_warn', JSON.stringify({
+          stage: 'customer_update_tx',
+          userIdPrefix: userId.slice(0, 8) + '…',
+          message: uErr.message,
+        }));
+      }
+
+      const expiredSessions: string[] = [];
+      try {
+        let nextCursor: string | undefined;
+        do {
+          const openSessions = await stripe.checkout.sessions.list({
+            customer: stripeCustomerId,
+            status: 'open',
+            limit: 100,
+            starting_after: nextCursor,
+          });
+          for (const s of openSessions.data) {
+            if (s.mode !== 'subscription') continue;
+            const sUserId = s.metadata?.userId;
+            const sApp = s.metadata?.plan;
+            const isCalcettoApp =
+              !!sUserId ||
+              (s.metadata && typeof s.metadata.userId === 'string') ||
+              !!sApp;
+            if (!isCalcettoApp) continue;
+            try {
+              await stripe.checkout.sessions.expire(s.id);
+              expiredSessions.push(s.id);
+            } catch (expErr) {
+              const ex = expErr as { message?: string };
+              console.warn('[CHECKOUT] session_expire_warn', JSON.stringify({
+                stage: 'open_sessions_expire',
+                sessionId: s.id.slice(0, 14) + '…',
+                msg: ex.message,
+              }));
+            }
+          }
+          nextCursor = openSessions.has_more
+            ? (openSessions.data[openSessions.data.length - 1]?.id as string)
+            : undefined;
+        } while (nextCursor);
+
+        if (expiredSessions.length > 0) {
+          console.info('[CHECKOUT] expired_open_sessions', JSON.stringify({
+            stage: 'open_sessions_expire',
+            userIdPrefix: userId.slice(0, 8) + '…',
+            count: expiredSessions.length,
+            ids: expiredSessions.map((id) => id.slice(0, 14) + '…'),
+          }));
+        }
+      } catch (listErr) {
+        const le = listErr as { message?: string };
+        console.warn('[CHECKOUT] open_sessions_list_warn', JSON.stringify({
+          stage: 'open_sessions_enumerate',
+          msg: le.message,
+        }));
+      }
+
+      const successUrl = `${APP_URL}/dashboard?pro=success`;
+      const cancelUrl = `${APP_URL}/pricing?canceled=1`;
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        customer: stripeCustomerId,
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: enrichedMetadata,
+        subscription_data: {
+          metadata: enrichedMetadata,
         },
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        userId,
-      },
-      allow_promotion_codes: true,
+        allow_promotion_codes: true,
+      });
+
+      return { type: 'ok' as const, session };
     });
+
+    if (checkoutSessionOrConflict.type === 'conflict') {
+      return NextResponse.json(
+        { ok: false, error: 'Abbonamento PRO già attivo' },
+        { status: 409 }
+      );
+    }
+
+    const checkoutSession = checkoutSessionOrConflict.session;
 
     if (!checkoutSession.url) {
       return NextResponse.json(
@@ -183,7 +300,48 @@ export async function POST(req: Request) {
       requestId?: string;
       statusCode?: number;
       raw?: unknown;
+      cause?: unknown;
     };
+
+    const isLockFailure = (() => {
+      const code =
+        (error as { code?: unknown })?.code ??
+        (stripeAny.cause as { code?: unknown } | undefined)?.code;
+      if (typeof code === 'string') {
+        const c = code.toUpperCase();
+        if (
+          c.includes('LOCK') ||
+          c === '55P03' ||
+          c.includes('DEADLOCK') ||
+          c === '40001'
+        ) {
+          return true;
+        }
+      }
+      const msg =
+        ((error as { message?: string })?.message ?? '') +
+        ' ' +
+        ((stripeAny.cause as { message?: string } | undefined)?.message ?? '');
+      return /lock|deadlock|could not obtain|serializ/i.test(msg);
+    })();
+
+    if (isLockFailure) {
+      console.warn('[CHECKOUT] 503 tx_lock_unavailable', JSON.stringify({
+        stage: 'stripe_tx_lock',
+        userIdPrefix: typeof userId === 'string' ? userId.slice(0, 8) + '…' : 'n/a',
+        message: (error as { message?: string })?.message,
+        code: (error as { code?: unknown })?.code,
+      }));
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            'Impossibile avviare il checkout in questo momento. Riprova tra qualche secondo.',
+          debugCode: 'CHECKOUT_LOCK_UNAVAILABLE',
+        },
+        { status: 503 }
+      );
+    }
 
     const isStripeError =
       !!stripeAny.type &&
