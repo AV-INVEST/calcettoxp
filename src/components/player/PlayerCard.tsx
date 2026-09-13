@@ -511,9 +511,11 @@ export default function PlayerCard({
             <div
               className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
               style={{
-                background: `linear-gradient(90deg, ${t.accentSoft}33, ${t.accent}33)`,
-                border: `1px solid ${t.accentSoft}88`,
-                color: t.accentSoft,
+                background:
+                  "linear-gradient(90deg, rgba(250,204,21,0.30), rgba(234,179,8,0.28))",
+                border: "1px solid rgba(250,204,21,0.65)",
+                color: "#FEF3C7",
+                boxShadow: "0 0 18px -4px rgba(234,179,8,0.55)",
               }}
             >
               <Crown size={10} />

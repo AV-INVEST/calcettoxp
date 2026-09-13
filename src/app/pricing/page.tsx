@@ -31,6 +31,11 @@ import {
 } from "@/components/pricing/StripeButtons";
 import FaqAccordion from "@/components/pricing/FaqAccordion";
 
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 const pricingFree = [
   { icon: Users, text: "Profilo giocatore personalizzato" },
   { icon: Trophy, text: "Card giocatore base" },
@@ -72,9 +77,13 @@ export default async function PricingPage() {
         currentPeriodEnd: true,
         stripePriceId: true,
         cancelAtPeriodEnd: true,
+        updatedAt: true,
+        stripeSubscriptionId: true,
       },
     });
+
     isPro = hasActivePro(subscription);
+
     if (subscription?.stripePriceId) {
       activePlan = detectPlanFromPriceId(
         subscription.stripePriceId,
@@ -82,8 +91,55 @@ export default async function PricingPage() {
         process.env.STRIPE_PRICE_PRO_YEARLY
       );
     }
+
+    if (!isPro && subscription?.stripeSubscriptionId) {
+      try {
+        const stripe = (await import('stripe')).default;
+        const client = new stripe(process.env.STRIPE_SECRET_KEY as string, {
+          apiVersion: '2025-03-31.basil' as never,
+          typescript: true,
+        });
+        const remoteSub = await client.subscriptions.retrieve(subscription.stripeSubscriptionId);
+        const isRemoteActive = remoteSub && (remoteSub.status === 'active' || remoteSub.status === 'trialing');
+        if (isRemoteActive && remoteSub.current_period_end) {
+          const priceId = remoteSub.items.data[0]?.price.id ?? null;
+          const remotePlan = detectPlanFromPriceId(
+            priceId ?? '',
+            process.env.STRIPE_PRICE_PRO_MONTHLY,
+            process.env.STRIPE_PRICE_PRO_YEARLY
+          );
+          isPro = true;
+          if (!activePlan && remotePlan) activePlan = remotePlan;
+          if (priceId) {
+            cancelAtPeriodEnd = !!remoteSub.cancel_at_period_end;
+            const end = new Date(remoteSub.current_period_end * 1000);
+            try {
+              periodEndFormatted = format(end, "dd/MM/yyyy", { locale: it });
+            } catch {
+              periodEndFormatted = null;
+            }
+            await prisma.subscription.update({
+              where: { userId: session.user.userId },
+              data: {
+                subscriptionStatus: (remoteSub.status as any) ?? 'ACTIVE',
+                cancelAtPeriodEnd: !!remoteSub.cancel_at_period_end,
+                currentPeriodEnd: end,
+                stripePriceId: priceId ?? subscription.stripePriceId,
+              },
+            }).catch(() => null);
+          }
+        }
+      } catch (remoteSyncErr) {
+        const e = remoteSyncErr as { message?: string };
+        console.warn('[PRICING] remote_sync_warn', JSON.stringify({
+          userIdPrefix: session.user.userId.slice(0, 8) + '…',
+          msg: e.message,
+        }));
+      }
+    }
+
     cancelAtPeriodEnd = !!subscription?.cancelAtPeriodEnd;
-    if (subscription?.currentPeriodEnd) {
+    if (subscription?.currentPeriodEnd && !periodEndFormatted) {
       try {
         periodEndFormatted = format(
           new Date(subscription.currentPeriodEnd),

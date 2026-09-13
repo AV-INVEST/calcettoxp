@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
@@ -31,7 +32,6 @@ import {
   Lock,
 } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
-import Link from "next/link";
 import { Role, PreferredFoot } from "@prisma/client";
 import { formatSeasonName } from "@/lib/seasons";
 
@@ -103,6 +103,14 @@ export default async function ProfilePage() {
 
   const subscription = await prisma.subscription.findUnique({
     where: { userId: session.user.userId },
+    select: {
+      subscriptionStatus: true,
+      currentPeriodEnd: true,
+      stripePriceId: true,
+      cancelAtPeriodEnd: true,
+      canceledAt: true,
+      stripeSubscriptionId: true,
+    },
   });
 
   const isPro = hasActivePro(subscription);
@@ -241,7 +249,7 @@ export default async function ProfilePage() {
                     @{player.username}
                   </h2>
                   {isPro ? (
-                    <Badge variant="elettrico" className="text-[10px] shadow-[0_0_15px_rgba(250,204,21,0.15)] border-amber-400/30 shrink-0">
+                    <Badge variant="pro" className="text-[10px] shrink-0">
                       <Crown size={10} className="mr-1" /> PRO
                     </Badge>
                   ) : (
@@ -374,7 +382,22 @@ export default async function ProfilePage() {
                     />
                   </div>
                 </div>
-                <div className="flex md:justify-end">
+                <div className="flex md:justify-end flex-wrap items-center gap-2 md:gap-3">
+                  {isPro && (
+                    <Link
+                      href="/settings#card"
+                      className="inline-flex items-center gap-1.5 h-12 px-5 rounded-2xl text-sm font-bold whitespace-nowrap transition-colors border"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(234,179,8,0.25), rgba(250,204,21,0.18))",
+                        borderColor: "rgba(234,179,8,0.5)",
+                        color: "#FACC15",
+                        boxShadow: "0 0 18px -6px rgba(234,179,8,0.5)",
+                      }}
+                    >
+                      <Crown size={15} /> PERSONALIZZA CARD
+                    </Link>
+                  )}
                   <EditProfileModalWrapper
                     initial={{
                       username: player.username,
@@ -690,45 +713,85 @@ export default async function ProfilePage() {
           <CardContent>
             {isPro ? (
               <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  <InfoRow
-                    icon={<Crown size={14} className="text-amber-400" />}
-                    label="Piano attivo"
-                    value={
-                      <div className="flex items-center gap-2">
-                        <Badge variant="elettrico" className="text-[10px] border-amber-400/30">
-                          PRO · {planLabel ? planLabel.label : "CalcettoXP"}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                    <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                      <Crown size={12} className="text-amber-400 shrink-0" />
+                      PIANO
+                    </div>
+                    <div>
+                      <Badge variant="pro" className="text-[11px]">
+                        PRO · {planLabel ? planLabel.label : "CalcettoXP"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                    <div className="mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                      STATO
+                    </div>
+                    <div>
+                      {disdettoAttivo ? (
+                        <Badge
+                          variant="outline"
+                          className="text-[11px] border-amber-500/30 text-amber-300 bg-amber-500/5"
+                        >
+                          DISDETTO
                         </Badge>
-                        {disdettoAttivo ? (
-                          <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-300">
-                            DISDETTO
-                          </Badge>
-                        ) : (
-                          <Badge variant="verde" className="text-[10px]">
-                            <CheckCircle2 size={10} className="mr-1" /> ATTIVO
-                          </Badge>
-                        )}
-                      </div>
-                    }
-                  />
-                  {currentPeriodEnd && (
-                    <InfoRow
-                      icon={<Calendar size={14} className="text-greenElectric" />}
-                      label={disdettoAttivo ? "Accesso PRO fino al" : "Prossimo rinnovo"}
-                      value={
-                        <span className="font-bold tabular-nums text-textPrimary">
-                          {format(new Date(currentPeriodEnd), "dd MMM yyyy")}
-                        </span>
-                      }
-                    />
-                  )}
+                      ) : (
+                        <Badge variant="verde" className="text-[11px]">
+                          <CheckCircle2 size={10} className="mr-1" /> ATTIVO
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
                   {planLabel && (
-                    <InfoRow
-                      icon={<CreditCard size={14} className="text-greenElectric/80" />}
-                      label="Prezzo"
-                      value={<span className="font-semibold">{planLabel.price}</span>}
-                    />
+                    <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                      <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                        <CreditCard size={12} className="text-greenElectric/80 shrink-0" />
+                        PREZZO
+                      </div>
+                      <div className="font-semibold">{planLabel.price}</div>
+                    </div>
                   )}
+
+                  {disdettoAttivo ? (
+                    <>
+                      {currentPeriodEnd && (
+                        <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                          <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                            <Calendar size={12} className="text-amber-400 shrink-0" />
+                            ACCESSO PRO FINO AL
+                          </div>
+                          <div className="font-bold tabular-nums text-textPrimary">
+                            {format(new Date(currentPeriodEnd), "dd/MM/yyyy")}
+                          </div>
+                        </div>
+                      )}
+                      {subscription?.canceledAt ? (
+                        <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                          <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                            <CalendarDays size={12} className="text-amber-400 shrink-0" />
+                            DISDETTO IL
+                          </div>
+                          <div className="font-bold tabular-nums text-textPrimary">
+                            {format(new Date(subscription.canceledAt), "dd/MM/yyyy")}
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : currentPeriodEnd ? (
+                    <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
+                      <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
+                        <Calendar size={12} className="text-greenElectric shrink-0" />
+                        PROSSIMO RINNOVO
+                      </div>
+                      <div className="font-bold tabular-nums text-textPrimary">
+                        {format(new Date(currentPeriodEnd), "dd/MM/yyyy")}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
                 {disdettoAttivo && (
@@ -739,9 +802,9 @@ export default async function ProfilePage() {
                     <div>
                       <div className="font-bold text-amber-200 text-sm">Abbonamento disdetto</div>
                       <p className="text-textMuted text-xs mt-0.5">
-                        L&lsquo;accesso PRO resterà attivo fino alla fine del periodo pagato.
+                        Nessun rinnovo automatico. L&lsquo;accesso PRO resterà attivo fino alla fine del periodo pagato.
                         {currentPeriodEnd && (
-                          <> Dopo il <span className="text-amber-200 font-semibold">{format(new Date(currentPeriodEnd), "dd MMM yyyy")}</span> tornerai automaticamente al piano FREE.</>
+                          <> Dopo il <span className="text-amber-200 font-semibold">{format(new Date(currentPeriodEnd), "dd/MM/yyyy")}</span> tornerai automaticamente al piano FREE.</>
                         )}
                       </p>
                     </div>
@@ -752,8 +815,8 @@ export default async function ProfilePage() {
                   <div className="text-xs text-textMuted">
                     Fatturazione e pagamenti gestiti in sicurezza da Stripe.
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <AlreadyProPortalButton className="[&>button]:border-amber-400/30 [&>button]:text-amber-200 [&>button:hover]:bg-amber-500/10 [&>button:hover]:text-amber-100 [&>button]:shadow-none" />
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <AlreadyProPortalButton className="w-full sm:w-auto [&>button]:w-full sm:[&>button]:w-auto [&>button]:border-amber-400/30 [&>button]:text-amber-200 [&>button:hover]:bg-amber-500/10 [&>button:hover]:text-amber-100 [&>button]:shadow-none" />
                   </div>
                 </div>
               </div>

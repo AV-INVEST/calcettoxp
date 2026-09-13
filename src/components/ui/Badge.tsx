@@ -9,7 +9,8 @@ type BadgeVariant =
   | "secondary"
   | "outline"
   | "danger"
-  | "success";
+  | "success"
+  | "pro";
 
 type BadgeSize = "xs" | "sm" | "md";
 
@@ -31,6 +32,8 @@ const variantStyles: Record<BadgeVariant, string> = {
   danger: "bg-danger/15 text-danger border border-danger/30",
   success:
     "bg-greenElectric/20 text-greenElectric border border-greenElectric/40 shadow-lg shadow-greenElectric/10",
+  pro:
+    "bg-amber-400/15 text-amber-300 border border-amber-400/35 shadow-[0_0_15px_rgba(250,204,21,0.15)]",
 };
 
 const sizeStyles: Record<BadgeSize, string> = {

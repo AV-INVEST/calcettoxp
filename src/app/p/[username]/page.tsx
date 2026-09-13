@@ -354,7 +354,7 @@ export default async function PublicProfilePage({ params, searchParams }: Public
                     {profile.nickname}
                   </h1>
                   {ownerIsPro && (
-                    <Badge variant="elettrico" className="text-[10px]">
+                    <Badge variant="pro" className="text-[10px]">
                       <Crown size={10} className="mr-1" /> PRO
                     </Badge>
                   )}
