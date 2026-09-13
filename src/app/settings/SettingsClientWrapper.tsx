@@ -298,7 +298,7 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
             />
           </div>
 
-          <div className="space-y-3 pt-2">
+          <div id="card" className="space-y-3 pt-2 scroll-mt-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
                 <p className="text-sm font-medium text-textPrimary flex items-center gap-2">

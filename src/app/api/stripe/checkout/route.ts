@@ -140,7 +140,7 @@ export async function POST(req: Request) {
 
     const checkoutSessionOrConflict = await prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(
-        `SELECT "id" FROM "User" WHERE "id" = $1::uuid FOR UPDATE`,
+        `SELECT "id" FROM "User" WHERE "id" = $1::text FOR UPDATE`,
         userId as any
       );
 

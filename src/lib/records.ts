@@ -167,7 +167,7 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     if (matches === 0) return [0, `Nessuna partita negli ultimi ${days} giorni`];
     return [
       goals,
-      `${matches} partite · ${((goals / matches) * 10).toFixed(1)}/partita x10`,
+      `${matches} partite · ${(goals / matches).toFixed(1)} goal/partita`,
     ];
   }
 

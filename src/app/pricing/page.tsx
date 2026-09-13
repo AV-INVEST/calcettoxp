@@ -68,6 +68,7 @@ export default async function PricingPage() {
   let activePlan: PlanKey = null;
   let cancelAtPeriodEnd = false;
   let periodEndFormatted: string | null = null;
+  let remoteFallbackSucceeded = false;
 
   if (session?.user?.userId) {
     const subscription = await prisma.subscription.findUnique({
@@ -108,8 +109,9 @@ export default async function PricingPage() {
             process.env.STRIPE_PRICE_PRO_MONTHLY,
             process.env.STRIPE_PRICE_PRO_YEARLY
           );
+          remoteFallbackSucceeded = true;
           isPro = true;
-          if (!activePlan && remotePlan) activePlan = remotePlan;
+          if (remotePlan) activePlan = remotePlan;
           if (priceId) {
             cancelAtPeriodEnd = !!remoteSub.cancel_at_period_end;
             const end = new Date(remoteSub.current_period_end * 1000);
@@ -138,16 +140,18 @@ export default async function PricingPage() {
       }
     }
 
-    cancelAtPeriodEnd = !!subscription?.cancelAtPeriodEnd;
-    if (subscription?.currentPeriodEnd && !periodEndFormatted) {
-      try {
-        periodEndFormatted = format(
-          new Date(subscription.currentPeriodEnd),
-          "dd/MM/yyyy",
-          { locale: it }
-        );
-      } catch {
-        periodEndFormatted = null;
+    if (!remoteFallbackSucceeded) {
+      cancelAtPeriodEnd = !!subscription?.cancelAtPeriodEnd;
+      if (subscription?.currentPeriodEnd && !periodEndFormatted) {
+        try {
+          periodEndFormatted = format(
+            new Date(subscription.currentPeriodEnd),
+            "dd/MM/yyyy",
+            { locale: it }
+          );
+        } catch {
+          periodEndFormatted = null;
+        }
       }
     }
   }

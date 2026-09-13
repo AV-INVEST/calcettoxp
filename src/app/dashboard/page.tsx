@@ -117,7 +117,7 @@ export default async function DashboardPage() {
 
   const now = new Date();
 
-  const recentMatchesForStreaksQuery = prisma.match.findMany({
+  const recentMatchesLimitedQuery = prisma.match.findMany({
     where: { playerId: playerProfile.id },
     orderBy: { playedAt: "desc" },
     take: 50,
@@ -127,6 +127,20 @@ export default async function DashboardPage() {
       playedAt: true,
       goalsFor: true,
       goalsAgainst: true,
+      role: true,
+      goals: true,
+      assists: true,
+      careerIndexChange: true,
+    },
+  });
+
+  const allMatchesForStatsQuery = prisma.match.findMany({
+    where: { playerId: playerProfile.id },
+    orderBy: { playedAt: "desc" },
+    select: {
+      id: true,
+      result: true,
+      playedAt: true,
       role: true,
       goals: true,
       assists: true,
@@ -165,8 +179,9 @@ export default async function DashboardPage() {
     },
   });
 
-  const [recentMatchesAll, ciHistory, playerAchievements, playerSeasons] = await Promise.all([
-    recentMatchesForStreaksQuery,
+  const [recentMatchesAll, allMatchesForStats, ciHistory, playerAchievements, playerSeasons] = await Promise.all([
+    recentMatchesLimitedQuery,
+    allMatchesForStatsQuery,
     ciHistoryQuery,
     playerAchievementsQuery,
     playerSeasonsQuery,
@@ -328,7 +343,7 @@ export default async function DashboardPage() {
       careerIndex: playerProfile.careerIndex,
       overall: playerProfile.overall,
     },
-    matches: recentMatchesAll.map((m) => ({
+    matches: allMatchesForStats.map((m) => ({
       id: m.id,
       goals: m.goals,
       assists: m.assists,
@@ -342,7 +357,7 @@ export default async function DashboardPage() {
 
   function aggregateForDays(days: number) {
     const cutoff = now.getTime() - days * 24 * 60 * 60 * 1000;
-    const matches = recentMatchesAll.filter(
+    const matches = allMatchesForStats.filter(
       (m) => new Date(m.playedAt).getTime() >= cutoff
     );
     const p = matches.length;
@@ -364,7 +379,7 @@ export default async function DashboardPage() {
 
   type RoleKey = "POR" | "DIF" | "CEN" | "ATT";
   const roleAgg: Record<string, { p: number; w: number; g: number; a: number; ci: number }> = {};
-  for (const m of recentMatchesAll) {
+  for (const m of allMatchesForStats) {
     const r = (m.role as RoleKey) ?? playerProfile.primaryRole;
     if (!r) continue;
     if (!roleAgg[r]) roleAgg[r] = { p: 0, w: 0, g: 0, a: 0, ci: 0 };

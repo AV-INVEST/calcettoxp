@@ -326,7 +326,7 @@ export default async function ProfilePage() {
 
               {/* ========== MOBILE ONLY (<md) ========== */}
               <div className="md:hidden w-full">
-                <div className="grid grid-cols-3 gap-2 w-full">
+                <div className="grid grid-cols-3 gap-2 w-full mb-3">
                   <div className="flex flex-col items-center justify-center text-center min-w-0 rounded-2xl bg-bgSecondary/60 border border-white/5 px-3 py-4">
                     <div className="flex items-center gap-1 mb-1">
                       <Star size={10} className="text-yellow-400 shrink-0" />
@@ -355,6 +355,21 @@ export default async function ProfilePage() {
                     </div>
                   </div>
                 </div>
+                {isPro && (
+                  <Link
+                    href="/settings#card"
+                    className="inline-flex w-full items-center justify-center gap-1.5 h-11 px-4 rounded-2xl text-[12px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors border"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(234,179,8,0.25), rgba(250,204,21,0.18))",
+                      borderColor: "rgba(234,179,8,0.5)",
+                      color: "#FACC15",
+                      boxShadow: "0 0 18px -6px rgba(234,179,8,0.5)",
+                    }}
+                  >
+                    <Crown size={14} /> PERSONALIZZA CARD
+                  </Link>
+                )}
               </div>
 
               {/* ========== DESKTOP ONLY (≥md) — UNCHANGED ========== */}
@@ -713,7 +728,7 @@ export default async function ProfilePage() {
           <CardContent>
             {isPro ? (
               <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 min-[370px]:grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="rounded-xl bg-bgSecondary/60 border border-white/5 p-4">
                     <div className="flex items-center gap-2 mb-1.5 text-[11px] uppercase tracking-wider text-textMuted">
                       <Crown size={12} className="text-amber-400 shrink-0" />
