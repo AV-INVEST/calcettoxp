@@ -40,37 +40,11 @@ export async function POST(req: Request) {
     );
   }
 
+  const userId = session.user.userId;
+
   try {
     const body = await req.json();
     const parsed = matchCreateSchema.parse(body);
-
-    // Normalize team scores to player-centric goalsFor / goalsAgainst
-    const goalsFor = parsed.team === 'T1' ? parsed.team1Score : parsed.team2Score;
-    const goalsAgainst = parsed.team === 'T1' ? parsed.team2Score : parsed.team1Score;
-
-    const derivedResult =
-      goalsFor > goalsAgainst
-        ? "WIN"
-        : goalsFor === goalsAgainst
-        ? "DRAW"
-        : "LOSS";
-
-    const isGoalkeeper = parsed.role === Role.POR;
-    const goals = isGoalkeeper ? 0 : Math.max(0, parsed.goals ?? 0);
-    const assists = isGoalkeeper ? 0 : Math.max(0, parsed.assists ?? 0);
-    const penaltiesSaved = isGoalkeeper ? Math.max(0, parsed.penaltiesSaved ?? 0) : 0;
-    const keySaves = isGoalkeeper ? Math.max(0, parsed.keySaves ?? 0) : 0;
-
-    if (!isGoalkeeper && goals > goalsFor) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "I gol segnati dal giocatore non possono superare i gol totali della squadra",
-        },
-        { status: 400 }
-      );
-    }
 
     const playedAtDate = new Date(parsed.playedAt);
     const nowUtc = new Date();
@@ -94,151 +68,172 @@ export async function POST(req: Request) {
       );
     }
 
-    const player = await prisma.playerProfile.findUnique({
-      where: { userId: session.user.userId },
-      include: {
-        achievements: true,
-      },
-    });
-
-    if (!player) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "Profilo giocatore non trovato. Completa prima l'onboarding.",
-        },
-        { status: 400 }
-      );
-    }
-
     const startOfDay = new Date(playedAtDate);
     startOfDay.setUTCHours(0, 0, 0, 0);
     const endOfDay = new Date(playedAtDate);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    const matchesSameDay = await prisma.match.count({
-      where: {
-        playerId: player.id,
-        playedAt: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-      },
-    });
-
-    if (matchesSameDay >= 2) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "Hai già registrato 2 partite oggi. Puoi registrare massimo 2 partite per giorno.",
-        },
-        { status: 400 }
-      );
-    }
-
     const twoHoursBefore = new Date(playedAtDate.getTime() - 2 * 60 * 60 * 1000);
     const twoHoursAfter = new Date(playedAtDate.getTime() + 2 * 60 * 60 * 1000);
-    const matchNearby = await prisma.match.findFirst({
-      where: {
-        playerId: player.id,
-        playedAt: {
-          gt: twoHoursBefore,
-          lt: twoHoursAfter,
-        },
-      },
-      orderBy: { playedAt: "asc" },
-      select: { playedAt: true },
-    });
-
-    if (matchNearby) {
-      const diffMs = Math.abs(
-        playedAtDate.getTime() - new Date(matchNearby.playedAt).getTime(),
-      );
-      const diffMinutes = Math.round(diffMs / 60_000);
-      const minutesToWait = 120 - diffMinutes;
-      return NextResponse.json(
-        {
-          ok: false,
-          error: `Devono passare almeno 2 ore tra due partite registrate. Attendi altri ${Math.max(
-            1,
-            minutesToWait,
-          )} minuti o scegli un orario diverso.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const duplicateCount = await prisma.match.count({
-      where: {
-        playerId: player.id,
-        playedAt: playedAtDate,
-        role: parsed.role,
-        goalsFor,
-        goalsAgainst,
-      },
-    });
-
-    if (duplicateCount > 0) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error:
-            "Sembra che questa partita sia già stata registrata (stesso orario, ruolo e punteggio). Controlla tra le tue partite.",
-        },
-        { status: 400 }
-      );
-    }
-
-    let cleanSheet = parsed.cleanSheet ?? false;
-    if (!isGoalkeeper) {
-      cleanSheet = false;
-    }
-    if (cleanSheet && goalsAgainst !== 0) {
-      cleanSheet = false;
-    }
-    // Auto cleanSheet for POR when GA = 0 (user doesn't need to set it, but honor their false if they explicit it)
-    if (isGoalkeeper && goalsAgainst === 0 && (parsed.cleanSheet === undefined || parsed.cleanSheet === true)) {
-      cleanSheet = true;
-    }
-
-    const ciChange = calculateCareerIndexChange({
-      result: derivedResult,
-      role: parsed.role,
-      goals,
-      assists,
-      cleanSheet,
-      goalsAgainst,
-      penaltiesSaved,
-      keySaves,
-    });
-
-    const oldCI = player.careerIndex;
-    const newCI = Math.max(400, oldCI + ciChange);
-
-    const xpEarned = calculateXpEarned({
-      result: derivedResult,
-      role: parsed.role,
-      goals,
-      assists,
-      cleanSheet,
-    });
-
-    const oldXp = player.xp;
-    const oldLevel = player.level;
-    const newTotalXp = player.xp + xpEarned;
-    const newLevel = levelFromXp(newTotalXp);
-    const leveledUp = newLevel > oldLevel;
-    const oldStatus = getStatusFromLevel(oldLevel);
-    const newStatus = getStatusFromLevel(newLevel);
-
-    const oldOverall = player.overall;
-    const newOverall = careerIndexToOverall(newCI);
 
     const seasonInfo = getSeasonKeyInfo(playedAtDate);
 
     const txResult = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        `SELECT "id" FROM "PlayerProfile" WHERE "userId" = $1::text FOR UPDATE`,
+        userId as any
+      );
+
+      const player = await tx.playerProfile.findUnique({
+        where: { userId },
+        include: {
+          achievements: true,
+        },
+      });
+
+      if (!player) {
+        return {
+          type: 'error' as const,
+          status: 400,
+          error: "Profilo giocatore non trovato. Completa prima l'onboarding.",
+        };
+      }
+
+      const matchesSameDay = await tx.match.count({
+        where: {
+          playerId: player.id,
+          playedAt: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      });
+
+      if (matchesSameDay >= 2) {
+        return {
+          type: 'error' as const,
+          status: 400,
+          error:
+            "Hai già registrato 2 partite oggi. Puoi registrare massimo 2 partite per giorno.",
+        };
+      }
+
+      const matchNearby = await tx.match.findFirst({
+        where: {
+          playerId: player.id,
+          playedAt: {
+            gt: twoHoursBefore,
+            lt: twoHoursAfter,
+          },
+        },
+        orderBy: { playedAt: "asc" },
+        select: { playedAt: true },
+      });
+
+      if (matchNearby) {
+        const diffMs = Math.abs(
+          playedAtDate.getTime() - new Date(matchNearby.playedAt).getTime(),
+        );
+        const diffMinutes = Math.round(diffMs / 60_000);
+        const minutesToWait = 120 - diffMinutes;
+        return {
+          type: 'error' as const,
+          status: 400,
+          error: `Devono passare almeno 2 ore tra due partite registrate. Attendi altri ${Math.max(
+            1,
+            minutesToWait,
+          )} minuti o scegli un orario diverso.`,
+        };
+      }
+
+      const goalsFor = parsed.team === 'T1' ? parsed.team1Score : parsed.team2Score;
+      const goalsAgainst = parsed.team === 'T1' ? parsed.team2Score : parsed.team1Score;
+
+      const duplicateCount = await tx.match.count({
+        where: {
+          playerId: player.id,
+          playedAt: playedAtDate,
+          role: parsed.role,
+          goalsFor,
+          goalsAgainst,
+        },
+      });
+
+      if (duplicateCount > 0) {
+        return {
+          type: 'error' as const,
+          status: 400,
+          error:
+            "Sembra che questa partita sia già stata registrata (stesso orario, ruolo e punteggio). Controlla tra le tue partite.",
+        };
+      }
+
+      const derivedResult =
+        goalsFor > goalsAgainst
+          ? "WIN"
+          : goalsFor === goalsAgainst
+          ? "DRAW"
+          : "LOSS";
+
+      const isGoalkeeper = parsed.role === Role.POR;
+      const goals = isGoalkeeper ? 0 : Math.max(0, parsed.goals ?? 0);
+      const assists = isGoalkeeper ? 0 : Math.max(0, parsed.assists ?? 0);
+      const penaltiesSaved = isGoalkeeper ? Math.max(0, parsed.penaltiesSaved ?? 0) : 0;
+      const keySaves = isGoalkeeper ? Math.max(0, parsed.keySaves ?? 0) : 0;
+
+      if (!isGoalkeeper && goals > goalsFor) {
+        return {
+          type: 'error' as const,
+          status: 400,
+          error:
+            "I gol segnati dal giocatore non possono superare i gol totali della squadra",
+        };
+      }
+
+      let cleanSheet = parsed.cleanSheet ?? false;
+      if (!isGoalkeeper) {
+        cleanSheet = false;
+      }
+      if (cleanSheet && goalsAgainst !== 0) {
+        cleanSheet = false;
+      }
+      if (isGoalkeeper && goalsAgainst === 0 && (parsed.cleanSheet === undefined || parsed.cleanSheet === true)) {
+        cleanSheet = true;
+      }
+
+      const ciChange = calculateCareerIndexChange({
+        result: derivedResult,
+        role: parsed.role,
+        goals,
+        assists,
+        cleanSheet,
+        goalsAgainst,
+        penaltiesSaved,
+        keySaves,
+      });
+
+      const freshCI = player.careerIndex;
+      const newCI = Math.max(400, freshCI + ciChange);
+
+      const xpEarned = calculateXpEarned({
+        result: derivedResult,
+        role: parsed.role,
+        goals,
+        assists,
+        cleanSheet,
+      });
+
+      const freshXp = player.xp;
+      const oldLevel = player.level;
+      const newTotalXp = freshXp + xpEarned;
+      const newLevel = levelFromXp(newTotalXp);
+      const leveledUp = newLevel > oldLevel;
+      const oldStatus = getStatusFromLevel(oldLevel);
+      const newStatus = getStatusFromLevel(newLevel);
+
+      const oldOverall = player.overall;
+      const newOverall = careerIndexToOverall(newCI);
+
       const match = await tx.match.create({
         data: {
           playerId: player.id,
@@ -253,7 +248,7 @@ export async function POST(req: Request) {
           keySaves,
           cleanSheet,
           notes: parsed.notes ?? null,
-          careerIndexBefore: oldCI,
+          careerIndexBefore: freshCI,
           careerIndexAfter: newCI,
           careerIndexChange: ciChange,
           xpEarned,
@@ -268,7 +263,7 @@ export async function POST(req: Request) {
         data: {
           playerProfileId: player.id,
           matchId: match.id,
-          valueBefore: oldCI,
+          valueBefore: freshCI,
           valueAfter: newCI,
           changeValue: ciChange,
         },
@@ -285,8 +280,8 @@ export async function POST(req: Request) {
           wins: derivedResult === "WIN" ? { increment: 1 } : undefined,
           draws: derivedResult === "DRAW" ? { increment: 1 } : undefined,
           losses: derivedResult === "LOSS" ? { increment: 1 } : undefined,
-          goals: { increment: parsed.goals },
-          assists: { increment: parsed.assists },
+          goals: { increment: goals },
+          assists: { increment: assists },
           cleanSheets: cleanSheet ? { increment: 1 } : undefined,
           currentSeasonKey: seasonInfo.seasonKey,
         },
@@ -316,11 +311,11 @@ export async function POST(req: Request) {
             wins: derivedResult === "WIN" ? 1 : 0,
             draws: derivedResult === "DRAW" ? 1 : 0,
             losses: derivedResult === "LOSS" ? 1 : 0,
-            goals: parsed.goals,
-            assists: parsed.assists,
-            startCareerIndex: oldCI,
+            goals,
+            assists,
+            startCareerIndex: freshCI,
             endCareerIndex: newCI,
-            peakCareerIndex: Math.max(oldCI, newCI),
+            peakCareerIndex: Math.max(freshCI, newCI),
             startOverall: oldOverall,
             endOverall: newOverall,
           },
@@ -338,8 +333,8 @@ export async function POST(req: Request) {
             wins: derivedResult === "WIN" ? { increment: 1 } : undefined,
             draws: derivedResult === "DRAW" ? { increment: 1 } : undefined,
             losses: derivedResult === "LOSS" ? { increment: 1 } : undefined,
-            goals: { increment: parsed.goals },
-            assists: { increment: parsed.assists },
+            goals: { increment: goals },
+            assists: { increment: assists },
             endCareerIndex: newCI,
             endOverall: newOverall,
             peakCareerIndex: Math.max(existingSeason.peakCareerIndex, newCI),
@@ -405,30 +400,51 @@ export async function POST(req: Request) {
       }
 
       return {
+        type: 'ok' as const,
         match,
         updatedPlayer,
         savedAchievements,
+        xpEarned,
+        freshXp,
+        newTotalXp,
+        leveledUp,
+        oldLevel,
+        newLevel,
+        oldStatus,
+        newStatus,
+        oldOverall,
+        newOverall,
+        freshCI,
+        newCI,
+        seasonKey: seasonInfo.seasonKey,
       };
     });
+
+    if (txResult.type === 'error') {
+      return NextResponse.json(
+        { ok: false, error: txResult.error },
+        { status: txResult.status }
+      );
+    }
 
     return NextResponse.json({
       ok: true,
       match: txResult.match,
-      xpEarned,
-      oldXp,
-      newXp: newTotalXp,
-      careerIndexChange: ciChange,
-      leveledUp,
-      oldLevel,
-      newLevel,
-      oldStatus,
-      newStatus,
-      oldOverall,
-      newOverall,
-      oldCI,
-      newCI,
+      xpEarned: txResult.xpEarned,
+      oldXp: txResult.freshXp,
+      newXp: txResult.newTotalXp,
+      careerIndexChange: txResult.match.careerIndexChange,
+      leveledUp: txResult.leveledUp,
+      oldLevel: txResult.oldLevel,
+      newLevel: txResult.newLevel,
+      oldStatus: txResult.oldStatus,
+      newStatus: txResult.newStatus,
+      oldOverall: txResult.oldOverall,
+      newOverall: txResult.newOverall,
+      oldCI: txResult.freshCI,
+      newCI: txResult.newCI,
       unlockedAchievements: txResult.savedAchievements,
-      seasonKey: seasonInfo.seasonKey,
+      seasonKey: txResult.seasonKey,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

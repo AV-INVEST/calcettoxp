@@ -357,7 +357,7 @@ export default async function ProfilePage() {
                 </div>
                 {isPro && (
                   <Link
-                    href="/settings#card"
+                    href="/card/customize"
                     className="inline-flex w-full items-center justify-center gap-1.5 h-11 px-4 rounded-2xl text-[12px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors border"
                     style={{
                       background:
@@ -400,7 +400,7 @@ export default async function ProfilePage() {
                 <div className="flex md:justify-end flex-wrap items-center gap-2 md:gap-3">
                   {isPro && (
                     <Link
-                      href="/settings#card"
+                      href="/card/customize"
                       className="inline-flex items-center gap-1.5 h-12 px-5 rounded-2xl text-sm font-bold whitespace-nowrap transition-colors border"
                       style={{
                         background:

@@ -148,11 +148,16 @@ export default async function DashboardPage() {
     },
   });
 
-  const ciHistoryQuery = prisma.careerIndexHistory.findMany({
-    where: { playerProfileId: playerProfile.id },
-    orderBy: { createdAt: "asc" },
-    take: isPro ? undefined : 20,
-  });
+  const ciHistoryQuery = isPro
+    ? prisma.careerIndexHistory.findMany({
+        where: { playerProfileId: playerProfile.id },
+        orderBy: { createdAt: "asc" },
+      })
+    : prisma.careerIndexHistory.findMany({
+        where: { playerProfileId: playerProfile.id },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      });
 
   const playerAchievementsQuery = prisma.playerAchievement.findMany({
     where: { playerProfileId: playerProfile.id },
@@ -179,13 +184,15 @@ export default async function DashboardPage() {
     },
   });
 
-  const [recentMatchesAll, allMatchesForStats, ciHistory, playerAchievements, playerSeasons] = await Promise.all([
+  const [recentMatchesAll, allMatchesForStats, ciHistoryRaw, playerAchievements, playerSeasons] = await Promise.all([
     recentMatchesLimitedQuery,
     allMatchesForStatsQuery,
     ciHistoryQuery,
     playerAchievementsQuery,
     playerSeasonsQuery,
   ]);
+
+  const ciHistory = isPro ? ciHistoryRaw : [...ciHistoryRaw].reverse();
 
   const recentMatches = recentMatchesAll.slice(0, 5);
 
@@ -272,9 +279,13 @@ export default async function DashboardPage() {
   if (recent30d.length >= 2) {
     trend30d =
       recent30d[recent30d.length - 1].valueAfter - recent30d[0].valueBefore;
-  } else if (ciHistory.length >= 2) {
-    trend30d =
-      ciHistory[ciHistory.length - 1].valueAfter - ciHistory[0].valueBefore;
+  } else if (recent30d.length === 1) {
+    const single = recent30d[0];
+    if (typeof single.changeValue === 'number') {
+      trend30d = single.changeValue;
+    } else {
+      trend30d = single.valueAfter - single.valueBefore;
+    }
   }
   const trend30dPositive = trend30d >= 0;
 
@@ -427,7 +438,7 @@ export default async function DashboardPage() {
         </header>
 
         {/* 2) MAIN PLAYER CARD protagonista */}
-        <section className="flex justify-center">
+        <section id="player-card" className="flex justify-center scroll-mt-24">
           <div className="w-full max-w-md">
             <DashboardCardStage
               nickname={playerProfile.nickname}
@@ -1234,7 +1245,7 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
 
-            {roleStatsEntries.length > 1 && (
+            {roleStatsEntries.length >= 1 && (
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-3">
@@ -1246,7 +1257,7 @@ export default async function DashboardPage() {
                         Per ruolo
                       </CardTitle>
                       <p className="text-xs text-textMuted mt-0.5">
-                        Dove rendi di più
+                        Statistiche lifetime per ruolo
                       </p>
                     </div>
                   </div>
@@ -1258,7 +1269,7 @@ export default async function DashboardPage() {
                         <tr className="text-left text-[10px] uppercase tracking-wider text-textMuted">
                           <th className="py-2 pr-3 font-semibold">Ruolo</th>
                           <th className="py-2 px-2 text-right font-semibold">Partite</th>
-                          <th className="py-2 px-2 text-right font-semibold">Win</th>
+                          <th className="py-2 px-2 text-right font-semibold">WR</th>
                           <th className="py-2 px-2 text-right font-semibold">Gol</th>
                           <th className="py-2 px-2 text-right font-semibold">Ass</th>
                           <th className="py-2 pl-3 text-right font-semibold">ΔCI</th>

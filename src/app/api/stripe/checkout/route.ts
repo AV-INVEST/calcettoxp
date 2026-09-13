@@ -5,12 +5,22 @@ import stripe from '@/lib/stripe';
 import { z } from 'zod';
 import { hasActivePro } from '@/lib/entitlements';
 import { getAppBaseUrl } from '@/lib/app-url';
+import { SubscriptionStatus } from '@prisma/client';
 
 const planSchema = z.object({
   plan: z.enum(['monthly', 'yearly']),
 });
 
 const APP_URL = getAppBaseUrl();
+
+const NON_TERMINAL_STRIPE_STATUSES: ReadonlyArray<string> = [
+  'active',
+  'trialing',
+  'past_due',
+  'unpaid',
+  'incomplete',
+  'paused',
+] as const;
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -62,112 +72,121 @@ export async function POST(req: Request) {
       );
     }
 
-    const [user, playerProfile, existingSubscription] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: { id: true, email: true, name: true },
-      }),
-      prisma.playerProfile.findUnique({
-        where: { userId },
-        select: { id: true, nickname: true, username: true },
-      }),
-      prisma.subscription.findUnique({
-        where: { userId },
-        select: {
-          id: true,
-          stripeCustomerId: true,
-          subscriptionStatus: true,
-          currentPeriodEnd: true,
-        },
-      }),
-    ]);
-
-    if (!user) {
-      console.error('[CHECKOUT] 400 CHECKOUT_USER_NOT_FOUND', JSON.stringify({
-        stage: 'load_user',
-        userIdPrefix: userId.slice(0, 8) + '…',
-      }));
-      return NextResponse.json(
-        { ok: false, error: 'Utente non trovato', debugCode: 'CHECKOUT_USER_NOT_FOUND' },
-        { status: 400 }
-      );
-    }
-
-    if (existingSubscription && hasActivePro(existingSubscription)) {
-      return NextResponse.json(
-        { ok: false, error: 'Abbonamento PRO già attivo' },
-        { status: 409 }
-      );
-    }
-
-    const customerEmail = user.email ?? undefined;
-    const customerName =
-      user.name ?? playerProfile?.nickname ?? `Utente ${userId}`;
-    const customerUsername =
-      playerProfile?.username ?? playerProfile?.nickname ?? undefined;
-    const planLabel = requestedPlan;
-
-    const enrichedMetadata = {
-      userId,
-      name: customerName,
-      email: customerEmail ?? '',
-      username: customerUsername ?? '',
-      plan: planLabel,
-    };
-
-    let stripeCustomerId = existingSubscription?.stripeCustomerId ?? null;
-
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: customerEmail,
-        name: customerName,
-        metadata: enrichedMetadata,
-      });
-
-      stripeCustomerId = customer.id;
-
-      await prisma.subscription.upsert({
-        where: { userId },
-        create: {
-          userId,
-          stripeCustomerId,
-        },
-        update: {
-          stripeCustomerId,
-        },
-      });
-    }
-
-    const checkoutSessionOrConflict = await prisma.$transaction(async (tx) => {
+    const checkoutSessionOrFailure = await prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(
         `SELECT "id" FROM "User" WHERE "id" = $1::text FOR UPDATE`,
         userId as any
       );
 
+      const [user, playerProfile, existingSubscription] = await Promise.all([
+        tx.user.findUnique({
+          where: { id: userId },
+          select: { id: true, email: true, name: true },
+        }),
+        tx.playerProfile.findUnique({
+          where: { userId },
+          select: { id: true, nickname: true, username: true },
+        }),
+        tx.subscription.findUnique({
+          where: { userId },
+          select: {
+            id: true,
+            stripeCustomerId: true,
+            stripeSubscriptionId: true,
+            subscriptionStatus: true,
+            currentPeriodEnd: true,
+          },
+        }),
+      ]);
+
+      if (!user) {
+        return { type: 'error' as const, status: 400, error: 'Utente non trovato', debugCode: 'CHECKOUT_USER_NOT_FOUND' };
+      }
+
+      if (existingSubscription && hasActivePro(existingSubscription)) {
+        return { type: 'conflict' as const };
+      }
+
+      const customerEmail = user.email ?? undefined;
+      const customerName =
+        user.name ?? playerProfile?.nickname ?? `Utente ${userId}`;
+      const customerUsername =
+        playerProfile?.username ?? playerProfile?.nickname ?? undefined;
+      const planLabel = requestedPlan;
+
+      const enrichedMetadata = {
+        userId,
+        name: customerName,
+        email: customerEmail ?? '',
+        username: customerUsername ?? '',
+        plan: planLabel ?? '',
+      };
+
+      let stripeCustomerId = existingSubscription?.stripeCustomerId ?? null;
+
+      if (!stripeCustomerId) {
+        const idempotencyKey = `cust_${userId}_${planLabel}`;
+        const customer = await stripe.customers.create({
+          email: customerEmail,
+          name: customerName,
+          metadata: enrichedMetadata,
+        }, {
+          idempotencyKey,
+        });
+
+        stripeCustomerId = customer.id;
+
+        await tx.subscription.upsert({
+          where: { userId },
+          create: {
+            userId,
+            stripeCustomerId,
+          },
+          update: {
+            stripeCustomerId,
+          },
+        });
+      }
+
+      let remoteHasNonTerminal = false;
       try {
         const remoteSubs = await stripe.subscriptions.list({
           customer: stripeCustomerId,
-          status: 'active',
-          limit: 10,
+          limit: 20,
         });
-        if (remoteSubs.data.length > 0) {
-          console.warn('[CHECKOUT] 409 remote_active_sub_stripe', JSON.stringify({
-            stage: 'stripe_remote_check_tx',
-            userIdPrefix: userId.slice(0, 8) + '…',
-            stripeCustomerIdPrefix: stripeCustomerId.slice(0, 10) + '…',
-            activeCount: remoteSubs.data.length,
-            activeIds: remoteSubs.data.map((s) => s.id.slice(0, 14) + '…'),
-          }));
-          return { type: 'conflict' as const };
+        for (const s of remoteSubs.data) {
+          if (NON_TERMINAL_STRIPE_STATUSES.includes(s.status)) {
+            remoteHasNonTerminal = true;
+            console.warn('[CHECKOUT] 409 remote_non_terminal_sub', JSON.stringify({
+              stage: 'stripe_remote_check_tx',
+              userIdPrefix: userId.slice(0, 8) + '…',
+              stripeCustomerIdPrefix: stripeCustomerId.slice(0, 10) + '…',
+              status: s.status,
+              subIdPrefix: s.id.slice(0, 14) + '…',
+            }));
+            break;
+          }
         }
       } catch (remoteErr) {
-        const rErr = remoteErr as { message?: string };
-        console.warn('[CHECKOUT] remote_sub_list_warn', JSON.stringify({
+        const rErr = remoteErr as { message?: string; code?: string };
+        console.error('[CHECKOUT] 503 remote_sub_list_failed', JSON.stringify({
           stage: 'stripe_remote_check_tx',
           userIdPrefix: userId.slice(0, 8) + '…',
           message: rErr.message,
+          code: rErr.code,
         }));
+        return {
+          type: 'error' as const,
+          status: 503,
+          error: 'Impossibile avviare il checkout in questo momento. Riprova tra qualche secondo.',
+          debugCode: 'CHECKOUT_REMOTE_SUB_FAIL',
+        };
       }
+
+      if (remoteHasNonTerminal) {
+        return { type: 'conflict' as const };
+      }
+
       try {
         await stripe.customers.update(stripeCustomerId, {
           metadata: enrichedMetadata,
@@ -182,6 +201,7 @@ export async function POST(req: Request) {
       }
 
       const expiredSessions: string[] = [];
+      let listSessionsFailed = false;
       try {
         let nextCursor: string | undefined;
         do {
@@ -205,11 +225,17 @@ export async function POST(req: Request) {
               expiredSessions.push(s.id);
             } catch (expErr) {
               const ex = expErr as { message?: string };
-              console.warn('[CHECKOUT] session_expire_warn', JSON.stringify({
+              console.error('[CHECKOUT] 503 session_expire_failed', JSON.stringify({
                 stage: 'open_sessions_expire',
                 sessionId: s.id.slice(0, 14) + '…',
                 msg: ex.message,
               }));
+              return {
+                type: 'error' as const,
+                status: 503,
+                error: 'Impossibile avviare il checkout in questo momento. Riprova tra qualche secondo.',
+                debugCode: 'CHECKOUT_SESSION_EXPIRE_FAIL',
+              };
             }
           }
           nextCursor = openSessions.has_more
@@ -226,17 +252,27 @@ export async function POST(req: Request) {
           }));
         }
       } catch (listErr) {
-        const le = listErr as { message?: string };
-        console.warn('[CHECKOUT] open_sessions_list_warn', JSON.stringify({
+        listSessionsFailed = true;
+        const le = listErr as { message?: string; code?: string };
+        console.error('[CHECKOUT] 503 open_sessions_list_failed', JSON.stringify({
           stage: 'open_sessions_enumerate',
           msg: le.message,
+          code: le.code,
         }));
+        return {
+          type: 'error' as const,
+          status: 503,
+          error: 'Impossibile avviare il checkout in questo momento. Riprova tra qualche secondo.',
+          debugCode: 'CHECKOUT_SESSION_LIST_FAIL',
+        };
       }
 
       const successUrl = `${APP_URL}/dashboard?pro=success`;
       const cancelUrl = `${APP_URL}/pricing?canceled=1`;
 
-      const session = await stripe.checkout.sessions.create({
+      const sessionIdempotency = `cks_${userId}_${planLabel}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      const checkoutSession = await stripe.checkout.sessions.create({
         mode: 'subscription',
         customer: stripeCustomerId,
         line_items: [
@@ -252,19 +288,32 @@ export async function POST(req: Request) {
           metadata: enrichedMetadata,
         },
         allow_promotion_codes: true,
+      }, {
+        idempotencyKey: sessionIdempotency,
       });
 
-      return { type: 'ok' as const, session };
+      return { type: 'ok' as const, session: checkoutSession };
     });
 
-    if (checkoutSessionOrConflict.type === 'conflict') {
+    if (checkoutSessionOrFailure.type === 'conflict') {
       return NextResponse.json(
         { ok: false, error: 'Abbonamento PRO già attivo' },
         { status: 409 }
       );
     }
 
-    const checkoutSession = checkoutSessionOrConflict.session;
+    if (checkoutSessionOrFailure.type === 'error') {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: checkoutSessionOrFailure.error,
+          ...(checkoutSessionOrFailure.debugCode ? { debugCode: checkoutSessionOrFailure.debugCode } : {}),
+        },
+        { status: checkoutSessionOrFailure.status }
+      );
+    }
+
+    const checkoutSession = checkoutSessionOrFailure.session;
 
     if (!checkoutSession.url) {
       return NextResponse.json(

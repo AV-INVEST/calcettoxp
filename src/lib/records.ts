@@ -2,6 +2,7 @@ import type { Match, PlayerProfile, PlayerSeason } from '@prisma/client';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { formatSeasonName } from '@/lib/seasons';
+import { careerIndexToOverall } from '@/lib/ovr';
 
 export type RecordTier = 'FREE' | 'PRO';
 
@@ -183,18 +184,21 @@ export function computePersonalRecords(input: RecordsInput): PersonalRecord[] {
     return null;
   }
 
+  const highestCareerIndex = Math.max(profile.careerIndex ?? 0, highestSeasonPeak);
+  const highestOverall = careerIndexToOverall(highestCareerIndex);
+
   const list: PersonalRecord[] = [
     {
       id: 'highest-ci',
       label: 'Career Index più alto',
-      value: Math.max(profile.careerIndex ?? 0, highestSeasonPeak),
+      value: highestCareerIndex,
       icon: 'CI',
       tier: 'FREE',
     },
     {
       id: 'highest-ovr',
       label: 'OVR più alto',
-      value: profile.overall ?? 40,
+      value: highestOverall,
       icon: 'OVR',
       tier: 'FREE',
     },

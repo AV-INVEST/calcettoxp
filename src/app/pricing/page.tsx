@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { hasActivePro, detectPlanFromPriceId, PlanKey } from "@/lib/entitlements";
+import { SubscriptionStatus } from "@prisma/client";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { format } from "date-fns";
@@ -35,6 +36,21 @@ export const revalidate = 0;
 export const fetchCache = "force-no-store";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+function mapStripeStatusToPrisma(status: string): SubscriptionStatus {
+  switch (status) {
+    case 'active':
+      return SubscriptionStatus.ACTIVE;
+    case 'past_due':
+      return SubscriptionStatus.PAST_DUE;
+    case 'canceled':
+      return SubscriptionStatus.CANCELED;
+    case 'trialing':
+      return SubscriptionStatus.TRIALING;
+    default:
+      return SubscriptionStatus.INACTIVE;
+  }
+}
 
 const pricingFree = [
   { icon: Users, text: "Profilo giocatore personalizzato" },
@@ -120,15 +136,23 @@ export default async function PricingPage() {
             } catch {
               periodEndFormatted = null;
             }
+            const userIdPrefix = (session?.user?.userId ?? 'unknown').slice(0, 8) + '…';
             await prisma.subscription.update({
               where: { userId: session.user.userId },
               data: {
-                subscriptionStatus: (remoteSub.status as any) ?? 'ACTIVE',
+                subscriptionStatus: mapStripeStatusToPrisma(remoteSub.status),
                 cancelAtPeriodEnd: !!remoteSub.cancel_at_period_end,
                 currentPeriodEnd: end,
                 stripePriceId: priceId ?? subscription.stripePriceId,
               },
-            }).catch(() => null);
+            }).catch((dbErr) => {
+              const err = dbErr as { message?: string };
+              console.warn('[PRICING] db_heal_update_failed', JSON.stringify({
+                userIdPrefix,
+                remoteStatus: remoteSub.status,
+                msg: err.message,
+              }));
+            });
           }
         }
       } catch (remoteSyncErr) {
@@ -359,7 +383,7 @@ export default async function PricingPage() {
                 <div className="w-5 h-5 mt-0.5 shrink-0 rounded-full bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center">
                   <Sparkles size={11} />
                 </div>
-                <span>Bonus esclusivo: 2 mesi gratis ogni anno</span>
+                <span>RISPARMIA L&apos;EQUIVALENTE DI 4 MESI</span>
               </li>
             </ul>
             {!anyPro ? (

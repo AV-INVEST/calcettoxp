@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Loader2, Check, Crown, AlertTriangle, Trash2, Eye, EyeOff, MapPin, Lock } from 'lucide-react';
+import { Loader2, Check, Crown, AlertTriangle, Trash2, Eye, EyeOff, MapPin, Lock, Palette } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -124,7 +124,6 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
         const body: Partial<{
           isPublic: boolean;
           showCity: boolean;
-          cardTheme: CardTheme;
           username: string;
           nickname: string;
           country: string | null;
@@ -135,7 +134,6 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
         }> = {
           isPublic,
           showCity,
-          cardTheme,
         };
         const desired = usernameInput.trim().toLowerCase();
         if (desired && desired !== initialProfile.username) {
@@ -306,46 +304,17 @@ export function SettingsClientWrapper({ initialProfile }: Props) {
                   <BadgePro isPro={!!isPro} />
                 </p>
                 <p className="text-xs text-textMuted">
-                  Temi esclusivi per personalizzare il tuo stile.
+                  Personalizza l&apos;aspetto della tua Player Card con una pagina dedicata.
                 </p>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {CARD_THEMES.map((t) => {
-                const cfg = THEME_LABELS[t];
-                const locked = !isPro && t !== 'CLASSIC';
-                const selected = cardTheme === t;
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    disabled={locked || isPending}
-                    onClick={() => setCardTheme(t)}
-                    aria-pressed={selected}
-                    className={`group relative rounded-2xl p-3 text-left border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary ${
-                      selected
-                        ? 'border-greenElectric bg-bgCard/80'
-                        : 'border-white/10 bg-bgSecondary/40 hover:bg-bgSecondary'
-                    } ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                  >
-                    <div
-                      className={`h-14 w-full rounded-xl bg-gradient-to-br ${cfg.accent} opacity-90 mb-2 shadow-inner`}
-                      aria-hidden
-                    />
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-semibold text-textPrimary text-sm">{cfg.name}</p>
-                      {locked ? (
-                        <Crown className="w-4 h-4 text-textMuted" aria-label="Funzione PRO" />
-                      ) : selected ? (
-                        <Check className="w-4 h-4 text-greenElectric" aria-hidden />
-                      ) : null}
-                    </div>
-                    <p className="text-[11px] text-textMuted mt-0.5 line-clamp-2">{cfg.desc}</p>
-                  </button>
-                );
-              })}
-            </div>
+            <Link
+              href="/card/customize"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-bgSecondary/50 px-4 py-3 text-sm font-semibold text-textPrimary transition hover:bg-bgSecondary hover:border-greenElectric/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-greenPrimary"
+            >
+              <Palette className="w-4 h-4 text-greenElectric" aria-hidden />
+              Personalizza Player Card →
+            </Link>
           </div>
 
           {globalMsg && (
